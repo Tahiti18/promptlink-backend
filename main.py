@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import os
 import time
@@ -6,7 +6,10 @@ import requests
 import json
 from datetime import datetime
 
-app = Flask(__name__)
+# Configure Flask app to serve static files from the 'static' directory
+# This assumes your index.html and other frontend assets are in a folder named 'static'
+app = Flask(__name__, static_folder='static')
+app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT' # You might want to change this in a real app
 
 # FIXED: Proper CORS configuration for Netlify
 CORS(app, 
@@ -27,7 +30,7 @@ def after_request(response):
 # Environment variables
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://promptlink-enhanced.netlify.app')
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://promptlink-enhanced.netlify.app' )
 
 print(f"🚀 Starting PromptLink Backend")
 print(f"📡 Frontend URL: {FRONTEND_URL}")
@@ -35,50 +38,24 @@ print(f"🔑 OpenAI API Key: {'✅ Set' if OPENAI_API_KEY else '❌ Missing'}")
 print(f"🔑 OpenRouter API Key: {'✅ Set' if OPENROUTER_API_KEY else '❌ Missing'}")
 
 # Agent configurations with FIXED IDs to match frontend
+# Updated for DeepSeek and MinMax
 AGENTS = {
-    "claude3.5": {
-        "id": "claude3.5",
-        "name": "Claude 3.5 Sonnet",
-        "model": "anthropic/claude-3.5-sonnet",
+    "deepseek": {
+        "id": "deepseek",
+        "name": "DeepSeek Coder",
+        "model": "deepseek-ai/deepseek-coder",
         "provider": "openrouter",
-        "capabilities": ["reasoning", "analysis", "creative-writing"],
-        "color": "green",
-        "status": "active"
-    },
-    "chatgpt4": {
-        "id": "chatgpt4", 
-        "name": "ChatGPT 4 Turbo",
-        "model": "gpt-4-turbo-preview",
-        "provider": "openai",
-        "capabilities": ["reasoning", "analysis", "code-generation"],
+        "capabilities": ["code-generation", "technical-analysis", "problem-solving"],
         "color": "blue",
         "status": "active"
     },
-    "llama3.3": {
-        "id": "llama3.3",
-        "name": "Llama 3.3",
-        "model": "meta-llama/llama-3.3-70b-instruct",
+    "minmax": {
+        "id": "minmax", 
+        "name": "MinMax AI",
+        "model": "mistralai/mixtral-8x7b-instruct", # Example model for MinMax, adjust if specific model is known
         "provider": "openrouter",
-        "capabilities": ["reasoning", "analysis", "multilingual"],
+        "capabilities": ["strategic-planning", "optimization", "decision-making"],
         "color": "purple",
-        "status": "active"
-    },
-    "mistral": {
-        "id": "mistral",
-        "name": "Mistral Large 2407",
-        "model": "mistralai/mistral-large-2407",
-        "provider": "openrouter",
-        "capabilities": ["reasoning", "analysis", "code-generation"],
-        "color": "orange",
-        "status": "active"
-    },
-    "gemini": {
-        "id": "gemini",
-        "name": "Gemini 2.0 Flash",
-        "model": "google/gemini-2.0-flash-exp",
-        "provider": "openrouter",
-        "capabilities": ["reasoning", "analysis", "multimodal"],
-        "color": "red",
         "status": "active"
     }
 }
@@ -136,7 +113,7 @@ def call_openai_api(message, model="gpt-4-turbo-preview"):
             headers=headers,
             json=data,
             timeout=30
-        )
+         )
         
         if response.status_code == 200:
             result = response.json()
@@ -179,7 +156,7 @@ def call_openrouter_api(message, model):
             headers=headers,
             json=data,
             timeout=30
-        )
+         )
         
         if response.status_code == 200:
             result = response.json()
@@ -296,23 +273,28 @@ def chat():
             "error": f"Server error: {str(e)}"
         }), 500
 
-@app.route('/', methods=['GET'])
-def root():
-    """Root endpoint"""
-    return jsonify({
-        "service": "PromptLink Orchestration Engine",
-        "version": "1.0.0",
-        "status": "running",
-        "endpoints": {
-            "health": "/health",
-            "agents": "/api/agents", 
-            "chat": "/api/chat"
-        },
-        "frontend_url": FRONTEND_URL
-    })
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_static(path):
+    # Ensure app.static_folder is correctly set. It should be pointing to the 'static' directory.
+    # In your case, it's set in app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
+    # If the static folder is not found, this will raise an error.
+    if app.static_folder is None:
+        return "Static folder not configured", 500
+
+    # Check if the requested path is a file within the static folder
+    requested_file_path = os.path.join(app.static_folder, path)
+    if path != "" and os.path.exists(requested_file_path) and os.path.isfile(requested_file_path):
+        return send_from_directory(app.static_folder, path)
+    # If the path is empty (root URL) or the file is not found, serve index.html
+    else:
+        index_path = os.path.join(app.static_folder, 'index.html')
+        if os.path.exists(index_path):
+            return send_from_directory(app.static_folder, 'index.html')
+        else:
+            return "index.html not found in static folder", 404
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     print(f"🚀 Starting server on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
-
