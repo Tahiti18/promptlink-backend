@@ -829,7 +829,7 @@ async function startSession() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 agents: [agentA, agentB],
-                prompt: prompt
+                message: prompt
             })
         });
         const data = await response.json();
@@ -1157,6 +1157,7 @@ async function stopSession() {
 <script>eruda.init();</script>
 </body>
 </html>
+
 
 
 
