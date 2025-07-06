@@ -13,7 +13,7 @@ app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT' # You might want to change thi
 
 # FIXED: Proper CORS configuration for Netlify
 CORS(app, 
-     resources={r"/*": {"origins": "*"}},
+     resources={r"/*": {"origins": "https://web-production-2474.up.railway.app"}},
      allow_headers=["Content-Type", "Authorization", "Accept"],
      supports_credentials=False,
      methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"])
@@ -21,7 +21,6 @@ CORS(app,
 # Additional CORS headers for preflight requests
 @app.after_request
 def after_request(response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization,Accept"
     response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS,PUT,DELETE"
     response.headers["Access-Control-Max-Age"] = "86400"
@@ -256,3 +255,4 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     print(f"🚀 Starting server on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
+
