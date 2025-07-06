@@ -28,13 +28,13 @@ def after_request(response):
     return response
 
 # Environment variables
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+# OPENAI_API_KEY removed as it's no longer used
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://promptlink-enhanced.netlify.app' )
 
 print(f"🚀 Starting PromptLink Backend")
 print(f"📡 Frontend URL: {FRONTEND_URL}")
-print(f"🔑 OpenAI API Key: {'✅ Set' if OPENAI_API_KEY else '❌ Missing'}")
+# OpenAI API Key print statement removed
 print(f"🔑 OpenRouter API Key: {'✅ Set' if OPENROUTER_API_KEY else '❌ Missing'}")
 
 # Agent configurations with FIXED IDs to match frontend
@@ -93,46 +93,7 @@ def get_agents():
         print(f"❌ Error in get_agents: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-def call_openai_api(message, model="gpt-4-turbo-preview"):
-    """Call OpenAI API"""
-    try:
-        headers = {
-            "Authorization": f"Bearer {OPENAI_API_KEY}",
-            "Content-Type": "application/json"
-        }
-        
-        data = {
-            "model": model,
-            "messages": [{"role": "user", "content": message}],
-            "max_tokens": 150,
-            "temperature": 0.7
-        }
-        
-        response = requests.post(
-            "https://api.openai.com/v1/chat/completions",
-            headers=headers,
-            json=data,
-            timeout=30
-         )
-        
-        if response.status_code == 200:
-            result = response.json()
-            return {
-                "success": True,
-                "message": result["choices"][0]["message"]["content"],
-                "tokens": result["usage"]["total_tokens"]
-            }
-        else:
-            return {
-                "success": False,
-                "error": f"OpenAI API error: {response.status_code} - {response.text}"
-            }
-            
-    except Exception as e:
-        return {
-            "success": False,
-            "error": f"OpenAI API exception: {str(e)}"
-        }
+# call_openai_api function removed as it's no longer used
 
 def call_openrouter_api(message, model):
     """Call OpenRouter API"""
@@ -220,11 +181,8 @@ def chat():
             
             print(f"🔄 Calling {agent_config['name']} ({agent_config['provider']})...")
             
-            # Call appropriate API based on provider
-            if agent_config["provider"] == "openai":
-                result = call_openai_api(message, agent_config["model"])
-            else:  # openrouter
-                result = call_openrouter_api(message, agent_config["model"])
+            # All agents now use OpenRouter
+            result = call_openrouter_api(message, agent_config["model"])
             
             agent_response_time = time.time() - agent_start_time
             
@@ -277,7 +235,6 @@ def chat():
 @app.route('/<path:path>')
 def serve_static(path):
     # Ensure app.static_folder is correctly set. It should be pointing to the 'static' directory.
-    # In your case, it's set in app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
     # If the static folder is not found, this will raise an error.
     if app.static_folder is None:
         return "Static folder not configured", 500
