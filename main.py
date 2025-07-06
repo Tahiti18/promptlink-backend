@@ -53,7 +53,7 @@ AGENTS = {
     "minmax": {
         "id": "minmax", 
         "name": "MinMax AI",
-        "model": "mistralai/mixtral-8x7b-instruct", # Example model for MinMax, adjust if specific model is known
+        "model": "minmax/minmax", # Corrected model name
         "provider": "openrouter",
         "capabilities": ["strategic-planning", "optimization", "decision-making"],
         "color": "purple",
