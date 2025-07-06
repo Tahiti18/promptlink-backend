@@ -619,147 +619,117 @@
     </div>
 
     <script>
-    let currentSession = null;
-    let availableModels = {};
-    let interactionTypes = {};
-    let isAutonomousRunning = false;
-    document.addEventListener('DOMContentLoaded', function() {
-        loadModels();
-        loadInteractionTypes();
-        setupEventListeners();
-        updateModeVisibility();
+let availableModels = {};
+let currentSession = null;
+let isAutonomousRunning = false;
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadModels();
+    loadInteractionTypes();
+    setupEventListeners();
+    updateModeVisibility();
+});
+
+async function loadModels() {
+    try {
+        const res = await fetch('/api/agents');
+        const data = await res.json();
+        if (data.success) {
+            availableModels = {};
+            data.agents.forEach(m => availableModels[m.id] = m);
+            populateAgentSelectors();
+        }
+    } catch (e) { console.error(e); }
+}
+
+async function loadInteractionTypes() {
+    try {
+        const res = await fetch('/api/interaction-types');
+        const data = await res.json();
+        if (data.success) window.interactionTypes = data.interaction_types;
+    } catch (e) { console.error(e); }
+}
+
+function populateAgentSelectors() {
+    const a = document.getElementById('agent-a-select');
+    const b = document.getElementById('agent-b-select');
+    a.innerHTML = '<option value="">Select Agent A...</option>';
+    b.innerHTML = '<option value="">Select Agent B...</option>';
+    Object.values(availableModels).forEach(m => {
+        a.add(new Option(`${m.icon} ${m.name}`, m.id));
+        b.add(new Option(`${m.icon} ${m.name}`, m.id));
     });
-    async function loadModels() {
-        try {
-            const response = await fetch('/api/agents');
-            const data = await response.json();
-            if (data.success) {
-                availableModels = {};
-                data.agents.forEach(model => {
-                    availableModels[model.id] = model;
-                });
-                populateAgentSelectors();
-            }
-        } catch (e) { console.error('Error loading models:', e); }
-    }
-    async function loadInteractionTypes() {
-        try {
-            const response = await fetch('/api/interaction-types');
-            const data = await response.json();
-            if (data.success) interactionTypes = data.interaction_types;
-        } catch (e) { console.error('Error loading interaction types:', e); }
-    }
-    function populateAgentSelectors() {
-        const agentA = document.getElementById('agent-a-select');
-        const agentB = document.getElementById('agent-b-select');
-        agentA.innerHTML = '<option value="">Select Agent A...</option>';
-        agentB.innerHTML = '<option value="">Select Agent B...</option>';
-        Object.values(availableModels).forEach(model => {
-            agentA.add(new Option(`${model.icon} ${model.name}`, model.id));
-            agentB.add(new Option(`${model.icon} ${model.name}`, model.id));
-        });
-    }
-    function setupEventListeners() {
-        document.getElementById('mode-select').addEventListener('change', updateModeVisibility);
-        document.getElementById('agent-a-select').addEventListener('change', updateAgentCard);
-        document.getElementById('agent-b-select').addEventListener('change', updateAgentCard);
-        document.getElementById('ai-advisor-btn').addEventListener('click', getAIAdvisorSuggestion);
-        document.getElementById('start-session-btn').addEventListener('click', startSession);
-        document.getElementById('step-btn').addEventListener('click', executeStep);
-        document.getElementById('autonomous-start-btn').addEventListener('click', startAutonomous);
-        document.getElementById('stop-btn').addEventListener('click', stopSession);
-        document.getElementById('export-btn').addEventListener('click', exportSession);
-    }
-    function updateModeVisibility() {
-        const mode = document.getElementById('mode-select').value;
-        document.getElementById('rounds-group').style.display = mode === 'autonomous' ? 'flex' : 'none';
-        document.getElementById('autonomous-start-btn').style.display = mode === 'autonomous' ? 'inline-flex' : 'none';
-        document.getElementById('autonomous-status').style.display = mode === 'autonomous' ? 'block' : 'none';
-        const container = document.getElementById('agents-container');
-        const agentBCard = document.getElementById('agent-b-card');
-        if (mode === 'single_a') {
-            container.classList.add('single-mode');
-            agentBCard.style.display = 'none';
-        } else if (mode === 'single_b') {
-            container.classList.add('single-mode');
-            document.getElementById('agent-a-card').style.display = 'none';
-            agentBCard.style.display = 'block';
-        } else {
-            container.classList.remove('single-mode');
-            document.getElementById('agent-a-card').style.display = 'block';
-            agentBCard.style.display = 'block';
-        }
-    }
-    function updateAgentCard() {
-        const a = document.getElementById('agent-a-select').value;
-        const b = document.getElementById('agent-b-select').value;
-        if (a && availableModels[a]) {
-            const m = availableModels[a];
-            document.getElementById('agent-a-icon').textContent = m.icon;
-            document.getElementById('agent-a-name').textContent = m.name;
-            document.getElementById('agent-a-desc').textContent = m.description;
-        }
-        if (b && availableModels[b]) {
-            const m = availableModels[b];
-            document.getElementById('agent-b-icon').textContent = m.icon;
-            document.getElementById('agent-b-name').textContent = m.name;
-            document.getElementById('agent-b-desc').textContent = m.description;
-        }
-    }
-    async function getAIAdvisorSuggestion() {
-        const t = document.getElementById('interaction-type').value;
-        const panel = document.getElementById('ai-advisor-panel');
-        const content = document.getElementById('advisor-content');
-        try {
-            const res = await fetch('/api/ai-advisor', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ interaction_type: t })
-            });
-            const data = await res.json();
-            if (data.success) {
-                const a = availableModels[data.suggested_pair.agent_a] || {};
-                const b = availableModels[data.suggested_pair.agent_b] || {};
-                content.innerHTML = `
-                    <p><strong>Recommended pairing:</strong></p>
-                    <p>🤖 <strong>Agent A:</strong> ${a.icon || ''} ${a.name || data.suggested_pair.agent_a} - ${a.description || ''}</p>
-                    <p>🤖 <strong>Agent B:</strong> ${b.icon || ''} ${b.name || data.suggested_pair.agent_b} - ${b.description || ''}</p>
-                    <p><em>${data.reasoning}</em></p>
-                    <button class="button" onclick="applyAIAdvisorSuggestion('${data.suggested_pair.agent_a}', '${data.suggested_pair.agent_b}')">✅ Apply</button>
-                `;
-                panel.classList.remove('hidden');
-                panel.classList.add('fade-in');
-            }
-        } catch (e) { console.error('Advisor error:', e); }
-    }
-    function applyAIAdvisorSuggestion(a, b) {
-        document.getElementById('agent-a-select').value = a;
-        document.getElementById('agent-b-select').value = b;
-        updateAgentCard();
-        document.getElementById('ai-advisor-panel').classList.add('hidden');
-    }
-    async function startSession() {
+}
+
+function setupEventListeners() {
+    document.getElementById('mode-select').addEventListener('change', updateModeVisibility);
+    document.getElementById('agent-a-select').addEventListener('change', updateAgentCard);
+    document.getElementById('agent-b-select').addEventListener('change', updateAgentCard);
+    document.getElementById('ai-advisor-btn').addEventListener('click', getAIAdvisorSuggestion);
+    document.getElementById('start-session-btn').addEventListener('click', startSession);
+    document.getElementById('step-btn').addEventListener('click', executeStep);
+    document.getElementById('autonomous-start-btn').addEventListener('click', startAutonomous);
+    document.getElementById('stop-btn').addEventListener('click', stopSession);
+    document.getElementById('export-btn').addEventListener('click', exportSession);
+}
+
+function updateModeVisibility() {
     const mode = document.getElementById('mode-select').value;
+    document.getElementById('rounds-group').style.display = mode === 'autonomous' ? 'flex' : 'none';
+    document.getElementById('autonomous-start-btn').style.display = mode === 'autonomous' ? 'inline-flex' : 'none';
+    document.getElementById('autonomous-status').style.display = mode === 'autonomous' ? 'block' : 'none';
+    const container = document.getElementById('agents-container');
+    const agentBCard = document.getElementById('agent-b-card');
+    if (mode === 'single_a') {
+        container.classList.add('single-mode');
+        agentBCard.style.display = 'none';
+    } else if (mode === 'single_b') {
+        container.classList.add('single-mode');
+        document.getElementById('agent-a-card').style.display = 'none';
+        agentBCard.style.display = 'block';
+    } else {
+        container.classList.remove('single-mode');
+        document.getElementById('agent-a-card').style.display = 'block';
+        agentBCard.style.display = 'block';
+    }
+}
+
+function updateAgentCard() {
     const a = document.getElementById('agent-a-select').value;
     const b = document.getElementById('agent-b-select').value;
+    if (a && availableModels[a]) {
+        const m = availableModels[a];
+        document.getElementById('agent-a-icon').textContent = m.icon;
+        document.getElementById('agent-a-name').textContent = m.name;
+        document.getElementById('agent-a-desc').textContent = m.description;
+    }
+    if (b && availableModels[b]) {
+        const m = availableModels[b];
+        document.getElementById('agent-b-icon').textContent = m.icon;
+        document.getElementById('agent-b-name').textContent = m.name;
+        document.getElementById('agent-b-desc').textContent = m.description;
+    }
+}
+
+async function startSession() {
+    const a = document.getElementById('agent-a-select').value;
+    const b = document.getElementById('agent-b-select').value;
+    const mode = document.getElementById('mode-select').value;
     const prompt = document.getElementById('initial-prompt').value.trim();
-    if (!prompt) return alert('Enter an initial prompt');
-    if (mode === 'single_a' && !a) return alert('Select Agent A');
-    if (mode === 'single_b' && !b) return alert('Select Agent B');
-    if ((mode === 'manual' || mode === 'autonomous') && (!a || !b)) return alert('Select both agents');
+    if (!prompt) return alert('Enter a prompt.');
+    if (mode === 'single_a' && !a) return alert('Select Agent A.');
+    if (mode === 'single_b' && !b) return alert('Select Agent B.');
+    if ((mode === 'manual' || mode === 'autonomous') && (!a || !b)) return alert('Select both agents.');
+
     clearAgentResponses(); clearConversation();
+
     try {
         const res = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                agents: [a, b],
-                message: prompt
-            })
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ agents: [a, b], message: prompt })
         });
         const data = await res.json();
         if (data) {
-            console.log("Chat Response:", data);
             updateConversationHistory(data.conversation);
             document.getElementById('session-status').textContent = 'Active';
             document.getElementById('step-btn').disabled = false;
@@ -767,152 +737,50 @@
             document.getElementById('export-btn').disabled = false;
         }
     } catch (e) {
-        console.error('Start session error:', e);
-        alert('Session start failed');
+        console.error('startSession error:', e);
+        alert('Session failed.');
     }
 }
 
-    async function pollAutonomousProgress() {
-        if (!isAutonomousRunning || !currentSession) return;
-        try {
-            const res = await fetch(`/api/session/${currentSession.id}/status`);
-            const data = await res.json();
-            if (data.success) {
-                currentSession = data.session;
-                updateSessionUI(data.session);
-                updateConversationHistory(data.session.conversation);
-                if (!data.session.autonomous_running) {
-                    isAutonomousRunning = false;
-                    document.getElementById('autonomous-start-btn').disabled = false;
-                    document.getElementById('step-btn').disabled = false;
-                } else setTimeout(pollAutonomousProgress, 2000);
-            }
-        } catch (e) {
-            console.error('Polling error:', e);
-            isAutonomousRunning = false;
-        }
+function clearAgentResponses() {
+    ['a','b'].forEach(c=>{
+        document.getElementById(`agent-${c}-content`).textContent='Waiting for response...';
+        document.getElementById(`agent-${c}-timestamp`).textContent='Ready';
+        document.getElementById(`agent-${c}-stats`).textContent='Tokens:0|Time:0s';
+    });
+}
+
+function clearConversation() {
+    document.getElementById('conversation-history').innerHTML =
+    '<p style="text-align:center;color:#94A3B8;">No conversation yet. Start a session to begin!</p>';
+}
+
+function updateConversationHistory(conv) {
+    const div = document.getElementById('conversation-history');
+    div.innerHTML = '';
+    if (!conv || conv.length === 0) {
+        div.innerHTML = '<p style="text-align:center;color:#94A3B8;">No conversation yet. Start a session to begin!</p>';
+        return;
     }
-    async function stopSession() {
-        if (!currentSession) return;
-        try {
-            const res = await fetch(`/api/session/${currentSession.id}/stop`, { method: 'POST' });
-            const data = await res.json();
-            if (data.success) {
-                isAutonomousRunning = false;
-                currentSession = null;
-                document.getElementById('session-status').textContent = 'Stopped';
-                document.getElementById('step-btn').disabled = true;
-                document.getElementById('autonomous-start-btn').disabled = true;
-                document.getElementById('stop-btn').disabled = true;
-                document.getElementById('export-btn').disabled = true;
-            }
-        } catch (e) { console.error('Stop error:', e); }
-    }
-    async function exportSession() {
-        if (!currentSession) return;
-        try {
-            const res = await fetch(`/api/session/${currentSession.id}/export`);
-            const data = await res.json();
-            if (data.success) {
-                const blob = new Blob([data.transcript], { type: 'text/markdown' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = data.filename;
-                document.body.appendChild(a); a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            }
-        } catch (e) { console.error('Export error:', e); }
-    }
-    function updateSessionUI(s) {
-        document.getElementById('session-status').textContent = s.relay_active ? 'Active' : 'Inactive';
-        document.getElementById('current-speaker').textContent = s.current_speaker ? (availableModels[s.current_speaker]?.name || s.current_speaker) : 'None';
-        document.getElementById('total-messages').textContent = s.total_messages;
-        document.getElementById('session-id').textContent = s.id;
-        if (s.autonomous_rounds > 0) document.getElementById('round-progress').textContent = `${s.autonomous_current_round}/${s.autonomous_rounds}`;
-        updateAgentHighlighting(s.current_speaker);
-    }
-    function updateAgentHighlighting(current) {
-        const aCard = document.getElementById('agent-a-card');
-        const bCard = document.getElementById('agent-b-card');
-        aCard.classList.remove('speaking'); bCard.classList.remove('speaking');
-        if (current === currentSession?.agent_a) aCard.classList.add('speaking');
-        else if (current === currentSession?.agent_b) bCard.classList.add('speaking');
-    }
-    function updateConversationHistory(conv) {
-        const div = document.getElementById('conversation-history');
-        div.innerHTML = '';
-        if (!conv || conv.length === 0) {
-            div.innerHTML = '<p style="text-align: center; color: #94A3B8;">No conversation yet. Start a session to begin!</p>';
-            return;
-        }
-        conv.forEach(msg => {
-            const el = document.createElement('div');
-            el.className = `message ${msg.speaker === 'human' ? 'human' : 'ai'}`;
-            const speaker = msg.speaker === 'human' ? 'Human' : (availableModels[msg.speaker]?.name || msg.speaker);
-            el.innerHTML = `
-                <div class="message-header"><span class="message-speaker">${speaker}</span><span>${new Date(msg.timestamp).toLocaleTimeString()}</span></div>
-                <div class="message-content">${msg.content}</div>
-                ${msg.tokens ? `<div style="font-size:0.8rem;color:#94A3B8;margin-top:10px;">Tokens:${msg.tokens}|Time:${msg.response_time}s</div>` : ''}
-            `;
-            div.appendChild(el);
-        });
-        div.scrollTop = div.scrollHeight;
-    }
-    function clearAgentResponses() {
-        ['a','b'].forEach(c => {
-            document.getElementById(`agent-${c}-content`).textContent = 'Waiting for response...';
-            document.getElementById(`agent-${c}-timestamp`).textContent = 'Ready';
-            document.getElementById(`agent-${c}-stats`).textContent = 'Tokens:0|Time:0s';
-        });
-    }
-    function clearConversation() {
-        document.getElementById('conversation-history').innerHTML = '<p style="text-align:center;color:#94A3B8;">No conversation yet. Start a session to begin!</p>';
-    }
-    function copyResponse(c) {
-        navigator.clipboard.writeText(document.getElementById(`agent-${c}-content`).textContent).then(() => alert('Copied!'));
-    }
-    async function regenerateResponse(c) {
-        if (!currentSession) return;
-        const id = c === 'a' ? currentSession.agent_a : currentSession.agent_b;
-        try {
-            const res = await fetch(`/api/session/${currentSession.id}/regenerate`, {
-                method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ agent_id:id })
-            });
-            const data = await res.json();
-            if (data.success) { updateAgentResponse(data.message); await refreshSessionStatus(); }
-        } catch (e) { console.error('Regen error:', e); }
-    }
-    function updateAgentResponse(msg) {
-        const pre = msg.speaker === currentSession.agent_a ? 'agent-a' : 'agent-b';
-        document.getElementById(`${pre}-timestamp`).textContent = new Date(msg.timestamp).toLocaleTimeString();
-        document.getElementById(`${pre}-stats`).textContent = `Tokens:${msg.tokens}|Time:${msg.response_time}s`;
-        document.getElementById(`${pre}-content`).textContent = msg.content;
-    }
-    function editResponse(c) {
-        const el = document.getElementById(`agent-${c}-content`);
-        const newC = prompt('Edit response:', el.textContent);
-        if (newC !== null) el.textContent = newC;
-    }
-    function downloadResponse(c) {
-        const content = document.getElementById(`agent-${c}-content`).textContent;
-        const agentName = c === 'a' ? currentSession?.agent_a : currentSession?.agent_b;
-        const name = availableModels[agentName]?.name || agentName;
-        const blob = new Blob([content], {type:'text/plain'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = `${name}_response_${Date.now()}.txt`;
-        document.body.appendChild(a); a.click();
-        document.body.removeChild(a); URL.revokeObjectURL(url);
-    }
-    function thumbsUp(c) { console.log(`👍 ${c}`); }
-    function thumbsDown(c) { console.log(`👎 ${c}`); }
+    conv.forEach(msg=>{
+        const el = document.createElement('div');
+        el.className=`message ${msg.speaker==='human'?'human':'ai'}`;
+        const speaker = msg.speaker==='human'?'Human':(availableModels[msg.speaker]?.name||msg.speaker);
+        el.innerHTML = `<div class="message-header">
+            <span class="message-speaker">${speaker}</span>
+            <span>${new Date(msg.timestamp).toLocaleTimeString()}</span></div>
+            <div class="message-content">${msg.content}</div>
+            ${msg.tokens?`<div style="font-size:0.8rem;color:#94A3B8;margin-top:10px;">Tokens:${msg.tokens}|Time:${msg.response_time}s</div>`:''}`;
+        div.appendChild(el);
+    });
+    div.scrollTop = div.scrollHeight;
+}
 </script>
 <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
 <script>eruda.init();</script>
 </body>
 </html>
+
 
 
 
