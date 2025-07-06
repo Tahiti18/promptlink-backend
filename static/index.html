@@ -739,65 +739,39 @@
         document.getElementById('ai-advisor-panel').classList.add('hidden');
     }
     async function startSession() {
-        const mode = document.getElementById('mode-select').value;
-        const a = document.getElementById('agent-a-select').value;
-        const b = document.getElementById('agent-b-select').value;
-        const prompt = document.getElementById('initial-prompt').value.trim();
-        if (!prompt) return alert('Enter an initial prompt');
-        if (mode === 'single_a' && !a) return alert('Select Agent A');
-        if (mode === 'single_b' && !b) return alert('Select Agent B');
-        if ((mode === 'manual' || mode === 'autonomous') && (!a || !b)) return alert('Select both agents');
-        clearAgentResponses(); clearConversation();
-        try {
-            const res = await fetch('/api/session/start', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    mode, interaction_type: document.getElementById('interaction-type').value,
-                    agent_a: a, agent_b: b, initial_prompt: prompt,
-                    rounds: parseInt(document.getElementById('autonomous-rounds').value)
-                })
-            });
-            const data = await res.json();
-            if (data.success) {
-                currentSession = data.session;
-                updateSessionUI(currentSession);
-                updateConversationHistory(currentSession.conversation);
-                document.getElementById('step-btn').disabled = mode === 'manual' ? false : true;
-                document.getElementById('autonomous-start-btn').disabled = mode === 'autonomous' ? false : true;
-                document.getElementById('stop-btn').disabled = false;
-                document.getElementById('export-btn').disabled = false;
-            }
-        } catch (e) {
-            console.error('Start session error:', e);
-            alert('Session start failed');
+    const mode = document.getElementById('mode-select').value;
+    const a = document.getElementById('agent-a-select').value;
+    const b = document.getElementById('agent-b-select').value;
+    const prompt = document.getElementById('initial-prompt').value.trim();
+    if (!prompt) return alert('Enter an initial prompt');
+    if (mode === 'single_a' && !a) return alert('Select Agent A');
+    if (mode === 'single_b' && !b) return alert('Select Agent B');
+    if ((mode === 'manual' || mode === 'autonomous') && (!a || !b)) return alert('Select both agents');
+    clearAgentResponses(); clearConversation();
+    try {
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                agents: [a, b],
+                message: prompt
+            })
+        });
+        const data = await res.json();
+        if (data) {
+            console.log("Chat Response:", data);
+            updateConversationHistory(data.conversation);
+            document.getElementById('session-status').textContent = 'Active';
+            document.getElementById('step-btn').disabled = false;
+            document.getElementById('stop-btn').disabled = false;
+            document.getElementById('export-btn').disabled = false;
         }
+    } catch (e) {
+        console.error('Start session error:', e);
+        alert('Session start failed');
     }
-    async function executeStep() {
-        if (!currentSession) return;
-        try {
-            const res = await fetch(`/api/session/${currentSession.id}/step`, { method: 'POST' });
-            const data = await res.json();
-            if (data.success) {
-                currentSession = data.session;
-                updateSessionUI(data.session);
-                updateConversationHistory(data.session.conversation);
-            }
-        } catch (e) { console.error('Step error:', e); }
-    }
-    async function startAutonomous() {
-        if (!currentSession) return;
-        try {
-            const res = await fetch(`/api/session/${currentSession.id}/autonomous-start`, { method: 'POST' });
-            const data = await res.json();
-            if (data.success) {
-                isAutonomousRunning = true;
-                document.getElementById('autonomous-start-btn').disabled = true;
-                document.getElementById('step-btn').disabled = true;
-                pollAutonomousProgress();
-            }
-        } catch (e) { console.error('Autonomous start error:', e); }
-    }
+}
+
     async function pollAutonomousProgress() {
         if (!isAutonomousRunning || !currentSession) return;
         try {
@@ -939,6 +913,8 @@
 <script>eruda.init();</script>
 </body>
 </html>
+
+
 
 
 
