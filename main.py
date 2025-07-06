@@ -22,7 +22,7 @@ CORS(app,
 @app.after_request
 def after_request(response):
     response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization,Accept"
-    response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS,PUT,DELETE"
+    response.headers["Access-Control-Allow-Methods"] = "GET,POST", "OPTIONS", "PUT", "DELETE"
     response.headers["Access-Control-Max-Age"] = "86400"
     return response
 
@@ -41,28 +41,28 @@ print(f"🔑 OpenRouter API Key: {'✅ Set' if OPENROUTER_API_KEY else '❌ Miss
 AGENTS = {
     "deepseek": {
         "id": "deepseek",
-        "name": "DeepSeek",
-        "model": "deepseek-ai/deepseek-coder", # OpenRouter model for DeepSeek Coder
+        "name": "DeepSeek R1", # Changed name to "DeepSeek R1"
+        "model": "deepseek-ai/deepseek-coder", 
         "provider": "openrouter",
         "capabilities": ["code-generation", "technical-analysis", "problem-solving"],
         "color": "blue",
         "status": "active",
-        "icon": "R1"
+        "icon": "🤖" # Changed icon to an emoji
     },
     "minmax": {
         "id": "minmax", 
-        "name": "MinMax",
-        "model": "minmax/minmax", # Assuming this is a valid OpenRouter model ID for MinMax
+        "name": "MinMax M1", # Changed name to "MinMax M1"
+        "model": "minmax/minmax", 
         "provider": "openrouter",
         "capabilities": ["strategic-planning", "optimization", "decision-making"],
         "color": "purple",
         "status": "active",
-        "icon": "M1"
+        "icon": "🧠" # Changed icon to an emoji
     },
     "chatgpt": {
         "id": "chatgpt",
         "name": "ChatGPT 4 Turbo",
-        "model": "openai/gpt-4o", # Common OpenRouter model for ChatGPT
+        "model": "openai/gpt-4o",
         "provider": "openrouter",
         "capabilities": ["general-conversation", "creative-writing"],
         "color": "green",
@@ -72,7 +72,7 @@ AGENTS = {
     "llama": {
         "id": "llama",
         "name": "Llama 3.3",
-        "model": "meta-llama/llama-3-8b-instruct", # Common OpenRouter model for Llama 3
+        "model": "meta-llama/llama-3-8b-instruct",
         "provider": "openrouter",
         "capabilities": ["text-generation", "summarization"],
         "color": "orange",
@@ -82,7 +82,7 @@ AGENTS = {
     "mistral": {
         "id": "mistral",
         "name": "Mistral Large",
-        "model": "mistralai/mistral-large-2407", # Common OpenRouter model for Mistral
+        "model": "mistralai/mistral-large-2407",
         "provider": "openrouter",
         "capabilities": ["multilingual", "summarization"],
         "color": "red",
@@ -286,4 +286,5 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     print(f"🚀 Starting server on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
+
 
