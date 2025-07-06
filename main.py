@@ -7,62 +7,59 @@ import json
 from datetime import datetime
 
 # Configure Flask app to serve static files from the 'static' directory
-# This assumes your index.html and other frontend assets are in a folder named 'static'
 app = Flask(__name__, static_folder='static')
-app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT' # You might want to change this in a real app
+app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
 
-# FIXED: Proper CORS configuration for Netlify
+# FIXED: Proper CORS configuration
 CORS(app, 
-     resources={r"/*": {"origins": "https://web-production-2474.up.railway.app"}},
+     resources={r"/*": {"origins": "*"}},
      allow_headers=["Content-Type", "Authorization", "Accept"],
      supports_credentials=False,
-     methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"] )
+     methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"])
 
 # Additional CORS headers for preflight requests
 @app.after_request
 def after_request(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization,Accept"
-    response.headers["Access-Control-Allow-Methods"] = "GET,POST", "OPTIONS", "PUT", "DELETE"
+    response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS,PUT,DELETE"
     response.headers["Access-Control-Max-Age"] = "86400"
     return response
 
 # Environment variables
-# OPENAI_API_KEY removed as it's no longer used
-OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
-# Updated default FRONTEND_URL
+OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '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')
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'web-production-2474.up.railway.app')
 
 print(f"🚀 Starting PromptLink Backend")
 print(f"📡 Frontend URL: {FRONTEND_URL}")
-# OpenAI API Key print statement removed
 print(f"🔑 OpenRouter API Key: {'✅ Set' if OPENROUTER_API_KEY else '❌ Missing'}")
 
-# Agent configurations with FIXED IDs to match frontend
+# FIXED: Agent configurations with CORRECT model names
 AGENTS = {
     "deepseek": {
         "id": "deepseek",
-        "name": "DeepSeek R1", # Changed name to "DeepSeek R1"
-        "model": "deepseek-ai/deepseek-coder", 
+        "name": "DeepSeek R1",
+        "model": "deepseek/deepseek-r1",  # FIXED: Correct model name
         "provider": "openrouter",
         "capabilities": ["code-generation", "technical-analysis", "problem-solving"],
         "color": "blue",
         "status": "active",
-        "icon": "🤖" # Changed icon to an emoji
+        "icon": "🤖"
     },
     "minmax": {
         "id": "minmax", 
-        "name": "MinMax M1", # Changed name to "MinMax M1"
-        "model": "minmax/minmax", 
+        "name": "MinMax M1",
+        "model": "minmax/minmax-01",  # FIXED: Correct model name
         "provider": "openrouter",
         "capabilities": ["strategic-planning", "optimization", "decision-making"],
         "color": "purple",
         "status": "active",
-        "icon": "🧠" # Changed icon to an emoji
+        "icon": "🧠"
     },
     "chatgpt": {
         "id": "chatgpt",
         "name": "ChatGPT 4 Turbo",
-        "model": "openai/gpt-4o",
+        "model": "openai/gpt-4-turbo",  # FIXED: Correct model name
         "provider": "openrouter",
         "capabilities": ["general-conversation", "creative-writing"],
         "color": "green",
@@ -72,7 +69,7 @@ AGENTS = {
     "llama": {
         "id": "llama",
         "name": "Llama 3.3",
-        "model": "meta-llama/llama-3-8b-instruct",
+        "model": "meta-llama/llama-3.3-70b-instruct",  # FIXED: Correct 70B model
         "provider": "openrouter",
         "capabilities": ["text-generation", "summarization"],
         "color": "orange",
@@ -124,46 +121,51 @@ def get_agents():
         print(f"❌ Error in get_agents: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-# call_openai_api function removed as it's no longer used
-
 def call_openrouter_api(message, model):
-    """Call OpenRouter API"""
+    """Call OpenRouter API with improved error handling"""
     try:
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
             "Content-Type": "application/json",
-            "HTTP-Referer": FRONTEND_URL,
+            "HTTP-Referer": f"https://{FRONTEND_URL}",
             "X-Title": "PromptLink Orchestration Engine"
         }
         
         data = {
             "model": model,
             "messages": [{"role": "user", "content": message}],
-            "max_tokens": 150,
+            "max_tokens": 2000,  # Increased token limit
             "temperature": 0.7
         }
+        
+        print(f"🔄 Calling OpenRouter API with model: {model}")
         
         response = requests.post(
             "https://openrouter.ai/api/v1/chat/completions",
             headers=headers,
             json=data,
-            timeout=30
-         )
+            timeout=60  # Increased timeout
+        )
+        
+        print(f"📡 OpenRouter response status: {response.status_code}")
         
         if response.status_code == 200:
             result = response.json()
             return {
                 "success": True,
                 "message": result["choices"][0]["message"]["content"],
-                "tokens": result["usage"]["total_tokens"]
+                "tokens": result.get("usage", {}).get("total_tokens", 0)
             }
         else:
+            error_text = response.text
+            print(f"❌ OpenRouter API error: {response.status_code} - {error_text}")
             return {
                 "success": False,
-                "error": f"OpenRouter API error: {response.status_code} - {response.text}"
+                "error": f"OpenRouter API error: {response.status_code} - {error_text}"
             }
             
     except Exception as e:
+        print(f"❌ OpenRouter API exception: {str(e)}")
         return {
             "success": False,
             "error": f"OpenRouter API exception: {str(e)}"
@@ -210,7 +212,7 @@ def chat():
             agent_config = AGENTS[agent_id]
             agent_start_time = time.time()
             
-            print(f"🔄 Calling {agent_config['name']} ({agent_config['provider']})...")
+            print(f"🔄 Calling {agent_config['name']} with model {agent_config['model']}...")
             
             # All agents now use OpenRouter
             result = call_openrouter_api(message, agent_config["model"])
@@ -241,10 +243,9 @@ def chat():
         total_time = time.time() - start_time
         successful_responses = len([r for r in responses.values() if r["status"] == "success"])
         
-        # FIXED: Return responses as object (not array) to match frontend expectations
         return jsonify({
             "success": True,
-            "responses": responses,  # Object with agent IDs as keys
+            "responses": responses,
             "metadata": {
                 "total_agents": len(agent_ids),
                 "successful_responses": successful_responses,
@@ -265,16 +266,12 @@ def chat():
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_static(path):
-    # Ensure app.static_folder is correctly set. It should be pointing to the 'static' directory.
-    # If the static folder is not found, this will raise an error.
     if app.static_folder is None:
         return "Static folder not configured", 500
 
-    # Check if the requested path is a file within the static folder
     requested_file_path = os.path.join(app.static_folder, path)
     if path != "" and os.path.exists(requested_file_path) and os.path.isfile(requested_file_path):
         return send_from_directory(app.static_folder, path)
-    # If the path is empty (root URL) or the file is not found, serve index.html
     else:
         index_path = os.path.join(app.static_folder, 'index.html')
         if os.path.exists(index_path):
