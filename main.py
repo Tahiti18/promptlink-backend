@@ -8,7 +8,7 @@ from datetime import datetime
 
 # Configure Flask app to serve static files from the 'static' directory
 # This assumes your index.html and other frontend assets are in a folder named 'static'
-app = Flask(__name__, static_folder='static' )
+app = Flask(__name__, static_folder='static')
 app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT' # You might want to change this in a real app
 
 # FIXED: Proper CORS configuration for Netlify
@@ -16,7 +16,7 @@ CORS(app,
      resources={r"/*": {"origins": "https://web-production-2474.up.railway.app"}},
      allow_headers=["Content-Type", "Authorization", "Accept"],
      supports_credentials=False,
-     methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"])
+     methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"] )
 
 # Additional CORS headers for preflight requests
 @app.after_request
@@ -38,25 +38,56 @@ print(f"📡 Frontend URL: {FRONTEND_URL}")
 print(f"🔑 OpenRouter API Key: {'✅ Set' if OPENROUTER_API_KEY else '❌ Missing'}")
 
 # Agent configurations with FIXED IDs to match frontend
-# Updated for DeepSeek and MinMax
 AGENTS = {
     "deepseek": {
         "id": "deepseek",
-        "name": "DeepSeek Coder",
-        "model": "deepseek-ai/deepseek-coder",
+        "name": "DeepSeek",
+        "model": "deepseek-ai/deepseek-coder", # OpenRouter model for DeepSeek Coder
         "provider": "openrouter",
         "capabilities": ["code-generation", "technical-analysis", "problem-solving"],
         "color": "blue",
-        "status": "active"
+        "status": "active",
+        "icon": "R1"
     },
     "minmax": {
         "id": "minmax", 
-        "name": "MinMax AI",
-        "model": "minmax/minmax", # Corrected model name
+        "name": "MinMax",
+        "model": "minmax/minmax", # Assuming this is a valid OpenRouter model ID for MinMax
         "provider": "openrouter",
         "capabilities": ["strategic-planning", "optimization", "decision-making"],
         "color": "purple",
-        "status": "active"
+        "status": "active",
+        "icon": "M1"
+    },
+    "chatgpt": {
+        "id": "chatgpt",
+        "name": "ChatGPT 4 Turbo",
+        "model": "openai/gpt-4o", # Common OpenRouter model for ChatGPT
+        "provider": "openrouter",
+        "capabilities": ["general-conversation", "creative-writing"],
+        "color": "green",
+        "status": "active",
+        "icon": "💬"
+    },
+    "llama": {
+        "id": "llama",
+        "name": "Llama 3.3",
+        "model": "meta-llama/llama-3-8b-instruct", # Common OpenRouter model for Llama 3
+        "provider": "openrouter",
+        "capabilities": ["text-generation", "summarization"],
+        "color": "orange",
+        "status": "active",
+        "icon": "🦙"
+    },
+    "mistral": {
+        "id": "mistral",
+        "name": "Mistral Large",
+        "model": "mistralai/mistral-large-2407", # Common OpenRouter model for Mistral
+        "provider": "openrouter",
+        "capabilities": ["multilingual", "summarization"],
+        "color": "red",
+        "status": "active",
+        "icon": "💨"
     }
 }
 
