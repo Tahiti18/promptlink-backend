@@ -835,7 +835,7 @@ async function startSession() {
         const data = await response.json();
         if (data) {
             console.log("Chat Response:", data);
-            alert(JSON.stringify(data));
+            updateConversationHistory(data.conversation);
             // Here you could update your conversation history or UI
         }
     } catch (error) {
@@ -1157,6 +1157,7 @@ async function stopSession() {
 <script>eruda.init();</script>
 </body>
 </html>
+
 
 
 
