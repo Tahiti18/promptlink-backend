@@ -8,7 +8,7 @@ from datetime import datetime
 
 # Configure Flask app to serve static files from the 'static' directory
 # This assumes your index.html and other frontend assets are in a folder named 'static'
-app = Flask(__name__, static_folder='static')
+app = Flask(__name__, static_folder='static' )
 app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT' # You might want to change this in a real app
 
 # FIXED: Proper CORS configuration for Netlify
@@ -30,7 +30,8 @@ def after_request(response):
 # Environment variables
 # OPENAI_API_KEY removed as it's no longer used
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://promptlink-enhanced.netlify.app' )
+# Updated default FRONTEND_URL
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'web-production-2474.up.railway.app')
 
 print(f"🚀 Starting PromptLink Backend")
 print(f"📡 Frontend URL: {FRONTEND_URL}")
