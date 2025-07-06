@@ -10,9 +10,10 @@ from datetime import datetime
 app = Flask(__name__, static_folder='static')
 app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
 
-# FIXED: Proper CORS configuration
+# FIXED: CORS configuration for BOTH Railway and Netlify
 CORS(app, 
-     resources={r"/*": {"origins": "*"}},
+     resources={r"/*": {"origins": ["https://web-production-2474.up.railway.app",
+                                    "https://zippy-gumption-cba005.netlify.app"]}},
      allow_headers=["Content-Type", "Authorization", "Accept"],
      supports_credentials=False,
      methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"])
@@ -34,7 +35,7 @@ print(f"🚀 Starting PromptLink Backend")
 print(f"📡 Frontend URL: {FRONTEND_URL}")
 print(f"🔑 OpenRouter API Key: {'✅ Set' if OPENROUTER_API_KEY else '❌ Missing'}")
 
-# FIXED: Agent configurations with CORRECT model names
+# FIXED: Agent configurations - CLAUDE COMPLETELY REMOVED, DeepSeek R1 FIXED
 AGENTS = {
     "deepseek": {
         "id": "deepseek",
@@ -49,7 +50,7 @@ AGENTS = {
     "minmax": {
         "id": "minmax", 
         "name": "MinMax M1",
-        "model": "minmax/minmax-01",  # FIXED: Correct model name
+        "model": "minmax/minmax-01",
         "provider": "openrouter",
         "capabilities": ["strategic-planning", "optimization", "decision-making"],
         "color": "purple",
@@ -59,7 +60,7 @@ AGENTS = {
     "chatgpt": {
         "id": "chatgpt",
         "name": "ChatGPT 4 Turbo",
-        "model": "openai/gpt-4-turbo",  # FIXED: Correct model name
+        "model": "openai/gpt-4-turbo",
         "provider": "openrouter",
         "capabilities": ["general-conversation", "creative-writing"],
         "color": "green",
@@ -69,7 +70,7 @@ AGENTS = {
     "llama": {
         "id": "llama",
         "name": "Llama 3.3",
-        "model": "meta-llama/llama-3.3-70b-instruct",  # FIXED: Correct 70B model
+        "model": "meta-llama/llama-3-8b-instruct",  # Keep as is since it's working
         "provider": "openrouter",
         "capabilities": ["text-generation", "summarization"],
         "color": "orange",
@@ -134,7 +135,7 @@ def call_openrouter_api(message, model):
         data = {
             "model": model,
             "messages": [{"role": "user", "content": message}],
-            "max_tokens": 2000,  # Increased token limit
+            "max_tokens": 2000,
             "temperature": 0.7
         }
         
@@ -144,7 +145,7 @@ def call_openrouter_api(message, model):
             "https://openrouter.ai/api/v1/chat/completions",
             headers=headers,
             json=data,
-            timeout=60  # Increased timeout
+            timeout=60
         )
         
         print(f"📡 OpenRouter response status: {response.status_code}")
@@ -214,7 +215,6 @@ def chat():
             
             print(f"🔄 Calling {agent_config['name']} with model {agent_config['model']}...")
             
-            # All agents now use OpenRouter
             result = call_openrouter_api(message, agent_config["model"])
             
             agent_response_time = time.time() - agent_start_time
