@@ -636,7 +636,7 @@
         // Load available AI models
         async function loadModels() {
             try {
-                const response = await fetch('/api/models');
+                const response = await fetch('/api/agents');
                 const data = await response.json();
                 
                 if (data.success) {
