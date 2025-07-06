@@ -3,780 +3,921 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Relay Platform 2.0 - Revolutionary Dual-Agent Collaboration</title>
+    <title>ThePromptLink - Revolutionary AI Orchestration Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            color: #ffffff;
-            min-height: 100vh;
-            overflow-x: hidden;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
+        .gradient-border {
+            background: linear-gradient(45deg, #10b981, #059669);
+            padding: 2px;
+            border-radius: 12px;
         }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 30px 0;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .header h1 {
-            font-size: 3rem;
-            background: linear-gradient(45deg, #10B981, #34D399);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .header p {
-            font-size: 1.2rem;
-            color: #94A3B8;
-            margin-top: 10px;
-        }
-
-        .control-panel {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-
-        .control-row {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            min-width: 200px;
-        }
-
-        .control-group label {
-            font-size: 0.9rem;
-            color: #10B981;
-            font-weight: 600;
-        }
-
-        select, input, textarea {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 8px;
-            padding: 12px;
-            color: #ffffff;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        select:focus, input:focus, textarea:focus {
-            outline: none;
-            border-color: #10B981;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-        }
-
-        select option {
-            background: #1a1a2e;
-            color: #ffffff;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-            width: 100%;
-        }
-
-        .button {
-            background: linear-gradient(45deg, #10B981, #059669);
-            border: none;
+        .gradient-border-inner {
+            background: #1e293b;
             border-radius: 10px;
-            padding: 12px 24px;
-            color: white;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
+            padding: 1rem;
         }
-
-        .button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
-        }
-
-        .button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .button.secondary {
-            background: linear-gradient(45deg, #6366F1, #4F46E5);
-        }
-
-        .button.danger {
-            background: linear-gradient(45deg, #EF4444, #DC2626);
-        }
-
-        .button.warning {
-            background: linear-gradient(45deg, #F59E0B, #D97706);
-        }
-
-        .agents-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
         .agent-card {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 15px;
-            padding: 25px;
-            border: 2px solid transparent;
             transition: all 0.3s ease;
-            position: relative;
+            border: 2px solid transparent;
         }
-
-        .agent-card.active {
-            border-color: #10B981;
-            box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+        .agent-card:hover {
+            border-color: #10b981;
+            transform: translateY(-2px);
         }
-
-        .agent-card.speaking {
-            border-color: #F59E0B;
-            box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-        }
-
-        .agent-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .agent-icon {
-            font-size: 2rem;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(16, 185, 129, 0.2);
-        }
-
-        .agent-info h3 {
-            font-size: 1.3rem;
-            margin-bottom: 5px;
-        }
-
-        .agent-info p {
-            color: #94A3B8;
-            font-size: 0.9rem;
-        }
-
-        .agent-toolbar {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-        }
-
-        .toolbar-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            padding: 8px 12px;
-            color: #ffffff;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .toolbar-btn:hover {
-            background: rgba(16, 185, 129, 0.2);
-            border-color: #10B981;
-        }
-
-        .agent-response {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 15px;
-            min-height: 150px;
-            border-left: 4px solid #10B981;
-        }
-
-        .response-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            font-size: 0.8rem;
-            color: #94A3B8;
-        }
-
-        .response-content {
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
-
-        .thinking {
-            color: #10B981;
-            font-style: italic;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .thinking::after {
-            content: '';
-            width: 20px;
-            height: 20px;
-            border: 2px solid #10B981;
-            border-top: 2px solid transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .conversation-panel {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-
-        .conversation-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .conversation-history {
-            max-height: 400px;
-            overflow-y: auto;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-        }
-
-        .message {
-            margin-bottom: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            border-left: 4px solid #10B981;
-        }
-
-        .message.human {
-            background: rgba(59, 130, 246, 0.1);
-            border-left-color: #3B82F6;
-        }
-
-        .message.ai {
+        .agent-card.selected {
+            border-color: #10b981;
             background: rgba(16, 185, 129, 0.1);
-            border-left-color: #10B981;
         }
-
-        .message-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-            color: #94A3B8;
+        .pulse-green {
+            animation: pulse-green 2s infinite;
         }
-
-        .message-speaker {
-            font-weight: 600;
-            color: #10B981;
+        @keyframes pulse-green {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
-
-        .status-panel {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 15px;
-            padding: 20px;
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-
-        .status-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .status-item {
-            text-align: center;
-        }
-
-        .status-label {
-            font-size: 0.9rem;
-            color: #94A3B8;
-            margin-bottom: 5px;
-        }
-
-        .status-value {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #10B981;
-        }
-
-        .ai-advisor {
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-
-        .advisor-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-            color: #6366F1;
-            font-weight: 600;
-        }
-
-        .single-mode {
-            grid-template-columns: 1fr;
-        }
-
-        .hidden {
+        .typing-indicator {
             display: none;
         }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
+        .typing-indicator.active {
+            display: flex;
+            align-items: center;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .typing-dots {
+            display: flex;
+            gap: 4px;
         }
-
-        .export-panel {
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
         }
-
-        @media (max-width: 768px) {
-            .agents-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .control-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+        .metrics-grid {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+        }
+        .logo-circuit {
+            width: 40px;
+            height: 40px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20,20 L40,20 L40,40 M60,20 L80,20 L80,40 M40,60 L60,60 M20,80 L40,80 L40,60 M60,80 L80,80 L80,60" stroke="%2310b981" stroke-width="3" fill="none"/><circle cx="40" cy="20" r="3" fill="%2310b981"/><circle cx="40" cy="60" r="3" fill="%2310b981"/><circle cx="60" cy="60" r="3" fill="%2310b981"/></svg>') no-repeat center;
+            background-size: contain;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>🚀 AI Relay Platform 2.0</h1>
-            <p>Revolutionary Dual-Agent Collaboration System</p>
-        </div>
-
-        <!-- Control Panel -->
-        <div class="control-panel">
-            <div class="control-row">
-                <div class="control-group">
-                    <label for="mode-select">🎮 Mode</label>
-                    <select id="mode-select">
-                        <option value="manual">Manual Relay</option>
-                        <option value="autonomous">Autonomous Rounds</option>
-                        <option value="single_a">Agent A Only</option>
-                        <option value="single_b">Agent B Only</option>
-                    </select>
-                </div>
-
-                <div class="control-group">
-                    <label for="interaction-type">🎯 Interaction Type</label>
-                    <select id="interaction-type">
-                        <option value="free">Free Discussion</option>
-                        <option value="brainstorm">Brainstorm</option>
-                        <option value="debate">Debate</option>
-                        <option value="strategy">Strategy</option>
-                        <option value="technical">Technical</option>
-                        <option value="compliance">Compliance</option>
-                    </select>
-                </div>
-
-                <div class="control-group" id="rounds-group">
-                    <label for="autonomous-rounds">🔄 Rounds</label>
-                    <select id="autonomous-rounds">
-                        <option value="2">2 Rounds</option>
-                        <option value="5" selected>5 Rounds</option>
-                        <option value="10">10 Rounds</option>
-                        <option value="15">15 Rounds</option>
-                        <option value="20">20 Rounds</option>
-                    </select>
-                </div>
-
-                <div class="control-group">
-                    <button class="button secondary" id="ai-advisor-btn">🧠 AI Advisor</button>
-                </div>
+<body class="min-h-screen text-white">
+    <!-- Header -->
+    <header class="border-b border-gray-700 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="logo-circuit"></div>
+                <h1 class="text-2xl font-bold bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent">
+                    ThePromptLink
+                </h1>
+                <span class="text-sm text-gray-400 ml-2">v8.0</span>
             </div>
-
-            <!-- AI Advisor Panel -->
-            <div class="ai-advisor hidden" id="ai-advisor-panel">
-                <div class="advisor-header">
-                    <span>🤖</span>
-                    <span>AI Advisor Recommendation</span>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 bg-green-500 rounded-full pulse-green"></div>
+                    <span class="text-sm text-green-400">System Online</span>
                 </div>
-                <div id="advisor-content">
-                    <p>Click "AI Advisor" to get optimal AI pairing suggestions based on your interaction type.</p>
-                </div>
-            </div>
-
-            <div class="control-row">
-                <div class="control-group">
-                    <label for="agent-a-select">🤖 Agent A</label>
-                    <select id="agent-a-select">
-                        <option value="">Select Agent A...</option>
-                    </select>
-                </div>
-
-                <div class="control-group">
-                    <label for="agent-b-select">🤖 Agent B</label>
-                    <select id="agent-b-select">
-                        <option value="">Select Agent B...</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="control-row">
-                <div class="control-group" style="flex: 1;">
-                    <label for="initial-prompt">💭 Initial Prompt</label>
-                    <textarea id="initial-prompt" placeholder="Enter your prompt to start the AI relay conversation...">Let's discuss the future of AI collaboration. Each AI should build on what the previous one said and add their unique perspective.</textarea>
-                </div>
-            </div>
-
-            <div class="control-row">
-                <button class="button" id="start-session-btn">🎯 Start Session</button>
-                <button class="button secondary" id="step-btn" disabled>⏭️ Next Step</button>
-                <button class="button warning" id="autonomous-start-btn" disabled>🚀 Start Autonomous</button>
-                <button class="button danger" id="stop-btn" disabled>⏹️ Stop</button>
-                <button class="button" id="export-btn" disabled>📥 Export Session</button>
-            </div>
-        </div>
-
-        <!-- Agents Container -->
-        <div class="agents-container" id="agents-container">
-            <!-- Agent A Card -->
-            <div class="agent-card" id="agent-a-card">
-                <div class="agent-header">
-                    <div class="agent-icon" id="agent-a-icon">🤖</div>
-                    <div class="agent-info">
-                        <h3 id="agent-a-name">Agent A</h3>
-                        <p id="agent-a-desc">Select an AI model</p>
-                    </div>
-                </div>
-
-                <div class="agent-toolbar">
-                    <button class="toolbar-btn" onclick="copyResponse('a')">📋 Copy</button>
-                    <button class="toolbar-btn" onclick="regenerateResponse('a')">🔄 Regenerate</button>
-                    <button class="toolbar-btn" onclick="editResponse('a')">✏️ Edit</button>
-                    <button class="toolbar-btn" onclick="downloadResponse('a')">⬇️ Download</button>
-                    <button class="toolbar-btn" onclick="thumbsUp('a')">👍</button>
-                    <button class="toolbar-btn" onclick="thumbsDown('a')">👎</button>
-                </div>
-
-                <div class="agent-response" id="agent-a-response">
-                    <div class="response-meta">
-                        <span id="agent-a-timestamp">Ready</span>
-                        <span id="agent-a-stats">Tokens: 0 | Time: 0s</span>
-                    </div>
-                    <div class="response-content" id="agent-a-content">
-                        Waiting for session to start...
-                    </div>
-                </div>
-            </div>
-
-            <!-- Agent B Card -->
-            <div class="agent-card" id="agent-b-card">
-                <div class="agent-header">
-                    <div class="agent-icon" id="agent-b-icon">🤖</div>
-                    <div class="agent-info">
-                        <h3 id="agent-b-name">Agent B</h3>
-                        <p id="agent-b-desc">Select an AI model</p>
-                    </div>
-                </div>
-
-                <div class="agent-toolbar">
-                    <button class="toolbar-btn" onclick="copyResponse('b')">📋 Copy</button>
-                    <button class="toolbar-btn" onclick="regenerateResponse('b')">🔄 Regenerate</button>
-                    <button class="toolbar-btn" onclick="editResponse('b')">✏️ Edit</button>
-                    <button class="toolbar-btn" onclick="downloadResponse('b')">⬇️ Download</button>
-                    <button class="toolbar-btn" onclick="thumbsUp('b')">👍</button>
-                    <button class="toolbar-btn" onclick="thumbsDown('b')">👎</button>
-                </div>
-
-                <div class="agent-response" id="agent-b-response">
-                    <div class="response-meta">
-                        <span id="agent-b-timestamp">Ready</span>
-                        <span id="agent-b-stats">Tokens: 0 | Time: 0s</span>
-                    </div>
-                    <div class="response-content" id="agent-b-content">
-                        Waiting for session to start...
-                    </div>
+                <div class="text-sm text-gray-400">
+                    <i class="fas fa-coins text-green-400"></i>
+                    <span id="creditsDisplay">2,500</span> Credits
                 </div>
             </div>
         </div>
+    </header>
 
-        <!-- Conversation Panel -->
-        <div class="conversation-panel">
-            <div class="conversation-header">
-                <h3>🔄 Conversation History</h3>
-                <button class="button secondary" onclick="clearConversation()">🗑️ Clear</button>
-            </div>
-            <div class="conversation-history" id="conversation-history">
-                <p style="text-align: center; color: #94A3B8;">No conversation yet. Start a session to begin!</p>
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Mode Selection -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-green-400">
+                <i class="fas fa-cogs mr-2"></i>Orchestration Mode
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <button id="modeManual" class="mode-btn bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-lg transition-all transform hover:scale-105 active">
+                    <i class="fas fa-hand-paper mb-2"></i>
+                    <div class="font-semibold">Manual Relay</div>
+                    <div class="text-xs opacity-80">Human controlled</div>
+                </button>
+                <button id="modeAutonomous" class="mode-btn bg-purple-600 hover:bg-purple-700 px-4 py-3 rounded-lg transition-all transform hover:scale-105">
+                    <i class="fas fa-robot mb-2"></i>
+                    <div class="font-semibold">Autonomous</div>
+                    <div class="text-xs opacity-80">AI self-directed</div>
+                </button>
+                <button id="modeSingleA" class="mode-btn bg-orange-600 hover:bg-orange-700 px-4 py-3 rounded-lg transition-all transform hover:scale-105">
+                    <i class="fas fa-user mb-2"></i>
+                    <div class="font-semibold">Agent A Only</div>
+                    <div class="text-xs opacity-80">Single agent</div>
+                </button>
+                <button id="modeSingleB" class="mode-btn bg-green-600 hover:bg-green-700 px-4 py-3 rounded-lg transition-all transform hover:scale-105">
+                    <i class="fas fa-user-tie mb-2"></i>
+                    <div class="font-semibold">Agent B Only</div>
+                    <div class="text-xs opacity-80">Single agent</div>
+                </button>
             </div>
         </div>
 
-        <!-- Status Panel -->
-        <div class="status-panel">
-            <div class="status-grid">
-                <div class="status-item">
-                    <div class="status-label">Session Status</div>
-                    <div class="status-value" id="session-status">Inactive</div>
+        <!-- AI Advisor Section -->
+        <div class="mb-8 gradient-border">
+            <div class="gradient-border-inner">
+                <h3 class="text-lg font-semibold mb-4 text-green-400">
+                    <i class="fas fa-brain mr-2"></i>AI Advisor
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
+                    <button class="interaction-type bg-gray-700 hover:bg-green-600 px-3 py-2 rounded text-sm transition-all" data-type="free">Free Discussion</button>
+                    <button class="interaction-type bg-gray-700 hover:bg-green-600 px-3 py-2 rounded text-sm transition-all" data-type="brainstorm">Brainstorm</button>
+                    <button class="interaction-type bg-gray-700 hover:bg-green-600 px-3 py-2 rounded text-sm transition-all" data-type="debate">Debate</button>
+                    <button class="interaction-type bg-gray-700 hover:bg-green-600 px-3 py-2 rounded text-sm transition-all" data-type="strategy">Strategy</button>
+                    <button class="interaction-type bg-gray-700 hover:bg-green-600 px-3 py-2 rounded text-sm transition-all" data-type="technical">Technical</button>
+                    <button class="interaction-type bg-gray-700 hover:bg-green-600 px-3 py-2 rounded text-sm transition-all" data-type="compliance">Compliance</button>
                 </div>
-                <div class="status-item">
-                    <div class="status-label">Current Speaker</div>
-                    <div class="status-value" id="current-speaker">None</div>
+                <button id="getRecommendation" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 px-6 py-2 rounded-lg transition-all transform hover:scale-105">
+                    <i class="fas fa-magic mr-2"></i>Get AI Recommendations
+                </button>
+                <div id="recommendationResult" class="mt-4 hidden p-4 bg-green-900/30 border border-green-600 rounded-lg"></div>
+            </div>
+        </div>
+
+        <!-- Agent Selection -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-green-400">
+                <i class="fas fa-users mr-2"></i>Agent Selection
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Agent A -->
+                <div class="gradient-border">
+                    <div class="gradient-border-inner">
+                        <h3 class="text-lg font-semibold mb-4 text-blue-400">
+                            <i class="fas fa-robot mr-2"></i>Agent A
+                        </h3>
+                        <div class="grid grid-cols-1 gap-3">
+                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="a" data-model="deepseek-ai/deepseek-coder">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="font-semibold text-blue-400">DeepSeek R1</h4>
+                                    <div class="flex items-center text-green-400">
+                                        <span class="text-sm mr-1">98%</span>
+                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-400 mb-2">Code generation, technical analysis, problem-solving</p>
+                                <div class="flex space-x-1">
+                                    <span class="text-xs bg-blue-600 px-2 py-1 rounded">Technical</span>
+                                    <span class="text-xs bg-purple-600 px-2 py-1 rounded">Analysis</span>
+                                </div>
+                            </div>
+                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="a" data-model="minmax/minmax">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="font-semibold text-purple-400">MinMax M1</h4>
+                                    <div class="flex items-center text-green-400">
+                                        <span class="text-sm mr-1">99%</span>
+                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-400 mb-2">Strategic planning, optimization, decision-making</p>
+                                <div class="flex space-x-1">
+                                    <span class="text-xs bg-purple-600 px-2 py-1 rounded">Strategy</span>
+                                    <span class="text-xs bg-orange-600 px-2 py-1 rounded">Planning</span>
+                                </div>
+                            </div>
+                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="a" data-model="openai/gpt-4o">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="font-semibold text-green-400">ChatGPT 4 Turbo</h4>
+                                    <div class="flex items-center text-green-400">
+                                        <span class="text-sm mr-1">99%</span>
+                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-400 mb-2">General conversation, creative writing</p>
+                                <div class="flex space-x-1">
+                                    <span class="text-xs bg-green-600 px-2 py-1 rounded">Creative</span>
+                                    <span class="text-xs bg-blue-600 px-2 py-1 rounded">General</span>
+                                </div>
+                            </div>
+                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="a" data-model="meta-llama/llama-3-8b-instruct">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="font-semibold text-orange-400">Llama 3.3</h4>
+                                    <div class="flex items-center text-green-400">
+                                        <span class="text-sm mr-1">97%</span>
+                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-400 mb-2">Text generation, summarization</p>
+                                <div class="flex space-x-1">
+                                    <span class="text-xs bg-orange-600 px-2 py-1 rounded">Text</span>
+                                    <span class="text-xs bg-gray-600 px-2 py-1 rounded">Summary</span>
+                                </div>
+                            </div>
+                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="a" data-model="mistralai/mistral-large-2407">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="font-semibold text-red-400">Mistral Large</h4>
+                                    <div class="flex items-center text-green-400">
+                                        <span class="text-sm mr-1">97%</span>
+                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-400 mb-2">Multilingual, summarization</p>
+                                <div class="flex space-x-1">
+                                    <span class="text-xs bg-red-600 px-2 py-1 rounded">Multilingual</span>
+                                    <span class="text-xs bg-gray-600 px-2 py-1 rounded">Summary</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 p-3 bg-blue-900/30 border border-blue-600 rounded-lg">
+                            <div class="text-sm font-semibold text-blue-400">Selected: <span id="selectedAgentA">None</span></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="status-item">
-                    <div class="status-label">Total Messages</div>
-                    <div class="status-value" id="total-messages">0</div>
+
+                <!-- Agent B -->
+                <div class="gradient-border">
+                    <div class="gradient-border-inner">
+                        <h3 class="text-lg font-semibold mb-4 text-green-400">
+                            <i class="fas fa-robot mr-2"></i>Agent B
+                        </h3>
+                        <div class="grid grid-cols-1 gap-3">
+                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="b" data-model="deepseek-ai/deepseek-coder">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="font-semibold text-blue-400">DeepSeek R1</h4>
+                                    <div class="flex items-center text-green-400">
+                                        <span class="text-sm mr-1">98%</span>
+                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-400 mb-2">Code generation, technical analysis, problem-solving</p>
+                                <div class="flex space-x-1">
+                                    <span class="text-xs bg-blue-600 px-2 py-1 rounded">Technical</span>
+                                    <span class="text-xs bg-purple-600 px-2 py-1 rounded">Analysis</span>
+                                </div>
+                            </div>
+                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="b" data-model="minmax/minmax">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="font-semibold text-purple-400">MinMax M1</h4>
+                                    <div class="flex items-center text-green-400">
+                                        <span class="text-sm mr-1">99%</span>
+                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-400 mb-2">Strategic planning, optimization, decision-making</p>
+                                <div class="flex space-x-1">
+                                    <span class="text-xs bg-purple-600 px-2 py-1 rounded">Strategy</span>
+                                    <span class="text-xs bg-orange-600 px-2 py-1 rounded">Planning</span>
+                                </div>
+                            </div>
+                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="b" data-model="openai/gpt-4o">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="font-semibold text-green-400">ChatGPT 4 Turbo</h4>
+                                    <div class="flex items-center text-green-400">
+                                        <span class="text-sm mr-1">99%</span>
+                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-400 mb-2">General conversation, creative writing</p>
+                                <div class="flex space-x-1">
+                                    <span class="text-xs bg-green-600 px-2 py-1 rounded">Creative</span>
+                                    <span class="text-xs bg-blue-600 px-2 py-1 rounded">General</span>
+                                </div>
+                            </div>
+                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="b" data-model="meta-llama/llama-3-8b-instruct">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="font-semibold text-orange-400">Llama 3.3</h4>
+                                    <div class="flex items-center text-green-400">
+                                        <span class="text-sm mr-1">97%</span>
+                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-400 mb-2">Text generation, summarization</p>
+                                <div class="flex space-x-1">
+                                    <span class="text-xs bg-orange-600 px-2 py-1 rounded">Text</span>
+                                    <span class="text-xs bg-gray-600 px-2 py-1 rounded">Summary</span>
+                                </div>
+                            </div>
+                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="b" data-model="mistralai/mistral-large-2407">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="font-semibold text-red-400">Mistral Large</h4>
+                                    <div class="flex items-center text-green-400">
+                                        <span class="text-sm mr-1">97%</span>
+                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-400 mb-2">Multilingual, summarization</p>
+                                <div class="flex space-x-1">
+                                    <span class="text-xs bg-red-600 px-2 py-1 rounded">Multilingual</span>
+                                    <span class="text-xs bg-gray-600 px-2 py-1 rounded">Summary</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 p-3 bg-green-900/30 border border-green-600 rounded-lg">
+                            <div class="text-sm font-semibold text-green-400">Selected: <span id="selectedAgentB">None</span></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="status-item">
-                    <div class="status-label">Session ID</div>
-                    <div class="status-value" id="session-id">None</div>
+            </div>
+        </div>
+
+        <!-- Orchestration Console -->
+        <div class="mb-8 gradient-border">
+            <div class="gradient-border-inner">
+                <h2 class="text-xl font-semibold mb-4 text-green-400">
+                    <i class="fas fa-terminal mr-2"></i>AI Orchestration Console
+                </h2>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Initial Prompt</label>
+                    <textarea id="initialPrompt" class="w-full p-4 bg-gray-800 border border-gray-600 rounded-lg text-white resize-none focus:border-green-500 focus:ring-1 focus:ring-green-500" rows="4" placeholder="Enter your discussion topic or question for the AI agents to collaborate on...">Let's discuss the future of AI and the developments in the next six months and what significance will those massive developments have on the overall timeline and advancements.</textarea>
                 </div>
-                <div class="status-item" id="autonomous-status" style="display: none;">
-                    <div class="status-label">Round Progress</div>
-                    <div class="status-value" id="round-progress">0/0</div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Rounds (Autonomous Mode)</label>
+                        <input type="number" id="roundsInput" min="1" max="20" value="5" class="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-green-500 focus:ring-1 focus:ring-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Current Mode</label>
+                        <div id="currentMode" class="p-3 bg-blue-900/30 border border-blue-600 rounded-lg text-blue-400 font-semibold">Manual Relay</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Session Status</label>
+                        <div id="sessionStatus" class="p-3 bg-gray-900 border border-gray-600 rounded-lg text-gray-400">Inactive</div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-3 mb-6">
+                    <button id="startSession" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 px-6 py-3 rounded-lg transition-all transform hover:scale-105 font-semibold">
+                        <i class="fas fa-play mr-2"></i>Start Session
+                    </button>
+                    <button id="nextStep" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg transition-all transform hover:scale-105 font-semibold" disabled>
+                        <i class="fas fa-step-forward mr-2"></i>Next Step
+                    </button>
+                    <button id="pauseSession" class="bg-yellow-600 hover:bg-yellow-700 px-6 py-3 rounded-lg transition-all transform hover:scale-105 font-semibold" disabled>
+                        <i class="fas fa-pause mr-2"></i>Pause
+                    </button>
+                    <button id="stopSession" class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg transition-all transform hover:scale-105 font-semibold" disabled>
+                        <i class="fas fa-stop mr-2"></i>Stop
+                    </button>
+                    <button id="clearChat" class="bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded-lg transition-all transform hover:scale-105 font-semibold">
+                        <i class="fas fa-trash mr-2"></i>Clear All
+                    </button>
+                    <button id="exportSession" class="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg transition-all transform hover:scale-105 font-semibold">
+                        <i class="fas fa-download mr-2"></i>Export Session
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conversation Display -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-green-400">
+                <i class="fas fa-comments mr-2"></i>Live Conversation
+            </h2>
+            <div id="conversationDisplay" class="bg-gray-900 border border-gray-700 rounded-lg p-6 min-h-96 max-h-96 overflow-y-auto">
+                <div class="text-center text-gray-500 py-8">
+                    <i class="fas fa-robot text-4xl mb-4 opacity-50"></i>
+                    <p>No conversation yet. Select agents and start a session to begin!</p>
+                </div>
+            </div>
+            <div class="typing-indicator mt-4 p-3 bg-green-900/20 border border-green-600 rounded-lg">
+                <div class="flex items-center">
+                    <div class="typing-dots mr-3">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span class="text-green-400" id="typingAgent">Agent thinking...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Diagnostics -->
+        <div class="metrics-grid rounded-lg p-6">
+            <h2 class="text-xl font-semibold mb-4 text-green-400">
+                <i class="fas fa-chart-line mr-2"></i>Live Diagnostics
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="text-center">
+                    <div id="sessionTime" class="text-3xl font-bold text-blue-400">0s</div>
+                    <div class="text-sm text-gray-400">Session Time</div>
+                </div>
+                <div class="text-center">
+                    <div id="totalMessages" class="text-3xl font-bold text-purple-400">0</div>
+                    <div class="text-sm text-gray-400">Total Messages</div>
+                </div>
+                <div class="text-center">
+                    <div id="activeAgents" class="text-3xl font-bold text-orange-400">0</div>
+                    <div class="text-sm text-gray-400">Active Agents</div>
+                </div>
+                <div class="text-center">
+                    <div id="systemHealth" class="text-3xl font-bold text-green-400">98%</div>
+                    <div class="text-sm text-gray-400">System Health</div>
+                </div>
+            </div>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <h4 class="font-semibold text-green-400 mb-2">API Status</h4>
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-green-500 rounded-full pulse-green mr-2"></div>
+                        <span class="text-sm">OpenRouter API Connected</span>
+                    </div>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <h4 class="font-semibold text-green-400 mb-2">Current Session</h4>
+                    <div class="text-sm text-gray-400">
+                        Session ID: <span id="sessionId">None</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-let availableModels = {};
-let currentSession = null;
-let isAutonomousRunning = false;
+        // Global state
+        let currentMode = 'manual';
+        let selectedAgentA = null;
+        let selectedAgentB = null;
+        let sessionActive = false;
+        let sessionStartTime = null;
+        let conversationHistory = [];
+        let currentRound = 0;
+        let maxRounds = 5;
+        let autonomousInterval = null;
 
-document.addEventListener('DOMContentLoaded', () => {
-    loadModels();
-    loadInteractionTypes();
-    setupEventListeners();
-    updateModeVisibility();
-});
+        // OpenRouter API Configuration
+        const OPENROUTER_API_KEY = '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';
+        const API_BASE_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-async function loadModels() {
-    try {
-        const res = await fetch('/api/agents');
-        const data = await res.json();
-        if (data.success) {
-            availableModels = {};
-            data.agents.forEach(m => availableModels[m.id] = m);
-            populateAgentSelectors();
-        }
-    } catch (e) { console.error(e); }
-}
+        // AI Advisor recommendations
+        const advisorRecommendations = {
+            free: ['openai/gpt-4o', 'meta-llama/llama-3-8b-instruct'],
+            brainstorm: ['openai/gpt-4o', 'mistralai/mistral-large-2407'],
+            debate: ['meta-llama/llama-3-8b-instruct', 'minmax/minmax'],
+            strategy: ['minmax/minmax', 'deepseek-ai/deepseek-coder'],
+            technical: ['deepseek-ai/deepseek-coder', 'openai/gpt-4o'],
+            compliance: ['mistralai/mistral-large-2407', 'minmax/minmax']
+        };
 
-async function loadInteractionTypes() {
-    try {
-        const res = await fetch('/api/interaction-types');
-        const data = await res.json();
-        if (data.success) window.interactionTypes = data.interaction_types;
-    } catch (e) { console.error(e); }
-}
+        // Agent model mappings
+        const agentModels = {
+            'deepseek-ai/deepseek-coder': 'DeepSeek R1',
+            'minmax/minmax': 'MinMax M1',
+            'openai/gpt-4o': 'ChatGPT 4 Turbo',
+            'meta-llama/llama-3-8b-instruct': 'Llama 3.3',
+            'mistralai/mistral-large-2407': 'Mistral Large'
+        };
 
-function populateAgentSelectors() {
-    const a = document.getElementById('agent-a-select');
-    const b = document.getElementById('agent-b-select');
-    a.innerHTML = '<option value="">Select Agent A...</option>';
-    b.innerHTML = '<option value="">Select Agent B...</option>';
-    Object.values(availableModels).forEach(m => {
-        a.add(new Option(`${m.icon} ${m.name}`, m.id));
-        b.add(new Option(`${m.icon} ${m.name}`, m.id));
-    });
-}
-
-function setupEventListeners() {
-    document.getElementById('mode-select').addEventListener('change', updateModeVisibility);
-    document.getElementById('agent-a-select').addEventListener('change', updateAgentCard);
-    document.getElementById('agent-b-select').addEventListener('change', updateAgentCard);
-    document.getElementById('ai-advisor-btn').addEventListener('click', getAIAdvisorSuggestion);
-    document.getElementById('start-session-btn').addEventListener('click', startSession);
-    document.getElementById('step-btn').addEventListener('click', executeStep);
-    document.getElementById('autonomous-start-btn').addEventListener('click', startAutonomous);
-    document.getElementById('stop-btn').addEventListener('click', stopSession);
-    document.getElementById('export-btn').addEventListener('click', exportSession);
-}
-
-function updateModeVisibility() {
-    const mode = document.getElementById('mode-select').value;
-    document.getElementById('rounds-group').style.display = mode === 'autonomous' ? 'flex' : 'none';
-    document.getElementById('autonomous-start-btn').style.display = mode === 'autonomous' ? 'inline-flex' : 'none';
-    document.getElementById('autonomous-status').style.display = mode === 'autonomous' ? 'block' : 'none';
-    const container = document.getElementById('agents-container');
-    const agentBCard = document.getElementById('agent-b-card');
-    if (mode === 'single_a') {
-        container.classList.add('single-mode');
-        agentBCard.style.display = 'none';
-    } else if (mode === 'single_b') {
-        container.classList.add('single-mode');
-        document.getElementById('agent-a-card').style.display = 'none';
-        agentBCard.style.display = 'block';
-    } else {
-        container.classList.remove('single-mode');
-        document.getElementById('agent-a-card').style.display = 'block';
-        agentBCard.style.display = 'block';
-    }
-}
-
-function updateAgentCard() {
-    const a = document.getElementById('agent-a-select').value;
-    const b = document.getElementById('agent-b-select').value;
-    if (a && availableModels[a]) {
-        const m = availableModels[a];
-        document.getElementById('agent-a-icon').textContent = m.icon;
-        document.getElementById('agent-a-name').textContent = m.name;
-        document.getElementById('agent-a-desc').textContent = m.description;
-    }
-    if (b && availableModels[b]) {
-        const m = availableModels[b];
-        document.getElementById('agent-b-icon').textContent = m.icon;
-        document.getElementById('agent-b-name').textContent = m.name;
-        document.getElementById('agent-b-desc').textContent = m.description;
-    }
-}
-
-async function startSession() {
-    const a = document.getElementById('agent-a-select').value;
-    const b = document.getElementById('agent-b-select').value;
-    const mode = document.getElementById('mode-select').value;
-    const prompt = document.getElementById('initial-prompt').value.trim();
-    if (!prompt) return alert('Enter a prompt.');
-    if (mode === 'single_a' && !a) return alert('Select Agent A.');
-    if (mode === 'single_b' && !b) return alert('Select Agent B.');
-    if ((mode === 'manual' || mode === 'autonomous') && (!a || !b)) return alert('Select both agents.');
-
-    clearAgentResponses(); clearConversation();
-
-    try {
-        const res = await fetch('/api/chat', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ agents: [a, b], message: prompt })
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            updateUI();
+            startMetricsTimer();
         });
-        const data = await res.json();
-        if (data) {
-            updateConversationHistory(data.conversation);
-            document.getElementById('session-status').textContent = 'Active';
-            document.getElementById('step-btn').disabled = false;
-            document.getElementById('stop-btn').disabled = false;
-            document.getElementById('export-btn').disabled = false;
+
+        function initializeEventListeners() {
+            // Mode buttons
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    if (btn.id === 'modeManual') currentMode = 'manual';
+                    else if (btn.id === 'modeAutonomous') currentMode = 'autonomous';
+                    else if (btn.id === 'modeSingleA') currentMode = 'singleA';
+                    else if (btn.id === 'modeSingleB') currentMode = 'singleB';
+                    
+                    updateUI();
+                });
+            });
+
+            // Agent selection
+            document.querySelectorAll('.agent-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const agent = card.dataset.agent;
+                    const model = card.dataset.model;
+                    
+                    // Remove selection from other cards in the same column
+                    document.querySelectorAll(`[data-agent="${agent}"]`).forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    
+                    if (agent === 'a') {
+                        selectedAgentA = model;
+                        document.getElementById('selectedAgentA').textContent = agentModels[model];
+                    } else {
+                        selectedAgentB = model;
+                        document.getElementById('selectedAgentB').textContent = agentModels[model];
+                    }
+                    
+                    updateUI();
+                });
+            });
+
+            // AI Advisor
+            document.getElementById('getRecommendation').addEventListener('click', getAIRecommendation);
+            
+            // Interaction type buttons
+            document.querySelectorAll('.interaction-type').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.interaction-type').forEach(b => b.classList.remove('bg-green-600'));
+                    btn.classList.add('bg-green-600');
+                });
+            });
+
+            // Control buttons
+            document.getElementById('startSession').addEventListener('click', startSession);
+            document.getElementById('nextStep').addEventListener('click', nextStep);
+            document.getElementById('pauseSession').addEventListener('click', pauseSession);
+            document.getElementById('stopSession').addEventListener('click', stopSession);
+            document.getElementById('clearChat').addEventListener('click', clearChat);
+            document.getElementById('exportSession').addEventListener('click', exportSession);
+
+            // Rounds input
+            document.getElementById('roundsInput').addEventListener('change', (e) => {
+                maxRounds = parseInt(e.target.value) || 5;
+            });
         }
-    } catch (e) {
-        console.error('startSession error:', e);
-        alert('Session failed.');
-    }
-}
 
-function clearAgentResponses() {
-    ['a','b'].forEach(c=>{
-        document.getElementById(`agent-${c}-content`).textContent='Waiting for response...';
-        document.getElementById(`agent-${c}-timestamp`).textContent='Ready';
-        document.getElementById(`agent-${c}-stats`).textContent='Tokens:0|Time:0s';
-    });
-}
+        function updateUI() {
+            // Update mode display
+            const modeNames = {
+                manual: 'Manual Relay',
+                autonomous: 'Autonomous',
+                singleA: 'Agent A Only',
+                singleB: 'Agent B Only'
+            };
+            document.getElementById('currentMode').textContent = modeNames[currentMode];
 
-function clearConversation() {
-    document.getElementById('conversation-history').innerHTML =
-    '<p style="text-align:center;color:#94A3B8;">No conversation yet. Start a session to begin!</p>';
-}
+            // Update active agents count
+            let activeCount = 0;
+            if (selectedAgentA) activeCount++;
+            if (selectedAgentB && currentMode !== 'singleA') activeCount++;
+            document.getElementById('activeAgents').textContent = activeCount;
 
-function updateConversationHistory(conv) {
-    const div = document.getElementById('conversation-history');
-    div.innerHTML = '';
-    if (!conv || conv.length === 0) {
-        div.innerHTML = '<p style="text-align:center;color:#94A3B8;">No conversation yet. Start a session to begin!</p>';
-        return;
-    }
-    conv.forEach(msg=>{
-        const el = document.createElement('div');
-        el.className=`message ${msg.speaker==='human'?'human':'ai'}`;
-        const speaker = msg.speaker==='human'?'Human':(availableModels[msg.speaker]?.name||msg.speaker);
-        el.innerHTML = `<div class="message-header">
-            <span class="message-speaker">${speaker}</span>
-            <span>${new Date(msg.timestamp).toLocaleTimeString()}</span></div>
-            <div class="message-content">${msg.content}</div>
-            ${msg.tokens?`<div style="font-size:0.8rem;color:#94A3B8;margin-top:10px;">Tokens:${msg.tokens}|Time:${msg.response_time}s</div>`:''}`;
-        div.appendChild(el);
-    });
-    div.scrollTop = div.scrollHeight;
-}
-</script>
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
+            // Update session status
+            document.getElementById('sessionStatus').textContent = sessionActive ? 'Active' : 'Inactive';
+            document.getElementById('sessionStatus').className = sessionActive ? 
+                'p-3 bg-green-900/30 border border-green-600 rounded-lg text-green-400 font-semibold' :
+                'p-3 bg-gray-900 border border-gray-600 rounded-lg text-gray-400';
+        }
+
+        function getAIRecommendation() {
+            const selectedType = document.querySelector('.interaction-type.bg-green-600')?.dataset.type;
+            if (!selectedType) {
+                showNotification('Please select an interaction type first!', 'warning');
+                return;
+            }
+
+            const recommendations = advisorRecommendations[selectedType];
+            const result = document.getElementById('recommendationResult');
+            
+            result.innerHTML = `
+                <h4 class="font-semibold text-green-400 mb-2">AI Advisor Recommendation for ${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)}</h4>
+                <p class="text-sm mb-3">Optimal agent combination:</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-blue-900/30 border border-blue-600 p-3 rounded-lg">
+                        <div class="font-semibold text-blue-400">Agent A</div>
+                        <div class="text-sm">${agentModels[recommendations[0]]}</div>
+                    </div>
+                    <div class="bg-green-900/30 border border-green-600 p-3 rounded-lg">
+                        <div class="font-semibold text-green-400">Agent B</div>
+                        <div class="text-sm">${agentModels[recommendations[1]]}</div>
+                    </div>
+                </div>
+                <button onclick="applyRecommendation('${recommendations[0]}', '${recommendations[1]}')" class="mt-3 bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-sm transition-all">
+                    Apply Recommendation
+                </button>
+            `;
+            result.classList.remove('hidden');
+        }
+
+        function applyRecommendation(modelA, modelB) {
+            // Apply Agent A
+            document.querySelectorAll('[data-agent="a"]').forEach(c => c.classList.remove('selected'));
+            document.querySelector(`[data-agent="a"][data-model="${modelA}"]`).classList.add('selected');
+            selectedAgentA = modelA;
+            document.getElementById('selectedAgentA').textContent = agentModels[modelA];
+
+            // Apply Agent B
+            document.querySelectorAll('[data-agent="b"]').forEach(c => c.classList.remove('selected'));
+            document.querySelector(`[data-agent="b"][data-model="${modelB}"]`).classList.add('selected');
+            selectedAgentB = modelB;
+            document.getElementById('selectedAgentB').textContent = agentModels[modelB];
+
+            updateUI();
+            showNotification('AI Advisor recommendations applied successfully!', 'success');
+        }
+
+        async function startSession() {
+            if (!selectedAgentA) {
+                showNotification('Please select Agent A first!', 'error');
+                return;
+            }
+
+            if (currentMode !== 'singleA' && !selectedAgentB) {
+                showNotification('Please select Agent B first!', 'error');
+                return;
+            }
+
+            const prompt = document.getElementById('initialPrompt').value.trim();
+            if (!prompt) {
+                showNotification('Please enter an initial prompt!', 'error');
+                return;
+            }
+
+            sessionActive = true;
+            sessionStartTime = Date.now();
+            currentRound = 0;
+            conversationHistory = [];
+
+            // Generate session ID
+            const sessionId = 'session_' + Date.now().toString(36);
+            document.getElementById('sessionId').textContent = sessionId;
+
+            // Update button states
+            document.getElementById('startSession').disabled = true;
+            document.getElementById('nextStep').disabled = false;
+            document.getElementById('pauseSession').disabled = false;
+            document.getElementById('stopSession').disabled = false;
+
+            updateUI();
+            showNotification('Session started successfully!', 'success');
+
+            // Start first message
+            if (currentMode === 'autonomous') {
+                startAutonomousMode(prompt);
+            } else if (currentMode === 'singleA') {
+                await sendMessageToAgent('a', prompt);
+            } else if (currentMode === 'singleB') {
+                await sendMessageToAgent('b', prompt);
+            } else {
+                // Manual mode - send to Agent A first
+                await sendMessageToAgent('a', prompt);
+            }
+        }
+
+        async function startAutonomousMode(initialPrompt) {
+            maxRounds = parseInt(document.getElementById('roundsInput').value) || 5;
+            
+            // Send initial prompt to Agent A
+            await sendMessageToAgent('a', initialPrompt);
+            
+            // Start autonomous conversation
+            autonomousInterval = setInterval(async () => {
+                if (currentRound >= maxRounds) {
+                    clearInterval(autonomousInterval);
+                    stopSession();
+                    showNotification(`Autonomous session completed after ${maxRounds} rounds!`, 'success');
+                    return;
+                }
+
+                // Alternate between agents
+                const nextAgent = conversationHistory.length % 2 === 1 ? 'b' : 'a';
+                const lastMessage = conversationHistory[conversationHistory.length - 1]?.content || '';
+                
+                if (lastMessage) {
+                    await sendMessageToAgent(nextAgent, lastMessage);
+                    currentRound++;
+                }
+            }, 3000); // 3 second delay between autonomous responses
+        }
+
+        async function nextStep() {
+            if (!sessionActive) return;
+
+            if (currentMode === 'manual') {
+                // Manual relay mode
+                const lastMessage = conversationHistory[conversationHistory.length - 1];
+                if (lastMessage) {
+                    const nextAgent = lastMessage.agent === 'a' ? 'b' : 'a';
+                    await sendMessageToAgent(nextAgent, lastMessage.content);
+                }
+            }
+        }
+
+        function pauseSession() {
+            if (autonomousInterval) {
+                clearInterval(autonomousInterval);
+                autonomousInterval = null;
+            }
+            showNotification('Session paused', 'info');
+        }
+
+        function stopSession() {
+            sessionActive = false;
+            if (autonomousInterval) {
+                clearInterval(autonomousInterval);
+                autonomousInterval = null;
+            }
+
+            // Reset button states
+            document.getElementById('startSession').disabled = false;
+            document.getElementById('nextStep').disabled = true;
+            document.getElementById('pauseSession').disabled = true;
+            document.getElementById('stopSession').disabled = true;
+
+            updateUI();
+            showNotification('Session stopped', 'info');
+        }
+
+        function clearChat() {
+            conversationHistory = [];
+            document.getElementById('conversationDisplay').innerHTML = `
+                <div class="text-center text-gray-500 py-8">
+                    <i class="fas fa-robot text-4xl mb-4 opacity-50"></i>
+                    <p>No conversation yet. Select agents and start a session to begin!</p>
+                </div>
+            `;
+            document.getElementById('totalMessages').textContent = '0';
+            showNotification('Conversation cleared', 'info');
+        }
+
+        function exportSession() {
+            if (conversationHistory.length === 0) {
+                showNotification('No conversation to export!', 'warning');
+                return;
+            }
+
+            const sessionData = {
+                sessionId: document.getElementById('sessionId').textContent,
+                mode: currentMode,
+                agentA: selectedAgentA,
+                agentB: selectedAgentB,
+                startTime: sessionStartTime,
+                conversation: conversationHistory,
+                totalMessages: conversationHistory.length
+            };
+
+            const blob = new Blob([JSON.stringify(sessionData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `promptlink-session-${new Date().toISOString().slice(0, 10)}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+
+            showNotification('Session exported successfully!', 'success');
+        }
+
+        async function sendMessageToAgent(agent, message) {
+            const model = agent === 'a' ? selectedAgentA : selectedAgentB;
+            if (!model) return;
+
+            const agentName = agentModels[model];
+            
+            // Show typing indicator
+            showTypingIndicator(agentName);
+
+            try {
+                const response = await fetch(API_BASE_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                        'HTTP-Referer': 'https://thepromptlink.com',
+                    },
+                    body: JSON.stringify({
+                        model: model,
+                        messages: [
+                            { role: 'user', content: message }
+                        ],
+                        max_tokens: 500,
+                        temperature: 0.7
+                    })
+                });
+
+                const data = await response.json();
+                hideTypingIndicator();
+
+                if (data.choices && data.choices[0] && data.choices[0].message) {
+                    const responseText = data.choices[0].message.content;
+                    addMessageToConversation(agent, agentName, responseText);
+                    
+                    // Update credits (simulate usage)
+                    const currentCredits = parseInt(document.getElementById('creditsDisplay').textContent.replace(',', ''));
+                    const newCredits = Math.max(0, currentCredits - Math.floor(Math.random() * 10 + 5));
+                    document.getElementById('creditsDisplay').textContent = newCredits.toLocaleString();
+                } else {
+                    throw new Error('Invalid response format');
+                }
+
+            } catch (error) {
+                hideTypingIndicator();
+                console.error('API Error:', error);
+                showNotification(`Error communicating with ${agentName}: ${error.message}`, 'error');
+                addMessageToConversation(agent, agentName, `Error: Unable to connect to ${agentName}. Please check your API configuration.`, true);
+            }
+        }
+
+        function addMessageToConversation(agent, agentName, content, isError = false) {
+            const conversation = document.getElementById('conversationDisplay');
+            
+            // Remove empty state
+            if (conversation.querySelector('.text-center')) {
+                conversation.innerHTML = '';
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `mb-4 p-4 rounded-lg ${agent === 'a' ? 'bg-blue-900/30 border-l-4 border-blue-500' : 'bg-green-900/30 border-l-4 border-green-500'} ${isError ? 'bg-red-900/30 border-l-4 border-red-500' : ''}`;
+            
+            messageDiv.innerHTML = `
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center">
+                        <i class="fas fa-robot mr-2 ${agent === 'a' ? 'text-blue-400' : 'text-green-400'} ${isError ? 'text-red-400' : ''}"></i>
+                        <span class="font-semibold ${agent === 'a' ? 'text-blue-400' : 'text-green-400'} ${isError ? 'text-red-400' : ''}">${agentName}</span>
+                    </div>
+                    <span class="text-xs text-gray-500">${new Date().toLocaleTimeString()}</span>
+                </div>
+                <div class="text-gray-200 leading-relaxed">${content}</div>
+            `;
+
+            conversation.appendChild(messageDiv);
+            conversation.scrollTop = conversation.scrollHeight;
+
+            // Add to history
+            if (!isError) {
+                conversationHistory.push({
+                    agent: agent,
+                    agentName: agentName,
+                    content: content,
+                    timestamp: Date.now()
+                });
+
+                // Update message count
+                document.getElementById('totalMessages').textContent = conversationHistory.length;
+            }
+        }
+
+        function showTypingIndicator(agentName) {
+            const indicator = document.querySelector('.typing-indicator');
+            document.getElementById('typingAgent').textContent = `${agentName} is thinking...`;
+            indicator.classList.add('active');
+        }
+
+        function hideTypingIndicator() {
+            const indicator = document.querySelector('.typing-indicator');
+            indicator.classList.remove('active');
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg z-50 transform transition-all duration-300 translate-x-full ${
+                type === 'success' ? 'bg-green-600' : 
+                type === 'error' ? 'bg-red-600' : 
+                type === 'warning' ? 'bg-yellow-600' : 'bg-blue-600'
+            }`;
+            
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas ${
+                        type === 'success' ? 'fa-check-circle' : 
+                        type === 'error' ? 'fa-exclamation-circle' : 
+                        type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'
+                    } mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+
+            // Animate out and remove
+            setTimeout(() => {
+                notification.style.transform = 'translateX(full)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        function startMetricsTimer() {
+            setInterval(() => {
+                if (sessionActive && sessionStartTime) {
+                    const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60);
+                    const seconds = elapsed % 60;
+                    document.getElementById('sessionTime').textContent = 
+                        minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+                }
+
+                // Simulate system health fluctuation
+                const health = 96 + Math.floor(Math.random() * 4);
+                document.getElementById('systemHealth').textContent = `${health}%`;
+            }, 1000);
+        }
+    </script>
 </body>
 </html>
