@@ -7,434 +7,395 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <style>
-        body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        :root {
+            --primary-green: #10B981;
+            --dark-bg: #0F172A;
+            --card-bg: #1E293B;
+            --border-color: #334155;
         }
+        
+        body {
+            background: var(--dark-bg);
+            color: #F8FAFC;
+            font-family: 'Inter', sans-serif;
+        }
+        
         .gradient-border {
-            background: linear-gradient(45deg, #10b981, #059669);
+            background: linear-gradient(45deg, var(--primary-green), #059669);
             padding: 2px;
             border-radius: 12px;
         }
-        .gradient-border-inner {
-            background: #1e293b;
+        
+        .gradient-border-content {
+            background: var(--card-bg);
             border-radius: 10px;
-            padding: 1rem;
+            padding: 1.5rem;
         }
+        
+        .logo-text {
+            background: linear-gradient(45deg, var(--primary-green), #34D399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
         .agent-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
-            border: 2px solid transparent;
         }
+        
         .agent-card:hover {
-            border-color: #10b981;
+            border-color: var(--primary-green);
             transform: translateY(-2px);
         }
+        
         .agent-card.selected {
-            border-color: #10b981;
+            border-color: var(--primary-green);
             background: rgba(16, 185, 129, 0.1);
         }
-        .pulse-green {
-            animation: pulse-green 2s infinite;
+        
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-green), #059669);
+            border: none;
+            transition: all 0.3s ease;
         }
-        @keyframes pulse-green {
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+        }
+        
+        .conversation-area {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            min-height: 400px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .message-bubble {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--primary-green);
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .agent-a-message {
+            border-left-color: #3B82F6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .agent-b-message {
+            border-left-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.1);
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .status-active { background: var(--primary-green); }
+        .status-error { background: #EF4444; }
+        .status-thinking { 
+            background: #F59E0B; 
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
-        .typing-indicator {
-            display: none;
+        
+        .thinking-dots {
+            display: inline-block;
         }
-        .typing-indicator.active {
-            display: flex;
-            align-items: center;
+        
+        .thinking-dots::after {
+            content: '...';
+            animation: thinking 1.5s infinite;
         }
-        .typing-dots {
-            display: flex;
-            gap: 4px;
+        
+        @keyframes thinking {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
         }
-        .typing-dots span {
-            width: 8px;
-            height: 8px;
-            background: #10b981;
-            border-radius: 50%;
-            animation: typing 1.4s infinite;
-        }
-        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes typing {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-10px); }
-        }
+        
         .metrics-grid {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid #10b981;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
         }
-        .logo-circuit {
-            width: 40px;
-            height: 40px;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20,20 L40,20 L40,40 M60,20 L80,20 L80,40 M40,60 L60,60 M20,80 L40,80 L40,60 M60,80 L80,80 L80,60" stroke="%2310b981" stroke-width="3" fill="none"/><circle cx="40" cy="20" r="3" fill="%2310b981"/><circle cx="40" cy="60" r="3" fill="%2310b981"/><circle cx="60" cy="60" r="3" fill="%2310b981"/></svg>') no-repeat center;
-            background-size: contain;
+        
+        .metric-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-green);
+        }
+        
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #EF4444;
+            color: #FCA5A5;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--primary-green);
+            color: #6EE7B7;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
         }
     </style>
 </head>
-<body class="min-h-screen text-white">
+<body class="min-h-screen">
     <!-- Header -->
-    <header class="border-b border-gray-700 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="logo-circuit"></div>
-                <h1 class="text-2xl font-bold bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent">
-                    ThePromptLink
-                </h1>
-                <span class="text-sm text-gray-400 ml-2">v8.0</span>
+    <header class="border-b border-gray-700 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="text-2xl font-bold logo-text">
+                    <i class="fas fa-link mr-2"></i>ThePromptLink
+                </div>
+                <span class="text-sm text-gray-400">v8.0 Revolutionary</span>
             </div>
             <div class="flex items-center space-x-4">
-                <div class="flex items-center space-x-2">
-                    <div class="w-3 h-3 bg-green-500 rounded-full pulse-green"></div>
-                    <span class="text-sm text-green-400">System Online</span>
-                </div>
-                <div class="text-sm text-gray-400">
-                    <i class="fas fa-coins text-green-400"></i>
-                    <span id="creditsDisplay">2,500</span> Credits
-                </div>
+                <div class="text-sm text-gray-400">System Health:</div>
+                <div id="systemHealth" class="text-green-400 font-semibold">99%</div>
+                <div class="status-indicator status-active"></div>
             </div>
         </div>
     </header>
 
-    <div class="max-w-7xl mx-auto px-4 py-8">
-        <!-- Mode Selection -->
-        <div class="mb-8">
-            <h2 class="text-xl font-semibold mb-4 text-green-400">
-                <i class="fas fa-cogs mr-2"></i>Orchestration Mode
-            </h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <button id="modeManual" class="mode-btn bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-lg transition-all transform hover:scale-105 active">
-                    <i class="fas fa-hand-paper mb-2"></i>
-                    <div class="font-semibold">Manual Relay</div>
-                    <div class="text-xs opacity-80">Human controlled</div>
-                </button>
-                <button id="modeAutonomous" class="mode-btn bg-purple-600 hover:bg-purple-700 px-4 py-3 rounded-lg transition-all transform hover:scale-105">
-                    <i class="fas fa-robot mb-2"></i>
-                    <div class="font-semibold">Autonomous</div>
-                    <div class="text-xs opacity-80">AI self-directed</div>
-                </button>
-                <button id="modeSingleA" class="mode-btn bg-orange-600 hover:bg-orange-700 px-4 py-3 rounded-lg transition-all transform hover:scale-105">
-                    <i class="fas fa-user mb-2"></i>
-                    <div class="font-semibold">Agent A Only</div>
-                    <div class="text-xs opacity-80">Single agent</div>
-                </button>
-                <button id="modeSingleB" class="mode-btn bg-green-600 hover:bg-green-700 px-4 py-3 rounded-lg transition-all transform hover:scale-105">
-                    <i class="fas fa-user-tie mb-2"></i>
-                    <div class="font-semibold">Agent B Only</div>
-                    <div class="text-xs opacity-80">Single agent</div>
-                </button>
-            </div>
-        </div>
-
-        <!-- AI Advisor Section -->
-        <div class="mb-8 gradient-border">
-            <div class="gradient-border-inner">
-                <h3 class="text-lg font-semibold mb-4 text-green-400">
-                    <i class="fas fa-brain mr-2"></i>AI Advisor
-                </h3>
-                <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
-                    <button class="interaction-type bg-gray-700 hover:bg-green-600 px-3 py-2 rounded text-sm transition-all" data-type="free">Free Discussion</button>
-                    <button class="interaction-type bg-gray-700 hover:bg-green-600 px-3 py-2 rounded text-sm transition-all" data-type="brainstorm">Brainstorm</button>
-                    <button class="interaction-type bg-gray-700 hover:bg-green-600 px-3 py-2 rounded text-sm transition-all" data-type="debate">Debate</button>
-                    <button class="interaction-type bg-gray-700 hover:bg-green-600 px-3 py-2 rounded text-sm transition-all" data-type="strategy">Strategy</button>
-                    <button class="interaction-type bg-gray-700 hover:bg-green-600 px-3 py-2 rounded text-sm transition-all" data-type="technical">Technical</button>
-                    <button class="interaction-type bg-gray-700 hover:bg-green-600 px-3 py-2 rounded text-sm transition-all" data-type="compliance">Compliance</button>
-                </div>
-                <button id="getRecommendation" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 px-6 py-2 rounded-lg transition-all transform hover:scale-105">
-                    <i class="fas fa-magic mr-2"></i>Get AI Recommendations
-                </button>
-                <div id="recommendationResult" class="mt-4 hidden p-4 bg-green-900/30 border border-green-600 rounded-lg"></div>
-            </div>
-        </div>
-
-        <!-- Agent Selection -->
-        <div class="mb-8">
-            <h2 class="text-xl font-semibold mb-4 text-green-400">
-                <i class="fas fa-users mr-2"></i>Agent Selection
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Agent A -->
-                <div class="gradient-border">
-                    <div class="gradient-border-inner">
-                        <h3 class="text-lg font-semibold mb-4 text-blue-400">
-                            <i class="fas fa-robot mr-2"></i>Agent A
-                        </h3>
-                        <div class="grid grid-cols-1 gap-3">
-                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="a" data-model="deepseek-ai/deepseek-coder">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h4 class="font-semibold text-blue-400">DeepSeek R1</h4>
-                                    <div class="flex items-center text-green-400">
-                                        <span class="text-sm mr-1">98%</span>
-                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
-                                    </div>
-                                </div>
-                                <p class="text-sm text-gray-400 mb-2">Code generation, technical analysis, problem-solving</p>
-                                <div class="flex space-x-1">
-                                    <span class="text-xs bg-blue-600 px-2 py-1 rounded">Technical</span>
-                                    <span class="text-xs bg-purple-600 px-2 py-1 rounded">Analysis</span>
-                                </div>
-                            </div>
-                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="a" data-model="minmax/minmax">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h4 class="font-semibold text-purple-400">MinMax M1</h4>
-                                    <div class="flex items-center text-green-400">
-                                        <span class="text-sm mr-1">99%</span>
-                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
-                                    </div>
-                                </div>
-                                <p class="text-sm text-gray-400 mb-2">Strategic planning, optimization, decision-making</p>
-                                <div class="flex space-x-1">
-                                    <span class="text-xs bg-purple-600 px-2 py-1 rounded">Strategy</span>
-                                    <span class="text-xs bg-orange-600 px-2 py-1 rounded">Planning</span>
-                                </div>
-                            </div>
-                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="a" data-model="openai/gpt-4o">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h4 class="font-semibold text-green-400">ChatGPT 4 Turbo</h4>
-                                    <div class="flex items-center text-green-400">
-                                        <span class="text-sm mr-1">99%</span>
-                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
-                                    </div>
-                                </div>
-                                <p class="text-sm text-gray-400 mb-2">General conversation, creative writing</p>
-                                <div class="flex space-x-1">
-                                    <span class="text-xs bg-green-600 px-2 py-1 rounded">Creative</span>
-                                    <span class="text-xs bg-blue-600 px-2 py-1 rounded">General</span>
-                                </div>
-                            </div>
-                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="a" data-model="meta-llama/llama-3-8b-instruct">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h4 class="font-semibold text-orange-400">Llama 3.3</h4>
-                                    <div class="flex items-center text-green-400">
-                                        <span class="text-sm mr-1">97%</span>
-                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
-                                    </div>
-                                </div>
-                                <p class="text-sm text-gray-400 mb-2">Text generation, summarization</p>
-                                <div class="flex space-x-1">
-                                    <span class="text-xs bg-orange-600 px-2 py-1 rounded">Text</span>
-                                    <span class="text-xs bg-gray-600 px-2 py-1 rounded">Summary</span>
-                                </div>
-                            </div>
-                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="a" data-model="mistralai/mistral-large-2407">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h4 class="font-semibold text-red-400">Mistral Large</h4>
-                                    <div class="flex items-center text-green-400">
-                                        <span class="text-sm mr-1">97%</span>
-                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
-                                    </div>
-                                </div>
-                                <p class="text-sm text-gray-400 mb-2">Multilingual, summarization</p>
-                                <div class="flex space-x-1">
-                                    <span class="text-xs bg-red-600 px-2 py-1 rounded">Multilingual</span>
-                                    <span class="text-xs bg-gray-600 px-2 py-1 rounded">Summary</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-4 p-3 bg-blue-900/30 border border-blue-600 rounded-lg">
-                            <div class="text-sm font-semibold text-blue-400">Selected: <span id="selectedAgentA">None</span></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Agent B -->
-                <div class="gradient-border">
-                    <div class="gradient-border-inner">
-                        <h3 class="text-lg font-semibold mb-4 text-green-400">
-                            <i class="fas fa-robot mr-2"></i>Agent B
-                        </h3>
-                        <div class="grid grid-cols-1 gap-3">
-                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="b" data-model="deepseek-ai/deepseek-coder">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h4 class="font-semibold text-blue-400">DeepSeek R1</h4>
-                                    <div class="flex items-center text-green-400">
-                                        <span class="text-sm mr-1">98%</span>
-                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
-                                    </div>
-                                </div>
-                                <p class="text-sm text-gray-400 mb-2">Code generation, technical analysis, problem-solving</p>
-                                <div class="flex space-x-1">
-                                    <span class="text-xs bg-blue-600 px-2 py-1 rounded">Technical</span>
-                                    <span class="text-xs bg-purple-600 px-2 py-1 rounded">Analysis</span>
-                                </div>
-                            </div>
-                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="b" data-model="minmax/minmax">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h4 class="font-semibold text-purple-400">MinMax M1</h4>
-                                    <div class="flex items-center text-green-400">
-                                        <span class="text-sm mr-1">99%</span>
-                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
-                                    </div>
-                                </div>
-                                <p class="text-sm text-gray-400 mb-2">Strategic planning, optimization, decision-making</p>
-                                <div class="flex space-x-1">
-                                    <span class="text-xs bg-purple-600 px-2 py-1 rounded">Strategy</span>
-                                    <span class="text-xs bg-orange-600 px-2 py-1 rounded">Planning</span>
-                                </div>
-                            </div>
-                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="b" data-model="openai/gpt-4o">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h4 class="font-semibold text-green-400">ChatGPT 4 Turbo</h4>
-                                    <div class="flex items-center text-green-400">
-                                        <span class="text-sm mr-1">99%</span>
-                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
-                                    </div>
-                                </div>
-                                <p class="text-sm text-gray-400 mb-2">General conversation, creative writing</p>
-                                <div class="flex space-x-1">
-                                    <span class="text-xs bg-green-600 px-2 py-1 rounded">Creative</span>
-                                    <span class="text-xs bg-blue-600 px-2 py-1 rounded">General</span>
-                                </div>
-                            </div>
-                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="b" data-model="meta-llama/llama-3-8b-instruct">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h4 class="font-semibold text-orange-400">Llama 3.3</h4>
-                                    <div class="flex items-center text-green-400">
-                                        <span class="text-sm mr-1">97%</span>
-                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
-                                    </div>
-                                </div>
-                                <p class="text-sm text-gray-400 mb-2">Text generation, summarization</p>
-                                <div class="flex space-x-1">
-                                    <span class="text-xs bg-orange-600 px-2 py-1 rounded">Text</span>
-                                    <span class="text-xs bg-gray-600 px-2 py-1 rounded">Summary</span>
-                                </div>
-                            </div>
-                            <div class="agent-card bg-gray-800 p-4 rounded-lg cursor-pointer" data-agent="b" data-model="mistralai/mistral-large-2407">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h4 class="font-semibold text-red-400">Mistral Large</h4>
-                                    <div class="flex items-center text-green-400">
-                                        <span class="text-sm mr-1">97%</span>
-                                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-green"></div>
-                                    </div>
-                                </div>
-                                <p class="text-sm text-gray-400 mb-2">Multilingual, summarization</p>
-                                <div class="flex space-x-1">
-                                    <span class="text-xs bg-red-600 px-2 py-1 rounded">Multilingual</span>
-                                    <span class="text-xs bg-gray-600 px-2 py-1 rounded">Summary</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-4 p-3 bg-green-900/30 border border-green-600 rounded-lg">
-                            <div class="text-sm font-semibold text-green-400">Selected: <span id="selectedAgentB">None</span></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Orchestration Console -->
-        <div class="mb-8 gradient-border">
-            <div class="gradient-border-inner">
-                <h2 class="text-xl font-semibold mb-4 text-green-400">
-                    <i class="fas fa-terminal mr-2"></i>AI Orchestration Console
-                </h2>
+    <!-- Main Container -->
+    <div class="container mx-auto px-6 py-8">
+        <!-- Control Panel -->
+        <div class="gradient-border mb-8">
+            <div class="gradient-border-content">
+                <h2 class="text-xl font-semibold mb-6 text-center">AI Orchestration Command Center</h2>
                 
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Initial Prompt</label>
-                    <textarea id="initialPrompt" class="w-full p-4 bg-gray-800 border border-gray-600 rounded-lg text-white resize-none focus:border-green-500 focus:ring-1 focus:ring-green-500" rows="4" placeholder="Enter your discussion topic or question for the AI agents to collaborate on...">Let's discuss the future of AI and the developments in the next six months and what significance will those massive developments have on the overall timeline and advancements.</textarea>
+                <!-- Mode Selection -->
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Operation Mode</label>
+                        <select id="operationMode" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white">
+                            <option value="manual">Manual Relay</option>
+                            <option value="autonomous">Autonomous</option>
+                            <option value="single-a">Single Agent A</option>
+                            <option value="single-b">Single Agent B</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Interaction Type</label>
+                        <select id="interactionType" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white">
+                            <option value="free">Free Discussion</option>
+                            <option value="brainstorm">Brainstorm</option>
+                            <option value="debate">Debate</option>
+                            <option value="strategy">Strategy</option>
+                            <option value="technical">Technical</option>
+                            <option value="compliance">Compliance</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Rounds (Autonomous)</label>
+                        <input type="number" id="roundsInput" min="1" max="20" value="5" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white">
+                    </div>
+                    
+                    <div class="flex items-end">
+                        <button id="aiAdvisor" class="btn-primary text-white px-4 py-2 rounded-lg w-full">
+                            <i class="fas fa-magic mr-2"></i>AI Advisor
+                        </button>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <!-- Agent Selection -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Rounds (Autonomous Mode)</label>
-                        <input type="number" id="roundsInput" min="1" max="20" value="5" class="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-green-500 focus:ring-1 focus:ring-green-500">
+                        <label class="block text-sm font-medium mb-3">Agent A</label>
+                        <div class="grid grid-cols-1 gap-2">
+                            <div class="agent-card p-3 rounded-lg cursor-pointer" data-agent="a" data-model="deepseek-ai/deepseek-v2.5">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="font-semibold text-blue-400">DeepSeek R1</div>
+                                        <div class="text-xs text-gray-400">Code generation, technical analysis</div>
+                                    </div>
+                                    <div class="status-indicator status-active"></div>
+                                </div>
+                            </div>
+                            <div class="agent-card p-3 rounded-lg cursor-pointer" data-agent="a" data-model="minimax/minimax-m1">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="font-semibold text-purple-400">MinMax M1</div>
+                                        <div class="text-xs text-gray-400">Strategic planning, optimization</div>
+                                    </div>
+                                    <div class="status-indicator status-active"></div>
+                                </div>
+                            </div>
+                            <div class="agent-card p-3 rounded-lg cursor-pointer selected" data-agent="a" data-model="openai/gpt-4o">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="font-semibold text-green-400">ChatGPT 4 Turbo</div>
+                                        <div class="text-xs text-gray-400">General conversation, creative writing</div>
+                                    </div>
+                                    <div class="status-indicator status-active"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Current Mode</label>
-                        <div id="currentMode" class="p-3 bg-blue-900/30 border border-blue-600 rounded-lg text-blue-400 font-semibold">Manual Relay</div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Session Status</label>
-                        <div id="sessionStatus" class="p-3 bg-gray-900 border border-gray-600 rounded-lg text-gray-400">Inactive</div>
+                        <label class="block text-sm font-medium mb-3">Agent B</label>
+                        <div class="grid grid-cols-1 gap-2">
+                            <div class="agent-card p-3 rounded-lg cursor-pointer selected" data-agent="b" data-model="meta-llama/llama-3-8b-instruct">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="font-semibold text-yellow-400">Llama 3.3</div>
+                                        <div class="text-xs text-gray-400">Text generation, summarization</div>
+                                    </div>
+                                    <div class="status-indicator status-active"></div>
+                                </div>
+                            </div>
+                            <div class="agent-card p-3 rounded-lg cursor-pointer" data-agent="b" data-model="mistralai/mistral-large-2407">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="font-semibold text-red-400">Mistral Large</div>
+                                        <div class="text-xs text-gray-400">Multilingual, summarization</div>
+                                    </div>
+                                    <div class="status-indicator status-active"></div>
+                                </div>
+                            </div>
+                            <div class="agent-card p-3 rounded-lg cursor-pointer" data-agent="b" data-model="anthropic/claude-3.5-sonnet">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="font-semibold text-indigo-400">Claude 3.5 Sonnet</div>
+                                        <div class="text-xs text-gray-400">Analysis, reasoning</div>
+                                    </div>
+                                    <div class="status-indicator status-active"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex flex-wrap gap-3 mb-6">
-                    <button id="startSession" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 px-6 py-3 rounded-lg transition-all transform hover:scale-105 font-semibold">
+                <!-- Control Buttons -->
+                <div class="flex flex-wrap gap-3 justify-center">
+                    <button id="startSession" class="btn-primary text-white px-6 py-2 rounded-lg">
                         <i class="fas fa-play mr-2"></i>Start Session
                     </button>
-                    <button id="nextStep" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg transition-all transform hover:scale-105 font-semibold" disabled>
+                    <button id="nextStep" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg" disabled>
                         <i class="fas fa-step-forward mr-2"></i>Next Step
                     </button>
-                    <button id="pauseSession" class="bg-yellow-600 hover:bg-yellow-700 px-6 py-3 rounded-lg transition-all transform hover:scale-105 font-semibold" disabled>
+                    <button id="pauseSession" class="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded-lg" disabled>
                         <i class="fas fa-pause mr-2"></i>Pause
                     </button>
-                    <button id="stopSession" class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg transition-all transform hover:scale-105 font-semibold" disabled>
+                    <button id="stopSession" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg" disabled>
                         <i class="fas fa-stop mr-2"></i>Stop
                     </button>
-                    <button id="clearChat" class="bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded-lg transition-all transform hover:scale-105 font-semibold">
+                    <button id="clearAll" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg">
                         <i class="fas fa-trash mr-2"></i>Clear All
                     </button>
-                    <button id="exportSession" class="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg transition-all transform hover:scale-105 font-semibold">
+                    <button id="exportSession" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg">
                         <i class="fas fa-download mr-2"></i>Export Session
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Conversation Display -->
-        <div class="mb-8">
-            <h2 class="text-xl font-semibold mb-4 text-green-400">
-                <i class="fas fa-comments mr-2"></i>Live Conversation
-            </h2>
-            <div id="conversationDisplay" class="bg-gray-900 border border-gray-700 rounded-lg p-6 min-h-96 max-h-96 overflow-y-auto">
-                <div class="text-center text-gray-500 py-8">
-                    <i class="fas fa-robot text-4xl mb-4 opacity-50"></i>
-                    <p>No conversation yet. Select agents and start a session to begin!</p>
+        <!-- Input Area -->
+        <div class="gradient-border mb-8">
+            <div class="gradient-border-content">
+                <label class="block text-sm font-medium mb-3">Initial Prompt</label>
+                <textarea id="promptInput" rows="4" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white resize-none" placeholder="Enter your prompt for AI orchestration (Ctrl+Enter to send to all)">Let's discuss the future of AI and the developments in the next six months and what significance will those massive developments have on the overall timeline and advancements</textarea>
+                <div class="flex gap-3 mt-3">
+                    <button id="sendToAll" class="btn-primary text-white px-4 py-2 rounded-lg">
+                        <i class="fas fa-broadcast-tower mr-2"></i>Send to All Agents
+                    </button>
+                    <button id="sendToA" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                        <i class="fas fa-user mr-2"></i>Agent A Only
+                    </button>
+                    <button id="sendToB" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg">
+                        <i class="fas fa-user mr-2"></i>Agent B Only
+                    </button>
                 </div>
             </div>
-            <div class="typing-indicator mt-4 p-3 bg-green-900/20 border border-green-600 rounded-lg">
-                <div class="flex items-center">
-                    <div class="typing-dots mr-3">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+        </div>
+
+        <!-- Conversation Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="gradient-border">
+                <div class="gradient-border-content">
+                    <h3 class="text-lg font-semibold mb-4 text-blue-400">
+                        <i class="fas fa-robot mr-2"></i>Agent A
+                        <span id="agentAName">ChatGPT 4 Turbo</span>
+                        <span id="agentAStatus" class="text-sm text-gray-400 ml-2">Ready</span>
+                    </h3>
+                    <div id="agentAConversation" class="conversation-area p-4">
+                        <div class="text-center text-gray-400 py-8">
+                            <i class="fas fa-comment-dots text-4xl mb-4"></i>
+                            <p>Waiting for session to start...</p>
+                        </div>
                     </div>
-                    <span class="text-green-400" id="typingAgent">Agent thinking...</span>
+                </div>
+            </div>
+            
+            <div class="gradient-border">
+                <div class="gradient-border-content">
+                    <h3 class="text-lg font-semibold mb-4 text-purple-400">
+                        <i class="fas fa-robot mr-2"></i>Agent B
+                        <span id="agentBName">Llama 3.3</span>
+                        <span id="agentBStatus" class="text-sm text-gray-400 ml-2">Ready</span>
+                    </h3>
+                    <div id="agentBConversation" class="conversation-area p-4">
+                        <div class="text-center text-gray-400 py-8">
+                            <i class="fas fa-comment-dots text-4xl mb-4"></i>
+                            <p>Waiting for session to start...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Live Diagnostics -->
-        <div class="metrics-grid rounded-lg p-6">
-            <h2 class="text-xl font-semibold mb-4 text-green-400">
-                <i class="fas fa-chart-line mr-2"></i>Live Diagnostics
-            </h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div class="text-center">
-                    <div id="sessionTime" class="text-3xl font-bold text-blue-400">0s</div>
-                    <div class="text-sm text-gray-400">Session Time</div>
-                </div>
-                <div class="text-center">
-                    <div id="totalMessages" class="text-3xl font-bold text-purple-400">0</div>
-                    <div class="text-sm text-gray-400">Total Messages</div>
-                </div>
-                <div class="text-center">
-                    <div id="activeAgents" class="text-3xl font-bold text-orange-400">0</div>
-                    <div class="text-sm text-gray-400">Active Agents</div>
-                </div>
-                <div class="text-center">
-                    <div id="systemHealth" class="text-3xl font-bold text-green-400">98%</div>
-                    <div class="text-sm text-gray-400">System Health</div>
-                </div>
-            </div>
-            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-gray-800 p-4 rounded-lg">
-                    <h4 class="font-semibold text-green-400 mb-2">API Status</h4>
-                    <div class="flex items-center">
-                        <div class="w-3 h-3 bg-green-500 rounded-full pulse-green mr-2"></div>
-                        <span class="text-sm">OpenRouter API Connected</span>
+        <div class="gradient-border">
+            <div class="gradient-border-content">
+                <h3 class="text-lg font-semibold mb-4">
+                    <i class="fas fa-chart-line mr-2"></i>Live Diagnostics
+                </h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="sessionTime">0s</div>
+                        <div class="text-sm text-gray-400">Session Time</div>
                     </div>
-                </div>
-                <div class="bg-gray-800 p-4 rounded-lg">
-                    <h4 class="font-semibold text-green-400 mb-2">Current Session</h4>
-                    <div class="text-sm text-gray-400">
-                        Session ID: <span id="sessionId">None</span>
+                    <div class="metric-card">
+                        <div class="metric-value" id="totalMessages">0</div>
+                        <div class="text-sm text-gray-400">Total Messages</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="activeAgents">2</div>
+                        <div class="text-sm text-gray-400">Active Agents</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="systemHealthMetric">99%</div>
+                        <div class="text-sm text-gray-400">System Health</div>
                     </div>
                 </div>
             </div>
@@ -442,482 +403,489 @@
     </div>
 
     <script>
-        // Global state
-        let currentMode = 'manual';
-        let selectedAgentA = null;
-        let selectedAgentB = null;
-        let sessionActive = false;
-        let sessionStartTime = null;
-        let conversationHistory = [];
-        let currentRound = 0;
-        let maxRounds = 5;
-        let autonomousInterval = null;
-
-        // OpenRouter API Configuration
+        // Configuration
         const OPENROUTER_API_KEY = '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';
         const API_BASE_URL = 'https://openrouter.ai/api/v1/chat/completions';
+        
+        // Global state
+        let sessionState = {
+            id: null,
+            mode: 'manual',
+            agentA: 'openai/gpt-4o',
+            agentB: 'meta-llama/llama-3-8b-instruct',
+            startTime: null,
+            conversation: [],
+            isActive: false,
+            currentRound: 0,
+            maxRounds: 5,
+            isAutonomous: false
+        };
+
+        // Agent configurations with fallback models
+        const agentConfigs = {
+            'deepseek-ai/deepseek-v2.5': { 
+                name: 'DeepSeek R1', 
+                fallbacks: ['deepseek-ai/deepseek-coder', 'deepseek-ai/deepseek-chat'],
+                maxTokens: 4000,
+                temperature: 0.7
+            },
+            'minimax/minimax-m1': { 
+                name: 'MinMax M1',
+                fallbacks: ['minimax/abab6.5s-chat', 'openai/gpt-4o-mini'],
+                maxTokens: 4000,
+                temperature: 0.7
+            },
+            'openai/gpt-4o': { 
+                name: 'ChatGPT 4 Turbo',
+                fallbacks: ['openai/gpt-4-turbo', 'openai/gpt-4'],
+                maxTokens: 4000,
+                temperature: 0.7
+            },
+            'meta-llama/llama-3-8b-instruct': { 
+                name: 'Llama 3.3',
+                fallbacks: ['meta-llama/llama-3.1-8b-instruct', 'meta-llama/llama-3-70b-instruct'],
+                maxTokens: 4000,
+                temperature: 0.7
+            },
+            'mistralai/mistral-large-2407': { 
+                name: 'Mistral Large',
+                fallbacks: ['mistralai/mistral-large', 'mistralai/mixtral-8x7b-instruct'],
+                maxTokens: 4000,
+                temperature: 0.7
+            },
+            'anthropic/claude-3.5-sonnet': { 
+                name: 'Claude 3.5 Sonnet',
+                fallbacks: ['anthropic/claude-3-sonnet', 'anthropic/claude-3-haiku'],
+                maxTokens: 4000,
+                temperature: 0.7
+            }
+        };
 
         // AI Advisor recommendations
-        const advisorRecommendations = {
-            free: ['openai/gpt-4o', 'meta-llama/llama-3-8b-instruct'],
-            brainstorm: ['openai/gpt-4o', 'mistralai/mistral-large-2407'],
-            debate: ['meta-llama/llama-3-8b-instruct', 'minmax/minmax'],
-            strategy: ['minmax/minmax', 'deepseek-ai/deepseek-coder'],
-            technical: ['deepseek-ai/deepseek-coder', 'openai/gpt-4o'],
-            compliance: ['mistralai/mistral-large-2407', 'minmax/minmax']
+        const aiAdvisorRecommendations = {
+            'free': ['openai/gpt-4o', 'meta-llama/llama-3-8b-instruct'],
+            'brainstorm': ['openai/gpt-4o', 'mistralai/mistral-large-2407'],
+            'debate': ['meta-llama/llama-3-8b-instruct', 'anthropic/claude-3.5-sonnet'],
+            'strategy': ['minimax/minimax-m1', 'meta-llama/llama-3-8b-instruct'],
+            'technical': ['deepseek-ai/deepseek-v2.5', 'openai/gpt-4o'],
+            'compliance': ['mistralai/mistral-large-2407', 'anthropic/claude-3.5-sonnet']
         };
 
-        // Agent model mappings
-        const agentModels = {
-            'deepseek-ai/deepseek-coder': 'DeepSeek R1',
-            'minmax/minmax': 'MinMax M1',
-            'openai/gpt-4o': 'ChatGPT 4 Turbo',
-            'meta-llama/llama-3-8b-instruct': 'Llama 3.3',
-            'mistralai/mistral-large-2407': 'Mistral Large'
+        // DOM elements
+        const elements = {
+            operationMode: document.getElementById('operationMode'),
+            interactionType: document.getElementById('interactionType'),
+            roundsInput: document.getElementById('roundsInput'),
+            aiAdvisor: document.getElementById('aiAdvisor'),
+            promptInput: document.getElementById('promptInput'),
+            startSession: document.getElementById('startSession'),
+            nextStep: document.getElementById('nextStep'),
+            pauseSession: document.getElementById('pauseSession'),
+            stopSession: document.getElementById('stopSession'),
+            clearAll: document.getElementById('clearAll'),
+            exportSession: document.getElementById('exportSession'),
+            sendToAll: document.getElementById('sendToAll'),
+            sendToA: document.getElementById('sendToA'),
+            sendToB: document.getElementById('sendToB'),
+            agentAConversation: document.getElementById('agentAConversation'),
+            agentBConversation: document.getElementById('agentBConversation'),
+            agentAName: document.getElementById('agentAName'),
+            agentBName: document.getElementById('agentBName'),
+            agentAStatus: document.getElementById('agentAStatus'),
+            agentBStatus: document.getElementById('agentBStatus'),
+            sessionTime: document.getElementById('sessionTime'),
+            totalMessages: document.getElementById('totalMessages'),
+            activeAgents: document.getElementById('activeAgents'),
+            systemHealth: document.getElementById('systemHealth'),
+            systemHealthMetric: document.getElementById('systemHealthMetric')
         };
 
-        // Initialize event listeners
+        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             initializeEventListeners();
-            updateUI();
-            startMetricsTimer();
+            updateAgentNames();
+            startMetricsUpdate();
         });
 
         function initializeEventListeners() {
-            // Mode buttons
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    
-                    if (btn.id === 'modeManual') currentMode = 'manual';
-                    else if (btn.id === 'modeAutonomous') currentMode = 'autonomous';
-                    else if (btn.id === 'modeSingleA') currentMode = 'singleA';
-                    else if (btn.id === 'modeSingleB') currentMode = 'singleB';
-                    
-                    updateUI();
-                });
-            });
-
             // Agent selection
             document.querySelectorAll('.agent-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    const agent = card.dataset.agent;
-                    const model = card.dataset.model;
+                card.addEventListener('click', function() {
+                    const agent = this.dataset.agent;
+                    const model = this.dataset.model;
                     
-                    // Remove selection from other cards in the same column
+                    // Remove selection from other cards in the same group
                     document.querySelectorAll(`[data-agent="${agent}"]`).forEach(c => c.classList.remove('selected'));
-                    card.classList.add('selected');
+                    this.classList.add('selected');
                     
+                    // Update session state
                     if (agent === 'a') {
-                        selectedAgentA = model;
-                        document.getElementById('selectedAgentA').textContent = agentModels[model];
+                        sessionState.agentA = model;
                     } else {
-                        selectedAgentB = model;
-                        document.getElementById('selectedAgentB').textContent = agentModels[model];
+                        sessionState.agentB = model;
                     }
                     
-                    updateUI();
-                });
-            });
-
-            // AI Advisor
-            document.getElementById('getRecommendation').addEventListener('click', getAIRecommendation);
-            
-            // Interaction type buttons
-            document.querySelectorAll('.interaction-type').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    document.querySelectorAll('.interaction-type').forEach(b => b.classList.remove('bg-green-600'));
-                    btn.classList.add('bg-green-600');
+                    updateAgentNames();
                 });
             });
 
             // Control buttons
-            document.getElementById('startSession').addEventListener('click', startSession);
-            document.getElementById('nextStep').addEventListener('click', nextStep);
-            document.getElementById('pauseSession').addEventListener('click', pauseSession);
-            document.getElementById('stopSession').addEventListener('click', stopSession);
-            document.getElementById('clearChat').addEventListener('click', clearChat);
-            document.getElementById('exportSession').addEventListener('click', exportSession);
+            elements.startSession.addEventListener('click', startSession);
+            elements.nextStep.addEventListener('click', nextStep);
+            elements.pauseSession.addEventListener('click', pauseSession);
+            elements.stopSession.addEventListener('click', stopSession);
+            elements.clearAll.addEventListener('click', clearAll);
+            elements.exportSession.addEventListener('click', exportSession);
+            elements.aiAdvisor.addEventListener('click', aiAdvisor);
 
-            // Rounds input
-            document.getElementById('roundsInput').addEventListener('change', (e) => {
-                maxRounds = parseInt(e.target.value) || 5;
+            // Send buttons
+            elements.sendToAll.addEventListener('click', () => sendToAll());
+            elements.sendToA.addEventListener('click', () => sendToAgent('a'));
+            elements.sendToB.addEventListener('click', () => sendToAgent('b'));
+
+            // Mode changes
+            elements.operationMode.addEventListener('change', function() {
+                sessionState.mode = this.value;
+                updateUIForMode();
+            });
+
+            // Keyboard shortcuts
+            elements.promptInput.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    sendToAll();
+                }
             });
         }
 
-        function updateUI() {
-            // Update mode display
-            const modeNames = {
-                manual: 'Manual Relay',
-                autonomous: 'Autonomous',
-                singleA: 'Agent A Only',
-                singleB: 'Agent B Only'
-            };
-            document.getElementById('currentMode').textContent = modeNames[currentMode];
-
-            // Update active agents count
-            let activeCount = 0;
-            if (selectedAgentA) activeCount++;
-            if (selectedAgentB && currentMode !== 'singleA') activeCount++;
-            document.getElementById('activeAgents').textContent = activeCount;
-
-            // Update session status
-            document.getElementById('sessionStatus').textContent = sessionActive ? 'Active' : 'Inactive';
-            document.getElementById('sessionStatus').className = sessionActive ? 
-                'p-3 bg-green-900/30 border border-green-600 rounded-lg text-green-400 font-semibold' :
-                'p-3 bg-gray-900 border border-gray-600 rounded-lg text-gray-400';
-        }
-
-        function getAIRecommendation() {
-            const selectedType = document.querySelector('.interaction-type.bg-green-600')?.dataset.type;
-            if (!selectedType) {
-                showNotification('Please select an interaction type first!', 'warning');
-                return;
-            }
-
-            const recommendations = advisorRecommendations[selectedType];
-            const result = document.getElementById('recommendationResult');
+        function updateAgentNames() {
+            const configA = agentConfigs[sessionState.agentA];
+            const configB = agentConfigs[sessionState.agentB];
             
-            result.innerHTML = `
-                <h4 class="font-semibold text-green-400 mb-2">AI Advisor Recommendation for ${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)}</h4>
-                <p class="text-sm mb-3">Optimal agent combination:</p>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-blue-900/30 border border-blue-600 p-3 rounded-lg">
-                        <div class="font-semibold text-blue-400">Agent A</div>
-                        <div class="text-sm">${agentModels[recommendations[0]]}</div>
-                    </div>
-                    <div class="bg-green-900/30 border border-green-600 p-3 rounded-lg">
-                        <div class="font-semibold text-green-400">Agent B</div>
-                        <div class="text-sm">${agentModels[recommendations[1]]}</div>
-                    </div>
-                </div>
-                <button onclick="applyRecommendation('${recommendations[0]}', '${recommendations[1]}')" class="mt-3 bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-sm transition-all">
-                    Apply Recommendation
-                </button>
-            `;
-            result.classList.remove('hidden');
+            if (configA) elements.agentAName.textContent = configA.name;
+            if (configB) elements.agentBName.textContent = configB.name;
         }
 
-        function applyRecommendation(modelA, modelB) {
-            // Apply Agent A
-            document.querySelectorAll('[data-agent="a"]').forEach(c => c.classList.remove('selected'));
-            document.querySelector(`[data-agent="a"][data-model="${modelA}"]`).classList.add('selected');
-            selectedAgentA = modelA;
-            document.getElementById('selectedAgentA').textContent = agentModels[modelA];
-
-            // Apply Agent B
-            document.querySelectorAll('[data-agent="b"]').forEach(c => c.classList.remove('selected'));
-            document.querySelector(`[data-agent="b"][data-model="${modelB}"]`).classList.add('selected');
-            selectedAgentB = modelB;
-            document.getElementById('selectedAgentB').textContent = agentModels[modelB];
-
-            updateUI();
-            showNotification('AI Advisor recommendations applied successfully!', 'success');
+        function updateUIForMode() {
+            const isManual = sessionState.mode === 'manual';
+            const isAutonomous = sessionState.mode === 'autonomous';
+            
+            elements.nextStep.style.display = isManual ? 'inline-block' : 'none';
+            elements.roundsInput.disabled = !isAutonomous;
         }
 
         async function startSession() {
-            if (!selectedAgentA) {
-                showNotification('Please select Agent A first!', 'error');
-                return;
+            sessionState.id = 'session_' + Math.random().toString(36).substr(2, 9);
+            sessionState.startTime = Date.now();
+            sessionState.isActive = true;
+            sessionState.conversation = [];
+            sessionState.currentRound = 0;
+            sessionState.maxRounds = parseInt(elements.roundsInput.value);
+            sessionState.mode = elements.operationMode.value;
+
+            // Update UI
+            elements.startSession.disabled = true;
+            elements.nextStep.disabled = false;
+            elements.pauseSession.disabled = false;
+            elements.stopSession.disabled = false;
+
+            // Clear conversation areas
+            elements.agentAConversation.innerHTML = '';
+            elements.agentBConversation.innerHTML = '';
+
+            showMessage('Session started successfully!', 'success');
+
+            // If autonomous mode, start the first message
+            if (sessionState.mode === 'autonomous') {
+                sessionState.isAutonomous = true;
+                await sendToAgent('a');
             }
-
-            if (currentMode !== 'singleA' && !selectedAgentB) {
-                showNotification('Please select Agent B first!', 'error');
-                return;
-            }
-
-            const prompt = document.getElementById('initialPrompt').value.trim();
-            if (!prompt) {
-                showNotification('Please enter an initial prompt!', 'error');
-                return;
-            }
-
-            sessionActive = true;
-            sessionStartTime = Date.now();
-            currentRound = 0;
-            conversationHistory = [];
-
-            // Generate session ID
-            const sessionId = 'session_' + Date.now().toString(36);
-            document.getElementById('sessionId').textContent = sessionId;
-
-            // Update button states
-            document.getElementById('startSession').disabled = true;
-            document.getElementById('nextStep').disabled = false;
-            document.getElementById('pauseSession').disabled = false;
-            document.getElementById('stopSession').disabled = false;
-
-            updateUI();
-            showNotification('Session started successfully!', 'success');
-
-            // Start first message
-            if (currentMode === 'autonomous') {
-                startAutonomousMode(prompt);
-            } else if (currentMode === 'singleA') {
-                await sendMessageToAgent('a', prompt);
-            } else if (currentMode === 'singleB') {
-                await sendMessageToAgent('b', prompt);
-            } else {
-                // Manual mode - send to Agent A first
-                await sendMessageToAgent('a', prompt);
-            }
-        }
-
-        async function startAutonomousMode(initialPrompt) {
-            maxRounds = parseInt(document.getElementById('roundsInput').value) || 5;
-            
-            // Send initial prompt to Agent A
-            await sendMessageToAgent('a', initialPrompt);
-            
-            // Start autonomous conversation
-            autonomousInterval = setInterval(async () => {
-                if (currentRound >= maxRounds) {
-                    clearInterval(autonomousInterval);
-                    stopSession();
-                    showNotification(`Autonomous session completed after ${maxRounds} rounds!`, 'success');
-                    return;
-                }
-
-                // Alternate between agents
-                const nextAgent = conversationHistory.length % 2 === 1 ? 'b' : 'a';
-                const lastMessage = conversationHistory[conversationHistory.length - 1]?.content || '';
-                
-                if (lastMessage) {
-                    await sendMessageToAgent(nextAgent, lastMessage);
-                    currentRound++;
-                }
-            }, 3000); // 3 second delay between autonomous responses
         }
 
         async function nextStep() {
-            if (!sessionActive) return;
+            if (!sessionState.isActive) return;
 
-            if (currentMode === 'manual') {
-                // Manual relay mode
-                const lastMessage = conversationHistory[conversationHistory.length - 1];
-                if (lastMessage) {
-                    const nextAgent = lastMessage.agent === 'a' ? 'b' : 'a';
-                    await sendMessageToAgent(nextAgent, lastMessage.content);
-                }
-            }
+            const lastMessage = sessionState.conversation[sessionState.conversation.length - 1];
+            const nextAgent = !lastMessage || lastMessage.agent === 'b' ? 'a' : 'b';
+            
+            await sendToAgent(nextAgent);
         }
 
         function pauseSession() {
-            if (autonomousInterval) {
-                clearInterval(autonomousInterval);
-                autonomousInterval = null;
-            }
-            showNotification('Session paused', 'info');
+            sessionState.isAutonomous = false;
+            elements.pauseSession.disabled = true;
+            elements.nextStep.disabled = false;
+            showMessage('Session paused. Use Next Step to continue manually.', 'success');
         }
 
         function stopSession() {
-            sessionActive = false;
-            if (autonomousInterval) {
-                clearInterval(autonomousInterval);
-                autonomousInterval = null;
-            }
-
-            // Reset button states
-            document.getElementById('startSession').disabled = false;
-            document.getElementById('nextStep').disabled = true;
-            document.getElementById('pauseSession').disabled = true;
-            document.getElementById('stopSession').disabled = true;
-
-            updateUI();
-            showNotification('Session stopped', 'info');
+            sessionState.isActive = false;
+            sessionState.isAutonomous = false;
+            
+            // Update UI
+            elements.startSession.disabled = false;
+            elements.nextStep.disabled = true;
+            elements.pauseSession.disabled = true;
+            elements.stopSession.disabled = true;
+            
+            elements.agentAStatus.textContent = 'Ready';
+            elements.agentBStatus.textContent = 'Ready';
+            
+            showMessage('Session stopped.', 'success');
         }
 
-        function clearChat() {
-            conversationHistory = [];
-            document.getElementById('conversationDisplay').innerHTML = `
-                <div class="text-center text-gray-500 py-8">
-                    <i class="fas fa-robot text-4xl mb-4 opacity-50"></i>
-                    <p>No conversation yet. Select agents and start a session to begin!</p>
-                </div>
-            `;
-            document.getElementById('totalMessages').textContent = '0';
-            showNotification('Conversation cleared', 'info');
+        function clearAll() {
+            sessionState.conversation = [];
+            elements.agentAConversation.innerHTML = '<div class="text-center text-gray-400 py-8"><i class="fas fa-comment-dots text-4xl mb-4"></i><p>Waiting for session to start...</p></div>';
+            elements.agentBConversation.innerHTML = '<div class="text-center text-gray-400 py-8"><i class="fas fa-comment-dots text-4xl mb-4"></i><p>Waiting for session to start...</p></div>';
+            elements.promptInput.value = '';
+            showMessage('All conversations cleared.', 'success');
         }
 
         function exportSession() {
-            if (conversationHistory.length === 0) {
-                showNotification('No conversation to export!', 'warning');
-                return;
-            }
-
             const sessionData = {
-                sessionId: document.getElementById('sessionId').textContent,
-                mode: currentMode,
-                agentA: selectedAgentA,
-                agentB: selectedAgentB,
-                startTime: sessionStartTime,
-                conversation: conversationHistory,
-                totalMessages: conversationHistory.length
+                sessionId: sessionState.id,
+                mode: sessionState.mode,
+                agentA: sessionState.agentA,
+                agentB: sessionState.agentB,
+                startTime: sessionState.startTime,
+                conversation: sessionState.conversation,
+                totalMessages: sessionState.conversation.length
             };
 
-            const blob = new Blob([JSON.stringify(sessionData, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
+            const dataStr = JSON.stringify(sessionData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
             const link = document.createElement('a');
             link.href = url;
             link.download = `promptlink-session-${new Date().toISOString().slice(0, 10)}.json`;
             link.click();
             URL.revokeObjectURL(url);
-
-            showNotification('Session exported successfully!', 'success');
+            
+            showMessage('Session exported successfully!', 'success');
         }
 
-        async function sendMessageToAgent(agent, message) {
-            const model = agent === 'a' ? selectedAgentA : selectedAgentB;
-            if (!model) return;
-
-            const agentName = agentModels[model];
+        function aiAdvisor() {
+            const interactionType = elements.interactionType.value;
+            const recommendation = aiAdvisorRecommendations[interactionType];
             
-            // Show typing indicator
-            showTypingIndicator(agentName);
+            if (recommendation) {
+                // Update agent selections
+                sessionState.agentA = recommendation[0];
+                sessionState.agentB = recommendation[1];
+                
+                // Update UI
+                document.querySelectorAll('.agent-card').forEach(card => card.classList.remove('selected'));
+                document.querySelector(`[data-model="${recommendation[0]}"]`).classList.add('selected');
+                document.querySelector(`[data-model="${recommendation[1]}"]`).classList.add('selected');
+                
+                updateAgentNames();
+                showMessage(`AI Advisor recommends: ${agentConfigs[recommendation[0]].name} + ${agentConfigs[recommendation[1]].name} for ${interactionType} interactions.`, 'success');
+            }
+        }
+
+        async function sendToAll() {
+            const message = elements.promptInput.value.trim();
+            if (!message) return;
+
+            await sendToAgent('a', message);
+        }
+
+        async function sendToAgent(agent, customMessage = null) {
+            const message = customMessage || elements.promptInput.value.trim();
+            if (!message && !sessionState.conversation.length) return;
+
+            const agentModel = agent === 'a' ? sessionState.agentA : sessionState.agentB;
+            const statusElement = agent === 'a' ? elements.agentAStatus : elements.agentBStatus;
+            const conversationElement = agent === 'a' ? elements.agentAConversation : elements.agentBConversation;
+
+            // Show thinking state
+            statusElement.innerHTML = '<span class="status-indicator status-thinking"></span>Thinking<span class="thinking-dots"></span>';
 
             try {
-                const response = await fetch(API_BASE_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-                        'HTTP-Referer': 'https://thepromptlink.com',
-                    },
-                    body: JSON.stringify({
-                        model: model,
-                        messages: [
-                            { role: 'user', content: message }
-                        ],
-                        max_tokens: 500,
-                        temperature: 0.7
-                    })
-                });
-
-                const data = await response.json();
-                hideTypingIndicator();
-
-                if (data.choices && data.choices[0] && data.choices[0].message) {
-                    const responseText = data.choices[0].message.content;
-                    addMessageToConversation(agent, agentName, responseText);
-                    
-                    // Update credits (simulate usage)
-                    const currentCredits = parseInt(document.getElementById('creditsDisplay').textContent.replace(',', ''));
-                    const newCredits = Math.max(0, currentCredits - Math.floor(Math.random() * 10 + 5));
-                    document.getElementById('creditsDisplay').textContent = newCredits.toLocaleString();
-                } else {
-                    throw new Error('Invalid response format');
+                let finalMessage = message;
+                
+                // For autonomous mode after first message, use conversation context
+                if (sessionState.isAutonomous && sessionState.conversation.length > 0) {
+                    const lastMessage = sessionState.conversation[sessionState.conversation.length - 1];
+                    finalMessage = lastMessage.content;
                 }
 
+                const response = await callOpenRouterAPI(agentModel, finalMessage);
+                
+                // Add to conversation
+                const messageObj = {
+                    agent: agent,
+                    agentName: agentConfigs[agentModel].name,
+                    content: response,
+                    timestamp: Date.now()
+                };
+                
+                sessionState.conversation.push(messageObj);
+                
+                // Display message
+                displayMessage(conversationElement, messageObj, agent);
+                
+                // Update status
+                statusElement.innerHTML = '<span class="status-indicator status-active"></span>Ready';
+                
+                // Clear input if it was the original message
+                if (customMessage) {
+                    elements.promptInput.value = '';
+                }
+                
+                // Continue autonomous conversation
+                if (sessionState.isAutonomous && sessionState.currentRound < sessionState.maxRounds) {
+                    sessionState.currentRound++;
+                    setTimeout(() => {
+                        const nextAgent = agent === 'a' ? 'b' : 'a';
+                        sendToAgent(nextAgent);
+                    }, 2000);
+                } else if (sessionState.isAutonomous && sessionState.currentRound >= sessionState.maxRounds) {
+                    showMessage(`Autonomous session completed after ${sessionState.maxRounds} rounds.`, 'success');
+                    sessionState.isAutonomous = false;
+                }
+                
             } catch (error) {
-                hideTypingIndicator();
-                console.error('API Error:', error);
-                showNotification(`Error communicating with ${agentName}: ${error.message}`, 'error');
-                addMessageToConversation(agent, agentName, `Error: Unable to connect to ${agentName}. Please check your API configuration.`, true);
+                console.error('Error sending to agent:', error);
+                statusElement.innerHTML = '<span class="status-indicator status-error"></span>Error';
+                showMessage(`Error communicating with ${agentConfigs[agentModel].name}: ${error.message}`, 'error');
+                
+                // Try fallback models
+                await tryFallbackModels(agent, agentModel, message);
             }
         }
 
-        function addMessageToConversation(agent, agentName, content, isError = false) {
-            const conversation = document.getElementById('conversationDisplay');
+        async function tryFallbackModels(agent, originalModel, message) {
+            const config = agentConfigs[originalModel];
+            if (!config || !config.fallbacks) return;
+
+            for (const fallbackModel of config.fallbacks) {
+                try {
+                    console.log(`Trying fallback model: ${fallbackModel}`);
+                    const response = await callOpenRouterAPI(fallbackModel, message);
+                    
+                    const messageObj = {
+                        agent: agent,
+                        agentName: `${config.name} (Fallback)`,
+                        content: response,
+                        timestamp: Date.now()
+                    };
+                    
+                    sessionState.conversation.push(messageObj);
+                    
+                    const conversationElement = agent === 'a' ? elements.agentAConversation : elements.agentBConversation;
+                    displayMessage(conversationElement, messageObj, agent);
+                    
+                    const statusElement = agent === 'a' ? elements.agentAStatus : elements.agentBStatus;
+                    statusElement.innerHTML = '<span class="status-indicator status-active"></span>Ready (Fallback)';
+                    
+                    showMessage(`Switched to fallback model for ${config.name}`, 'success');
+                    return; // Success, exit the loop
+                    
+                } catch (fallbackError) {
+                    console.error(`Fallback model ${fallbackModel} also failed:`, fallbackError);
+                }
+            }
             
-            // Remove empty state
-            if (conversation.querySelector('.text-center')) {
-                conversation.innerHTML = '';
+            showMessage(`All models failed for ${config.name}. Please try a different agent.`, 'error');
+        }
+
+        async function callOpenRouterAPI(model, message) {
+            const config = agentConfigs[model];
+            
+            const response = await fetch(API_BASE_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                    'HTTP-Referer': 'https://thepromptlink.com',
+                    'X-Title': 'ThePromptLink AI Orchestration Platform'
+                },
+                body: JSON.stringify({
+                    model: model,
+                    messages: [
+                        {
+                            role: 'user',
+                            content: message
+                        }
+                    ],
+                    max_tokens: config ? config.maxTokens : 4000,
+                    temperature: config ? config.temperature : 0.7,
+                    stream: false
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error?.message || `API request failed with status ${response.status}`);
             }
 
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `mb-4 p-4 rounded-lg ${agent === 'a' ? 'bg-blue-900/30 border-l-4 border-blue-500' : 'bg-green-900/30 border-l-4 border-green-500'} ${isError ? 'bg-red-900/30 border-l-4 border-red-500' : ''}`;
+            const data = await response.json();
             
+            if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                throw new Error('Invalid response format from API');
+            }
+
+            return data.choices[0].message.content;
+        }
+
+        function displayMessage(container, messageObj, agent) {
+            const messageClass = agent === 'a' ? 'agent-a-message' : 'agent-b-message';
+            const agentColor = agent === 'a' ? 'text-blue-400' : 'text-purple-400';
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message-bubble ${messageClass}`;
             messageDiv.innerHTML = `
                 <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-center">
-                        <i class="fas fa-robot mr-2 ${agent === 'a' ? 'text-blue-400' : 'text-green-400'} ${isError ? 'text-red-400' : ''}"></i>
-                        <span class="font-semibold ${agent === 'a' ? 'text-blue-400' : 'text-green-400'} ${isError ? 'text-red-400' : ''}">${agentName}</span>
-                    </div>
-                    <span class="text-xs text-gray-500">${new Date().toLocaleTimeString()}</span>
+                    <span class="font-semibold ${agentColor}">${messageObj.agentName}</span>
+                    <span class="text-xs text-gray-400">${new Date(messageObj.timestamp).toLocaleTimeString()}</span>
                 </div>
-                <div class="text-gray-200 leading-relaxed">${content}</div>
+                <div class="text-sm leading-relaxed">${messageObj.content}</div>
             `;
-
-            conversation.appendChild(messageDiv);
-            conversation.scrollTop = conversation.scrollHeight;
-
-            // Add to history
-            if (!isError) {
-                conversationHistory.push({
-                    agent: agent,
-                    agentName: agentName,
-                    content: content,
-                    timestamp: Date.now()
-                });
-
-                // Update message count
-                document.getElementById('totalMessages').textContent = conversationHistory.length;
-            }
-        }
-
-        function showTypingIndicator(agentName) {
-            const indicator = document.querySelector('.typing-indicator');
-            document.getElementById('typingAgent').textContent = `${agentName} is thinking...`;
-            indicator.classList.add('active');
-        }
-
-        function hideTypingIndicator() {
-            const indicator = document.querySelector('.typing-indicator');
-            indicator.classList.remove('active');
-        }
-
-        function showNotification(message, type = 'info') {
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 p-4 rounded-lg z-50 transform transition-all duration-300 translate-x-full ${
-                type === 'success' ? 'bg-green-600' : 
-                type === 'error' ? 'bg-red-600' : 
-                type === 'warning' ? 'bg-yellow-600' : 'bg-blue-600'
-            }`;
             
-            notification.innerHTML = `
-                <div class="flex items-center">
-                    <i class="fas ${
-                        type === 'success' ? 'fa-check-circle' : 
-                        type === 'error' ? 'fa-exclamation-circle' : 
-                        type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'
-                    } mr-2"></i>
-                    <span>${message}</span>
-                </div>
-            `;
-
-            document.body.appendChild(notification);
-
-            // Animate in
-            setTimeout(() => {
-                notification.style.transform = 'translateX(0)';
-            }, 100);
-
-            // Animate out and remove
-            setTimeout(() => {
-                notification.style.transform = 'translateX(full)';
-                setTimeout(() => {
-                    document.body.removeChild(notification);
-                }, 300);
-            }, 3000);
+            // Clear placeholder if exists
+            if (container.innerHTML.includes('Waiting for session to start')) {
+                container.innerHTML = '';
+            }
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
         }
 
-        function startMetricsTimer() {
-            setInterval(() => {
-                if (sessionActive && sessionStartTime) {
-                    const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
-                    const minutes = Math.floor(elapsed / 60);
-                    const seconds = elapsed % 60;
-                    document.getElementById('sessionTime').textContent = 
-                        minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
+            messageDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'} mr-2"></i>${message}`;
+            
+            // Insert at the top of the page
+            document.body.insertBefore(messageDiv, document.body.firstChild);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.parentNode.removeChild(messageDiv);
                 }
+            }, 5000);
+        }
 
-                // Simulate system health fluctuation
-                const health = 96 + Math.floor(Math.random() * 4);
-                document.getElementById('systemHealth').textContent = `${health}%`;
+        function startMetricsUpdate() {
+            setInterval(() => {
+                if (sessionState.isActive && sessionState.startTime) {
+                    const elapsed = Math.floor((Date.now() - sessionState.startTime) / 1000);
+                    elements.sessionTime.textContent = elapsed + 's';
+                }
+                
+                elements.totalMessages.textContent = sessionState.conversation.length;
+                
+                // Simulate system health (would be real monitoring in production)
+                const health = Math.max(95, Math.floor(Math.random() * 5) + 96);
+                elements.systemHealth.textContent = health + '%';
+                elements.systemHealthMetric.textContent = health + '%';
             }, 1000);
         }
+
+        // Initialize UI state
+        updateUIForMode();
     </script>
 </body>
 </html>
