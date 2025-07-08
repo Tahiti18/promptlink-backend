@@ -810,26 +810,18 @@
 
     // Updated API call function to use Railway backend
     async function callRailwayAPI(model, message) {
-        const config = agentConfigs[model];
-        
-        const response = await fetch(`${API_BASE_URL}${CHAT_ENDPOINT}`, {
+    const config = agentConfigs[model];
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/chat`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'HTTP-Referer': 'https://thepromptlink.com',
-                'X-Title': 'ThePromptLink AI Orchestration Platform'
+                'Accept': 'application/json'
             },
             body: JSON.stringify({
-                model: model,
-                messages: [
-                    {
-                        role: 'user',
-                        content: message
-                    }
-                ],
-                max_tokens: config ? config.maxTokens : 4000,
-                temperature: config ? config.temperature : 0.7,
-                stream: false
+                message: message,
+                agents: [getAgentIdFromModel(model)]
             })
         });
 
@@ -840,72 +832,100 @@
 
         const data = await response.json();
         
-        if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-            throw new Error('Invalid response format from API');
-        }
-
-        return data.choices[0].message.content;
-    }
-
-    function displayMessage(container, messageObj, agent) {
-        const messageClass = agent === 'a' ? 'agent-a-message' : 'agent-b-message';
-        const agentColor = agent === 'a' ? 'text-blue-400' : 'text-purple-400';
-        
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message-bubble ${messageClass}`;
-        messageDiv.innerHTML = `
-            <div class="flex items-center justify-between mb-2">
-                <span class="font-semibold ${agentColor}">${messageObj.agentName}</span>
-                <span class="text-xs text-gray-400">${new Date(messageObj.timestamp).toLocaleTimeString()}</span>
-            </div>
-            <div class="text-sm leading-relaxed">${messageObj.content}</div>
-        `;
-        
-        // Clear placeholder if exists
-        if (container.innerHTML.includes('Waiting for session to start')) {
-            container.innerHTML = '';
-        }
-        
-        container.appendChild(messageDiv);
-        container.scrollTop = container.scrollHeight;
-    }
-
-    function showMessage(message, type = 'info') {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
-        messageDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'} mr-2"></i>${message}`;
-        
-        // Insert at the top of the page
-        document.body.insertBefore(messageDiv, document.body.firstChild);
-        
-        // Remove after 5 seconds
-        setTimeout(() => {
-            if (messageDiv.parentNode) {
-                messageDiv.parentNode.removeChild(messageDiv);
-            }
-        }, 5000);
-    }
-
-    function startMetricsUpdate() {
-        setInterval(() => {
-            if (sessionState.isActive && sessionState.startTime) {
-                const elapsed = Math.floor((Date.now() - sessionState.startTime) / 1000);
-                elements.sessionTime.textContent = elapsed + 's';
-            }
+        if (data.success && data.responses) {
+            const agentId = getAgentIdFromModel(model);
+            const agentResponse = data.responses[agentId];
             
-            elements.totalMessages.textContent = sessionState.conversation.length;
-            
-            // Simulate system health (would be real monitoring in production)
-            const health = Math.max(95, Math.floor(Math.random() * 5) + 96);
-            elements.systemHealth.textContent = health + '%';
-            elements.systemHealthMetric.textContent = health + '%';
-        }, 1000);
+            if (agentResponse && agentResponse.status === 'success') {
+                return agentResponse.response;
+            } else {
+                throw new Error(agentResponse?.error || 'No response from agent');
+            }
+        } else {
+            throw new Error(data.error || 'Invalid response format');
+        }
+    } catch (error) {
+        console.error('Railway API Error:', error);
+        throw error;
     }
+}
 
-    // Initialize UI state
-    updateUIForMode();
+function getAgentIdFromModel(model) {
+    const modelMap = {
+        'deepseek/deepseek-r1': 'deepseek',
+        'minmax/minmax-01': 'minmax', 
+        'openai/gpt-4-turbo': 'chatgpt',
+        'meta-llama/llama-3-8b-instruct': 'llama',
+        'mistralai/mistral-large-2407': 'mistral',
+        'deepseek-ai/deepseek-v2.5': 'deepseek',
+        'minimax/minimax-m1': 'minmax',
+        'openai/gpt-4o': 'chatgpt',
+        'anthropic/claude-3.5-sonnet': 'chatgpt'
+    };
+    return modelMap[model] || 'chatgpt';
+}
+
+function displayMessage(container, messageObj, agent) {
+    const messageClass = agent === 'a' ? 'agent-a-message' : 'agent-b-message';
+    const agentColor = agent === 'a' ? 'text-blue-400' : 'text-purple-400';
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message-bubble ${messageClass}`;
+    messageDiv.innerHTML = `
+        <div class="flex items-center justify-between mb-2">
+            <span class="font-semibold ${agentColor}">${messageObj.agentName}</span>
+            <span class="text-xs text-gray-400">${new Date(messageObj.timestamp).toLocaleTimeString()}</span>
+        </div>
+        <div class="text-sm leading-relaxed">${messageObj.content}</div>
+    `;
+    
+    // Clear placeholder if exists
+    if (container.innerHTML.includes('Waiting for session to start')) {
+        container.innerHTML = '';
+    }
+    
+    container.appendChild(messageDiv);
+    container.scrollTop = container.scrollHeight;
+}
+
+function showMessage(message, type = 'info') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
+    messageDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'} mr-2"></i>${message}`;
+    
+    // Insert at the top of the page
+    document.body.insertBefore(messageDiv, document.body.firstChild);
+    
+    // Remove after 5 seconds
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.parentNode.removeChild(messageDiv);
+        }
+    }, 5000);
+}
+
+function startMetricsUpdate() {
+    setInterval(() => {
+        if (sessionState.isActive && sessionState.startTime) {
+            const elapsed = Math.floor((Date.now() - sessionState.startTime) / 1000);
+            elements.sessionTime.textContent = elapsed + 's';
+        }
+        
+        elements.totalMessages.textContent = sessionState.conversation.length;
+        
+        // Simulate system health (would be real monitoring in production)
+        const health = Math.max(95, Math.floor(Math.random() * 5) + 96);
+        elements.systemHealth.textContent = health + '%';
+        elements.systemHealthMetric.textContent = health + '%';
+    }, 1000);
+}
+
+// Initialize UI state
+updateUIForMode();
 </script>
 </body>
 </html>
+
+
 
 
