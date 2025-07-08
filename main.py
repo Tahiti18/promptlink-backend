@@ -10,10 +10,9 @@ from datetime import datetime
 app = Flask(__name__, static_folder='static')
 app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
 
-# FIXED: CORS configuration for BOTH Railway and Netlify
+# FIXED: CORS configuration for Railway only
 CORS(app, 
-     resources={r"/*": {"origins": ["https://web-production-2474.up.railway.app",
-                                    "https://zippy-gumption-cba005.netlify.app"]}},
+     resources={r"/*": {"origins": ["https://web-production-2474.up.railway.app"]}},
      allow_headers=["Content-Type", "Authorization", "Accept"],
      supports_credentials=False,
      methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"])
@@ -283,3 +282,4 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     print(f"🚀 Starting server on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
+
