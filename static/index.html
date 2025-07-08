@@ -403,489 +403,509 @@
     </div>
 
     <script>
-        // Configuration
-        const OPENROUTER_API_KEY = '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';
-        const API_BASE_URL = 'https://openrouter.ai/api/v1/chat/completions';
-        
-        // Global state
-        let sessionState = {
-            id: null,
-            mode: 'manual',
-            agentA: 'openai/gpt-4o',
-            agentB: 'meta-llama/llama-3-8b-instruct',
-            startTime: null,
-            conversation: [],
-            isActive: false,
-            currentRound: 0,
-            maxRounds: 5,
-            isAutonomous: false
-        };
+    // Configuration - Updated for Railway backend
+    const API_BASE_URL = window.location.origin; // Uses current Railway URL
+    const CHAT_ENDPOINT = '/api/chat';
+    const AGENTS_ENDPOINT = '/api/agents';
+    const HEALTH_ENDPOINT = '/api/health';
+    
+    // Global state
+    let sessionState = {
+        id: null,
+        mode: 'manual',
+        agentA: 'openai/gpt-4o',
+        agentB: 'meta-llama/llama-3-8b-instruct',
+        startTime: null,
+        conversation: [],
+        isActive: false,
+        currentRound: 0,
+        maxRounds: 5,
+        isAutonomous: false
+    };
 
-        // Agent configurations with fallback models
-        const agentConfigs = {
-            'deepseek-ai/deepseek-v2.5': { 
-                name: 'DeepSeek R1', 
-                fallbacks: ['deepseek-ai/deepseek-coder', 'deepseek-ai/deepseek-chat'],
-                maxTokens: 4000,
-                temperature: 0.7
-            },
-            'minimax/minimax-m1': { 
-                name: 'MinMax M1',
-                fallbacks: ['minimax/abab6.5s-chat', 'openai/gpt-4o-mini'],
-                maxTokens: 4000,
-                temperature: 0.7
-            },
-            'openai/gpt-4o': { 
-                name: 'ChatGPT 4 Turbo',
-                fallbacks: ['openai/gpt-4-turbo', 'openai/gpt-4'],
-                maxTokens: 4000,
-                temperature: 0.7
-            },
-            'meta-llama/llama-3-8b-instruct': { 
-                name: 'Llama 3.3',
-                fallbacks: ['meta-llama/llama-3.1-8b-instruct', 'meta-llama/llama-3-70b-instruct'],
-                maxTokens: 4000,
-                temperature: 0.7
-            },
-            'mistralai/mistral-large-2407': { 
-                name: 'Mistral Large',
-                fallbacks: ['mistralai/mistral-large', 'mistralai/mixtral-8x7b-instruct'],
-                maxTokens: 4000,
-                temperature: 0.7
-            },
-            'anthropic/claude-3.5-sonnet': { 
-                name: 'Claude 3.5 Sonnet',
-                fallbacks: ['anthropic/claude-3-sonnet', 'anthropic/claude-3-haiku'],
-                maxTokens: 4000,
-                temperature: 0.7
-            }
-        };
-
-        // AI Advisor recommendations
-        const aiAdvisorRecommendations = {
-            'free': ['openai/gpt-4o', 'meta-llama/llama-3-8b-instruct'],
-            'brainstorm': ['openai/gpt-4o', 'mistralai/mistral-large-2407'],
-            'debate': ['meta-llama/llama-3-8b-instruct', 'anthropic/claude-3.5-sonnet'],
-            'strategy': ['minimax/minimax-m1', 'meta-llama/llama-3-8b-instruct'],
-            'technical': ['deepseek-ai/deepseek-v2.5', 'openai/gpt-4o'],
-            'compliance': ['mistralai/mistral-large-2407', 'anthropic/claude-3.5-sonnet']
-        };
-
-        // DOM elements
-        const elements = {
-            operationMode: document.getElementById('operationMode'),
-            interactionType: document.getElementById('interactionType'),
-            roundsInput: document.getElementById('roundsInput'),
-            aiAdvisor: document.getElementById('aiAdvisor'),
-            promptInput: document.getElementById('promptInput'),
-            startSession: document.getElementById('startSession'),
-            nextStep: document.getElementById('nextStep'),
-            pauseSession: document.getElementById('pauseSession'),
-            stopSession: document.getElementById('stopSession'),
-            clearAll: document.getElementById('clearAll'),
-            exportSession: document.getElementById('exportSession'),
-            sendToAll: document.getElementById('sendToAll'),
-            sendToA: document.getElementById('sendToA'),
-            sendToB: document.getElementById('sendToB'),
-            agentAConversation: document.getElementById('agentAConversation'),
-            agentBConversation: document.getElementById('agentBConversation'),
-            agentAName: document.getElementById('agentAName'),
-            agentBName: document.getElementById('agentBName'),
-            agentAStatus: document.getElementById('agentAStatus'),
-            agentBStatus: document.getElementById('agentBStatus'),
-            sessionTime: document.getElementById('sessionTime'),
-            totalMessages: document.getElementById('totalMessages'),
-            activeAgents: document.getElementById('activeAgents'),
-            systemHealth: document.getElementById('systemHealth'),
-            systemHealthMetric: document.getElementById('systemHealthMetric')
-        };
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeEventListeners();
-            updateAgentNames();
-            startMetricsUpdate();
-        });
-
-        function initializeEventListeners() {
-            // Agent selection
-            document.querySelectorAll('.agent-card').forEach(card => {
-                card.addEventListener('click', function() {
-                    const agent = this.dataset.agent;
-                    const model = this.dataset.model;
-                    
-                    // Remove selection from other cards in the same group
-                    document.querySelectorAll(`[data-agent="${agent}"]`).forEach(c => c.classList.remove('selected'));
-                    this.classList.add('selected');
-                    
-                    // Update session state
-                    if (agent === 'a') {
-                        sessionState.agentA = model;
-                    } else {
-                        sessionState.agentB = model;
-                    }
-                    
-                    updateAgentNames();
-                });
-            });
-
-            // Control buttons
-            elements.startSession.addEventListener('click', startSession);
-            elements.nextStep.addEventListener('click', nextStep);
-            elements.pauseSession.addEventListener('click', pauseSession);
-            elements.stopSession.addEventListener('click', stopSession);
-            elements.clearAll.addEventListener('click', clearAll);
-            elements.exportSession.addEventListener('click', exportSession);
-            elements.aiAdvisor.addEventListener('click', aiAdvisor);
-
-            // Send buttons
-            elements.sendToAll.addEventListener('click', () => sendToAll());
-            elements.sendToA.addEventListener('click', () => sendToAgent('a'));
-            elements.sendToB.addEventListener('click', () => sendToAgent('b'));
-
-            // Mode changes
-            elements.operationMode.addEventListener('change', function() {
-                sessionState.mode = this.value;
-                updateUIForMode();
-            });
-
-            // Keyboard shortcuts
-            elements.promptInput.addEventListener('keydown', function(e) {
-                if (e.ctrlKey && e.key === 'Enter') {
-                    sendToAll();
-                }
-            });
+    // Agent configurations with fallback models
+    const agentConfigs = {
+        'deepseek-ai/deepseek-v2.5': { 
+            name: 'DeepSeek R1', 
+            fallbacks: ['deepseek-ai/deepseek-coder', 'deepseek-ai/deepseek-chat'],
+            maxTokens: 4000,
+            temperature: 0.7
+        },
+        'minimax/minimax-m1': { 
+            name: 'MinMax M1',
+            fallbacks: ['minimax/abab6.5s-chat', 'openai/gpt-4o-mini'],
+            maxTokens: 4000,
+            temperature: 0.7
+        },
+        'openai/gpt-4o': { 
+            name: 'ChatGPT 4 Turbo',
+            fallbacks: ['openai/gpt-4-turbo', 'openai/gpt-4'],
+            maxTokens: 4000,
+            temperature: 0.7
+        },
+        'meta-llama/llama-3-8b-instruct': { 
+            name: 'Llama 3.3',
+            fallbacks: ['meta-llama/llama-3.1-8b-instruct', 'meta-llama/llama-3-70b-instruct'],
+            maxTokens: 4000,
+            temperature: 0.7
+        },
+        'mistralai/mistral-large-2407': { 
+            name: 'Mistral Large',
+            fallbacks: ['mistralai/mistral-large', 'mistralai/mixtral-8x7b-instruct'],
+            maxTokens: 4000,
+            temperature: 0.7
+        },
+        'anthropic/claude-3.5-sonnet': { 
+            name: 'Claude 3.5 Sonnet',
+            fallbacks: ['anthropic/claude-3-sonnet', 'anthropic/claude-3-haiku'],
+            maxTokens: 4000,
+            temperature: 0.7
         }
+    };
 
-        function updateAgentNames() {
-            const configA = agentConfigs[sessionState.agentA];
-            const configB = agentConfigs[sessionState.agentB];
-            
-            if (configA) elements.agentAName.textContent = configA.name;
-            if (configB) elements.agentBName.textContent = configB.name;
-        }
+    // AI Advisor recommendations
+    const aiAdvisorRecommendations = {
+        'free': ['openai/gpt-4o', 'meta-llama/llama-3-8b-instruct'],
+        'brainstorm': ['openai/gpt-4o', 'mistralai/mistral-large-2407'],
+        'debate': ['meta-llama/llama-3-8b-instruct', 'anthropic/claude-3.5-sonnet'],
+        'strategy': ['minimax/minimax-m1', 'meta-llama/llama-3-8b-instruct'],
+        'technical': ['deepseek-ai/deepseek-v2.5', 'openai/gpt-4o'],
+        'compliance': ['mistralai/mistral-large-2407', 'anthropic/claude-3.5-sonnet']
+    };
 
-        function updateUIForMode() {
-            const isManual = sessionState.mode === 'manual';
-            const isAutonomous = sessionState.mode === 'autonomous';
-            
-            elements.nextStep.style.display = isManual ? 'inline-block' : 'none';
-            elements.roundsInput.disabled = !isAutonomous;
-        }
+    // DOM elements
+    const elements = {
+        operationMode: document.getElementById('operationMode'),
+        interactionType: document.getElementById('interactionType'),
+        roundsInput: document.getElementById('roundsInput'),
+        aiAdvisor: document.getElementById('aiAdvisor'),
+        promptInput: document.getElementById('promptInput'),
+        startSession: document.getElementById('startSession'),
+        nextStep: document.getElementById('nextStep'),
+        pauseSession: document.getElementById('pauseSession'),
+        stopSession: document.getElementById('stopSession'),
+        clearAll: document.getElementById('clearAll'),
+        exportSession: document.getElementById('exportSession'),
+        sendToAll: document.getElementById('sendToAll'),
+        sendToA: document.getElementById('sendToA'),
+        sendToB: document.getElementById('sendToB'),
+        agentAConversation: document.getElementById('agentAConversation'),
+        agentBConversation: document.getElementById('agentBConversation'),
+        agentAName: document.getElementById('agentAName'),
+        agentBName: document.getElementById('agentBName'),
+        agentAStatus: document.getElementById('agentAStatus'),
+        agentBStatus: document.getElementById('agentBStatus'),
+        sessionTime: document.getElementById('sessionTime'),
+        totalMessages: document.getElementById('totalMessages'),
+        activeAgents: document.getElementById('activeAgents'),
+        systemHealth: document.getElementById('systemHealth'),
+        systemHealthMetric: document.getElementById('systemHealthMetric')
+    };
 
-        async function startSession() {
-            sessionState.id = 'session_' + Math.random().toString(36).substr(2, 9);
-            sessionState.startTime = Date.now();
-            sessionState.isActive = true;
-            sessionState.conversation = [];
-            sessionState.currentRound = 0;
-            sessionState.maxRounds = parseInt(elements.roundsInput.value);
-            sessionState.mode = elements.operationMode.value;
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeEventListeners();
+        updateAgentNames();
+        startMetricsUpdate();
+        checkBackendHealth();
+    });
 
-            // Update UI
-            elements.startSession.disabled = true;
-            elements.nextStep.disabled = false;
-            elements.pauseSession.disabled = false;
-            elements.stopSession.disabled = false;
-
-            // Clear conversation areas
-            elements.agentAConversation.innerHTML = '';
-            elements.agentBConversation.innerHTML = '';
-
-            showMessage('Session started successfully!', 'success');
-
-            // If autonomous mode, start the first message
-            if (sessionState.mode === 'autonomous') {
-                sessionState.isAutonomous = true;
-                await sendToAgent('a');
-            }
-        }
-
-        async function nextStep() {
-            if (!sessionState.isActive) return;
-
-            const lastMessage = sessionState.conversation[sessionState.conversation.length - 1];
-            const nextAgent = !lastMessage || lastMessage.agent === 'b' ? 'a' : 'b';
-            
-            await sendToAgent(nextAgent);
-        }
-
-        function pauseSession() {
-            sessionState.isAutonomous = false;
-            elements.pauseSession.disabled = true;
-            elements.nextStep.disabled = false;
-            showMessage('Session paused. Use Next Step to continue manually.', 'success');
-        }
-
-        function stopSession() {
-            sessionState.isActive = false;
-            sessionState.isAutonomous = false;
-            
-            // Update UI
-            elements.startSession.disabled = false;
-            elements.nextStep.disabled = true;
-            elements.pauseSession.disabled = true;
-            elements.stopSession.disabled = true;
-            
-            elements.agentAStatus.textContent = 'Ready';
-            elements.agentBStatus.textContent = 'Ready';
-            
-            showMessage('Session stopped.', 'success');
-        }
-
-        function clearAll() {
-            sessionState.conversation = [];
-            elements.agentAConversation.innerHTML = '<div class="text-center text-gray-400 py-8"><i class="fas fa-comment-dots text-4xl mb-4"></i><p>Waiting for session to start...</p></div>';
-            elements.agentBConversation.innerHTML = '<div class="text-center text-gray-400 py-8"><i class="fas fa-comment-dots text-4xl mb-4"></i><p>Waiting for session to start...</p></div>';
-            elements.promptInput.value = '';
-            showMessage('All conversations cleared.', 'success');
-        }
-
-        function exportSession() {
-            const sessionData = {
-                sessionId: sessionState.id,
-                mode: sessionState.mode,
-                agentA: sessionState.agentA,
-                agentB: sessionState.agentB,
-                startTime: sessionState.startTime,
-                conversation: sessionState.conversation,
-                totalMessages: sessionState.conversation.length
-            };
-
-            const dataStr = JSON.stringify(sessionData, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `promptlink-session-${new Date().toISOString().slice(0, 10)}.json`;
-            link.click();
-            URL.revokeObjectURL(url);
-            
-            showMessage('Session exported successfully!', 'success');
-        }
-
-        function aiAdvisor() {
-            const interactionType = elements.interactionType.value;
-            const recommendation = aiAdvisorRecommendations[interactionType];
-            
-            if (recommendation) {
-                // Update agent selections
-                sessionState.agentA = recommendation[0];
-                sessionState.agentB = recommendation[1];
+    function initializeEventListeners() {
+        // Agent selection
+        document.querySelectorAll('.agent-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const agent = this.dataset.agent;
+                const model = this.dataset.model;
                 
-                // Update UI
-                document.querySelectorAll('.agent-card').forEach(card => card.classList.remove('selected'));
-                document.querySelector(`[data-model="${recommendation[0]}"]`).classList.add('selected');
-                document.querySelector(`[data-model="${recommendation[1]}"]`).classList.add('selected');
+                // Remove selection from other cards in the same group
+                document.querySelectorAll(`[data-agent="${agent}"]`).forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                // Update session state
+                if (agent === 'a') {
+                    sessionState.agentA = model;
+                } else {
+                    sessionState.agentB = model;
+                }
                 
                 updateAgentNames();
-                showMessage(`AI Advisor recommends: ${agentConfigs[recommendation[0]].name} + ${agentConfigs[recommendation[1]].name} for ${interactionType} interactions.`, 'success');
+            });
+        });
+
+        // Control buttons
+        elements.startSession.addEventListener('click', startSession);
+        elements.nextStep.addEventListener('click', nextStep);
+        elements.pauseSession.addEventListener('click', pauseSession);
+        elements.stopSession.addEventListener('click', stopSession);
+        elements.clearAll.addEventListener('click', clearAll);
+        elements.exportSession.addEventListener('click', exportSession);
+        elements.aiAdvisor.addEventListener('click', aiAdvisor);
+
+        // Send buttons
+        elements.sendToAll.addEventListener('click', () => sendToAll());
+        elements.sendToA.addEventListener('click', () => sendToAgent('a'));
+        elements.sendToB.addEventListener('click', () => sendToAgent('b'));
+
+        // Mode changes
+        elements.operationMode.addEventListener('change', function() {
+            sessionState.mode = this.value;
+            updateUIForMode();
+        });
+
+        // Keyboard shortcuts
+        elements.promptInput.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                sendToAll();
             }
+        });
+    }
+
+    function updateAgentNames() {
+        const configA = agentConfigs[sessionState.agentA];
+        const configB = agentConfigs[sessionState.agentB];
+        
+        if (configA) elements.agentAName.textContent = configA.name;
+        if (configB) elements.agentBName.textContent = configB.name;
+    }
+
+    function updateUIForMode() {
+        const isManual = sessionState.mode === 'manual';
+        const isAutonomous = sessionState.mode === 'autonomous';
+        
+        elements.nextStep.style.display = isManual ? 'inline-block' : 'none';
+        elements.roundsInput.disabled = !isAutonomous;
+    }
+
+    // Check backend health on startup
+    async function checkBackendHealth() {
+        try {
+            const response = await fetch(`${API_BASE_URL}${HEALTH_ENDPOINT}`);
+            if (response.ok) {
+                showMessage('Backend connection established successfully!', 'success');
+            } else {
+                showMessage('Backend connection warning - some features may not work', 'error');
+            }
+        } catch (error) {
+            console.error('Backend health check failed:', error);
+            showMessage('Backend connection failed - using fallback mode', 'error');
         }
+    }
 
-        async function sendToAll() {
-            const message = elements.promptInput.value.trim();
-            if (!message) return;
+    async function startSession() {
+        sessionState.id = 'session_' + Math.random().toString(36).substr(2, 9);
+        sessionState.startTime = Date.now();
+        sessionState.isActive = true;
+        sessionState.conversation = [];
+        sessionState.currentRound = 0;
+        sessionState.maxRounds = parseInt(elements.roundsInput.value);
+        sessionState.mode = elements.operationMode.value;
 
-            await sendToAgent('a', message);
+        // Update UI
+        elements.startSession.disabled = true;
+        elements.nextStep.disabled = false;
+        elements.pauseSession.disabled = false;
+        elements.stopSession.disabled = false;
+
+        // Clear conversation areas
+        elements.agentAConversation.innerHTML = '';
+        elements.agentBConversation.innerHTML = '';
+
+        showMessage('Session started successfully!', 'success');
+
+        // If autonomous mode, start the first message
+        if (sessionState.mode === 'autonomous') {
+            sessionState.isAutonomous = true;
+            await sendToAgent('a');
         }
+    }
 
-        async function sendToAgent(agent, customMessage = null) {
-            const message = customMessage || elements.promptInput.value.trim();
-            if (!message && !sessionState.conversation.length) return;
+    async function nextStep() {
+        if (!sessionState.isActive) return;
 
-            const agentModel = agent === 'a' ? sessionState.agentA : sessionState.agentB;
-            const statusElement = agent === 'a' ? elements.agentAStatus : elements.agentBStatus;
-            const conversationElement = agent === 'a' ? elements.agentAConversation : elements.agentBConversation;
+        const lastMessage = sessionState.conversation[sessionState.conversation.length - 1];
+        const nextAgent = !lastMessage || lastMessage.agent === 'b' ? 'a' : 'b';
+        
+        await sendToAgent(nextAgent);
+    }
 
-            // Show thinking state
-            statusElement.innerHTML = '<span class="status-indicator status-thinking"></span>Thinking<span class="thinking-dots"></span>';
+    function pauseSession() {
+        sessionState.isAutonomous = false;
+        elements.pauseSession.disabled = true;
+        elements.nextStep.disabled = false;
+        showMessage('Session paused. Use Next Step to continue manually.', 'success');
+    }
 
+    function stopSession() {
+        sessionState.isActive = false;
+        sessionState.isAutonomous = false;
+        
+        // Update UI
+        elements.startSession.disabled = false;
+        elements.nextStep.disabled = true;
+        elements.pauseSession.disabled = true;
+        elements.stopSession.disabled = true;
+        
+        elements.agentAStatus.textContent = 'Ready';
+        elements.agentBStatus.textContent = 'Ready';
+        
+        showMessage('Session stopped.', 'success');
+    }
+
+    function clearAll() {
+        sessionState.conversation = [];
+        elements.agentAConversation.innerHTML = '<div class="text-center text-gray-400 py-8"><i class="fas fa-comment-dots text-4xl mb-4"></i><p>Waiting for session to start...</p></div>';
+        elements.agentBConversation.innerHTML = '<div class="text-center text-gray-400 py-8"><i class="fas fa-comment-dots text-4xl mb-4"></i><p>Waiting for session to start...</p></div>';
+        elements.promptInput.value = '';
+        showMessage('All conversations cleared.', 'success');
+    }
+
+    function exportSession() {
+        const sessionData = {
+            sessionId: sessionState.id,
+            mode: sessionState.mode,
+            agentA: sessionState.agentA,
+            agentB: sessionState.agentB,
+            startTime: sessionState.startTime,
+            conversation: sessionState.conversation,
+            totalMessages: sessionState.conversation.length
+        };
+
+        const dataStr = JSON.stringify(sessionData, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `promptlink-session-${new Date().toISOString().slice(0, 10)}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        showMessage('Session exported successfully!', 'success');
+    }
+
+    function aiAdvisor() {
+        const interactionType = elements.interactionType.value;
+        const recommendation = aiAdvisorRecommendations[interactionType];
+        
+        if (recommendation) {
+            // Update agent selections
+            sessionState.agentA = recommendation[0];
+            sessionState.agentB = recommendation[1];
+            
+            // Update UI
+            document.querySelectorAll('.agent-card').forEach(card => card.classList.remove('selected'));
+            document.querySelector(`[data-model="${recommendation[0]}"]`).classList.add('selected');
+            document.querySelector(`[data-model="${recommendation[1]}"]`).classList.add('selected');
+            
+            updateAgentNames();
+            showMessage(`AI Advisor recommends: ${agentConfigs[recommendation[0]].name} + ${agentConfigs[recommendation[1]].name} for ${interactionType} interactions.`, 'success');
+        }
+    }
+
+    async function sendToAll() {
+        const message = elements.promptInput.value.trim();
+        if (!message) return;
+
+        await sendToAgent('a', message);
+    }
+
+    async function sendToAgent(agent, customMessage = null) {
+        const message = customMessage || elements.promptInput.value.trim();
+        if (!message && !sessionState.conversation.length) return;
+
+        const agentModel = agent === 'a' ? sessionState.agentA : sessionState.agentB;
+        const statusElement = agent === 'a' ? elements.agentAStatus : elements.agentBStatus;
+        const conversationElement = agent === 'a' ? elements.agentAConversation : elements.agentBConversation;
+
+        // Show thinking state
+        statusElement.innerHTML = '<span class="status-indicator status-thinking"></span>Thinking<span class="thinking-dots"></span>';
+
+        try {
+            let finalMessage = message;
+            
+            // For autonomous mode after first message, use conversation context
+            if (sessionState.isAutonomous && sessionState.conversation.length > 0) {
+                const lastMessage = sessionState.conversation[sessionState.conversation.length - 1];
+                finalMessage = lastMessage.content;
+            }
+
+            const response = await callRailwayAPI(agentModel, finalMessage);
+            
+            // Add to conversation
+            const messageObj = {
+                agent: agent,
+                agentName: agentConfigs[agentModel].name,
+                content: response,
+                timestamp: Date.now()
+            };
+            
+            sessionState.conversation.push(messageObj);
+            
+            // Display message
+            displayMessage(conversationElement, messageObj, agent);
+            
+            // Update status
+            statusElement.innerHTML = '<span class="status-indicator status-active"></span>Ready';
+            
+            // Clear input if it was the original message
+            if (customMessage) {
+                elements.promptInput.value = '';
+            }
+            
+            // Continue autonomous conversation
+            if (sessionState.isAutonomous && sessionState.currentRound < sessionState.maxRounds) {
+                sessionState.currentRound++;
+                setTimeout(() => {
+                    const nextAgent = agent === 'a' ? 'b' : 'a';
+                    sendToAgent(nextAgent);
+                }, 2000);
+            } else if (sessionState.isAutonomous && sessionState.currentRound >= sessionState.maxRounds) {
+                showMessage(`Autonomous session completed after ${sessionState.maxRounds} rounds.`, 'success');
+                sessionState.isAutonomous = false;
+            }
+            
+        } catch (error) {
+            console.error('Error sending to agent:', error);
+            statusElement.innerHTML = '<span class="status-indicator status-error"></span>Error';
+            showMessage(`Error communicating with ${agentConfigs[agentModel].name}: ${error.message}`, 'error');
+            
+            // Try fallback models
+            await tryFallbackModels(agent, agentModel, message);
+        }
+    }
+
+    async function tryFallbackModels(agent, originalModel, message) {
+        const config = agentConfigs[originalModel];
+        if (!config || !config.fallbacks) return;
+
+        for (const fallbackModel of config.fallbacks) {
             try {
-                let finalMessage = message;
+                console.log(`Trying fallback model: ${fallbackModel}`);
+                const response = await callRailwayAPI(fallbackModel, message);
                 
-                // For autonomous mode after first message, use conversation context
-                if (sessionState.isAutonomous && sessionState.conversation.length > 0) {
-                    const lastMessage = sessionState.conversation[sessionState.conversation.length - 1];
-                    finalMessage = lastMessage.content;
-                }
-
-                const response = await callOpenRouterAPI(agentModel, finalMessage);
-                
-                // Add to conversation
                 const messageObj = {
                     agent: agent,
-                    agentName: agentConfigs[agentModel].name,
+                    agentName: `${config.name} (Fallback)`,
                     content: response,
                     timestamp: Date.now()
                 };
                 
                 sessionState.conversation.push(messageObj);
                 
-                // Display message
+                const conversationElement = agent === 'a' ? elements.agentAConversation : elements.agentBConversation;
                 displayMessage(conversationElement, messageObj, agent);
                 
-                // Update status
-                statusElement.innerHTML = '<span class="status-indicator status-active"></span>Ready';
+                const statusElement = agent === 'a' ? elements.agentAStatus : elements.agentBStatus;
+                statusElement.innerHTML = '<span class="status-indicator status-active"></span>Ready (Fallback)';
                 
-                // Clear input if it was the original message
-                if (customMessage) {
-                    elements.promptInput.value = '';
-                }
+                showMessage(`Switched to fallback model for ${config.name}`, 'success');
+                return; // Success, exit the loop
                 
-                // Continue autonomous conversation
-                if (sessionState.isAutonomous && sessionState.currentRound < sessionState.maxRounds) {
-                    sessionState.currentRound++;
-                    setTimeout(() => {
-                        const nextAgent = agent === 'a' ? 'b' : 'a';
-                        sendToAgent(nextAgent);
-                    }, 2000);
-                } else if (sessionState.isAutonomous && sessionState.currentRound >= sessionState.maxRounds) {
-                    showMessage(`Autonomous session completed after ${sessionState.maxRounds} rounds.`, 'success');
-                    sessionState.isAutonomous = false;
-                }
-                
-            } catch (error) {
-                console.error('Error sending to agent:', error);
-                statusElement.innerHTML = '<span class="status-indicator status-error"></span>Error';
-                showMessage(`Error communicating with ${agentConfigs[agentModel].name}: ${error.message}`, 'error');
-                
-                // Try fallback models
-                await tryFallbackModels(agent, agentModel, message);
+            } catch (fallbackError) {
+                console.error(`Fallback model ${fallbackModel} also failed:`, fallbackError);
             }
         }
+        
+        showMessage(`All models failed for ${config.name}. Please try a different agent.`, 'error');
+    }
 
-        async function tryFallbackModels(agent, originalModel, message) {
-            const config = agentConfigs[originalModel];
-            if (!config || !config.fallbacks) return;
+    // Updated API call function to use Railway backend
+    async function callRailwayAPI(model, message) {
+        const config = agentConfigs[model];
+        
+        const response = await fetch(`${API_BASE_URL}${CHAT_ENDPOINT}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'HTTP-Referer': 'https://thepromptlink.com',
+                'X-Title': 'ThePromptLink AI Orchestration Platform'
+            },
+            body: JSON.stringify({
+                model: model,
+                messages: [
+                    {
+                        role: 'user',
+                        content: message
+                    }
+                ],
+                max_tokens: config ? config.maxTokens : 4000,
+                temperature: config ? config.temperature : 0.7,
+                stream: false
+            })
+        });
 
-            for (const fallbackModel of config.fallbacks) {
-                try {
-                    console.log(`Trying fallback model: ${fallbackModel}`);
-                    const response = await callOpenRouterAPI(fallbackModel, message);
-                    
-                    const messageObj = {
-                        agent: agent,
-                        agentName: `${config.name} (Fallback)`,
-                        content: response,
-                        timestamp: Date.now()
-                    };
-                    
-                    sessionState.conversation.push(messageObj);
-                    
-                    const conversationElement = agent === 'a' ? elements.agentAConversation : elements.agentBConversation;
-                    displayMessage(conversationElement, messageObj, agent);
-                    
-                    const statusElement = agent === 'a' ? elements.agentAStatus : elements.agentBStatus;
-                    statusElement.innerHTML = '<span class="status-indicator status-active"></span>Ready (Fallback)';
-                    
-                    showMessage(`Switched to fallback model for ${config.name}`, 'success');
-                    return; // Success, exit the loop
-                    
-                } catch (fallbackError) {
-                    console.error(`Fallback model ${fallbackModel} also failed:`, fallbackError);
-                }
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error?.message || `API request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+            throw new Error('Invalid response format from API');
+        }
+
+        return data.choices[0].message.content;
+    }
+
+    function displayMessage(container, messageObj, agent) {
+        const messageClass = agent === 'a' ? 'agent-a-message' : 'agent-b-message';
+        const agentColor = agent === 'a' ? 'text-blue-400' : 'text-purple-400';
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message-bubble ${messageClass}`;
+        messageDiv.innerHTML = `
+            <div class="flex items-center justify-between mb-2">
+                <span class="font-semibold ${agentColor}">${messageObj.agentName}</span>
+                <span class="text-xs text-gray-400">${new Date(messageObj.timestamp).toLocaleTimeString()}</span>
+            </div>
+            <div class="text-sm leading-relaxed">${messageObj.content}</div>
+        `;
+        
+        // Clear placeholder if exists
+        if (container.innerHTML.includes('Waiting for session to start')) {
+            container.innerHTML = '';
+        }
+        
+        container.appendChild(messageDiv);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function showMessage(message, type = 'info') {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
+        messageDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'} mr-2"></i>${message}`;
+        
+        // Insert at the top of the page
+        document.body.insertBefore(messageDiv, document.body.firstChild);
+        
+        // Remove after 5 seconds
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                messageDiv.parentNode.removeChild(messageDiv);
+            }
+        }, 5000);
+    }
+
+    function startMetricsUpdate() {
+        setInterval(() => {
+            if (sessionState.isActive && sessionState.startTime) {
+                const elapsed = Math.floor((Date.now() - sessionState.startTime) / 1000);
+                elements.sessionTime.textContent = elapsed + 's';
             }
             
-            showMessage(`All models failed for ${config.name}. Please try a different agent.`, 'error');
-        }
-
-        async function callOpenRouterAPI(model, message) {
-            const config = agentConfigs[model];
+            elements.totalMessages.textContent = sessionState.conversation.length;
             
-            const response = await fetch(API_BASE_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-                    'HTTP-Referer': 'https://thepromptlink.com',
-                    'X-Title': 'ThePromptLink AI Orchestration Platform'
-                },
-                body: JSON.stringify({
-                    model: model,
-                    messages: [
-                        {
-                            role: 'user',
-                            content: message
-                        }
-                    ],
-                    max_tokens: config ? config.maxTokens : 4000,
-                    temperature: config ? config.temperature : 0.7,
-                    stream: false
-                })
-            });
+            // Simulate system health (would be real monitoring in production)
+            const health = Math.max(95, Math.floor(Math.random() * 5) + 96);
+            elements.systemHealth.textContent = health + '%';
+            elements.systemHealthMetric.textContent = health + '%';
+        }, 1000);
+    }
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error?.message || `API request failed with status ${response.status}`);
-            }
-
-            const data = await response.json();
-            
-            if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-                throw new Error('Invalid response format from API');
-            }
-
-            return data.choices[0].message.content;
-        }
-
-        function displayMessage(container, messageObj, agent) {
-            const messageClass = agent === 'a' ? 'agent-a-message' : 'agent-b-message';
-            const agentColor = agent === 'a' ? 'text-blue-400' : 'text-purple-400';
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message-bubble ${messageClass}`;
-            messageDiv.innerHTML = `
-                <div class="flex items-center justify-between mb-2">
-                    <span class="font-semibold ${agentColor}">${messageObj.agentName}</span>
-                    <span class="text-xs text-gray-400">${new Date(messageObj.timestamp).toLocaleTimeString()}</span>
-                </div>
-                <div class="text-sm leading-relaxed">${messageObj.content}</div>
-            `;
-            
-            // Clear placeholder if exists
-            if (container.innerHTML.includes('Waiting for session to start')) {
-                container.innerHTML = '';
-            }
-            
-            container.appendChild(messageDiv);
-            container.scrollTop = container.scrollHeight;
-        }
-
-        function showMessage(message, type = 'info') {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
-            messageDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'} mr-2"></i>${message}`;
-            
-            // Insert at the top of the page
-            document.body.insertBefore(messageDiv, document.body.firstChild);
-            
-            // Remove after 5 seconds
-            setTimeout(() => {
-                if (messageDiv.parentNode) {
-                    messageDiv.parentNode.removeChild(messageDiv);
-                }
-            }, 5000);
-        }
-
-        function startMetricsUpdate() {
-            setInterval(() => {
-                if (sessionState.isActive && sessionState.startTime) {
-                    const elapsed = Math.floor((Date.now() - sessionState.startTime) / 1000);
-                    elements.sessionTime.textContent = elapsed + 's';
-                }
-                
-                elements.totalMessages.textContent = sessionState.conversation.length;
-                
-                // Simulate system health (would be real monitoring in production)
-                const health = Math.max(95, Math.floor(Math.random() * 5) + 96);
-                elements.systemHealth.textContent = health + '%';
-                elements.systemHealthMetric.textContent = health + '%';
-            }, 1000);
-        }
-
-        // Initialize UI state
-        updateUIForMode();
-    </script>
+    // Initialize UI state
+    updateUIForMode();
+</script>
 </body>
 </html>
+
+
