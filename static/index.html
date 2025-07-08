@@ -231,67 +231,35 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     <div>
                         <label class="block text-sm font-medium mb-3">Agent A</label>
-                        <div class="grid grid-cols-1 gap-2">
-                            <div class="agent-card p-3 rounded-lg cursor-pointer" data-agent="a" data-model="deepseek-ai/deepseek-v2.5">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <div class="font-semibold text-blue-400">DeepSeek R1</div>
-                                        <div class="text-xs text-gray-400">Code generation, technical analysis</div>
-                                    </div>
-                                    <div class="status-indicator status-active"></div>
-                                </div>
-                            </div>
-                            <div class="agent-card p-3 rounded-lg cursor-pointer" data-agent="a" data-model="minimax/minimax-m1">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <div class="font-semibold text-purple-400">MinMax M1</div>
-                                        <div class="text-xs text-gray-400">Strategic planning, optimization</div>
-                                    </div>
-                                    <div class="status-indicator status-active"></div>
-                                </div>
-                            </div>
-                            <div class="agent-card p-3 rounded-lg cursor-pointer selected" data-agent="a" data-model="openai/gpt-4o">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <div class="font-semibold text-green-400">ChatGPT 4 Turbo</div>
-                                        <div class="text-xs text-gray-400">General conversation, creative writing</div>
-                                    </div>
-                                    <div class="status-indicator status-active"></div>
-                                </div>
-                            </div>
+                        <select id="agent-a-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white mb-4">
+                            <option value="">Select Agent A...</option>
+                            <option value="deepseek">DeepSeek R1 (deepseek-r1)</option>
+                            <option value="minmax">MinMax M1 (minmax-01)</option>
+                            <option value="chatgpt" selected>ChatGPT 4 Turbo (gpt-4-turbo)</option>
+                            <option value="llama">Llama 3.3 (llama-3-8b-instruct)</option>
+                            <option value="mistral">Mistral Large (mistral-large-2407)</option>
+                        </select>
+                        <div class="text-sm text-gray-400 mb-2">
+                            <span id="agentAStatus" class="inline-flex items-center">
+                                <span class="status-indicator status-active"></span>Ready
+                            </span>
                         </div>
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium mb-3">Agent B</label>
-                        <div class="grid grid-cols-1 gap-2">
-                            <div class="agent-card p-3 rounded-lg cursor-pointer selected" data-agent="b" data-model="meta-llama/llama-3-8b-instruct">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <div class="font-semibold text-yellow-400">Llama 3.3</div>
-                                        <div class="text-xs text-gray-400">Text generation, summarization</div>
-                                    </div>
-                                    <div class="status-indicator status-active"></div>
-                                </div>
-                            </div>
-                            <div class="agent-card p-3 rounded-lg cursor-pointer" data-agent="b" data-model="mistralai/mistral-large-2407">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <div class="font-semibold text-red-400">Mistral Large</div>
-                                        <div class="text-xs text-gray-400">Multilingual, summarization</div>
-                                    </div>
-                                    <div class="status-indicator status-active"></div>
-                                </div>
-                            </div>
-                            <div class="agent-card p-3 rounded-lg cursor-pointer" data-agent="b" data-model="anthropic/claude-3.5-sonnet">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <div class="font-semibold text-indigo-400">Claude 3.5 Sonnet</div>
-                                        <div class="text-xs text-gray-400">Analysis, reasoning</div>
-                                    </div>
-                                    <div class="status-indicator status-active"></div>
-                                </div>
-                            </div>
+                        <select id="agent-b-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white mb-4">
+                            <option value="">Select Agent B...</option>
+                            <option value="deepseek">DeepSeek R1 (deepseek-r1)</option>
+                            <option value="minmax">MinMax M1 (minmax-01)</option>
+                            <option value="chatgpt">ChatGPT 4 Turbo (gpt-4-turbo)</option>
+                            <option value="llama" selected>Llama 3.3 (llama-3-8b-instruct)</option>
+                            <option value="mistral">Mistral Large (mistral-large-2407)</option>
+                        </select>
+                        <div class="text-sm text-gray-400 mb-2">
+                            <span id="agentBStatus" class="inline-flex items-center">
+                                <span class="status-indicator status-active"></span>Ready
+                            </span>
                         </div>
                     </div>
                 </div>
