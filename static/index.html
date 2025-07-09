@@ -1223,11 +1223,11 @@
         let selectedAdvisorMode = null;
 
         const AGENT_CONFIG = {
-            'deepseek': { name: 'DeepSeek R1', endpoint: 'api/agents/deepseek', model: 'deepseek-r1' },
-            'chatgpt': { name: 'ChatGPT 4 Turbo', endpoint: 'api/agents/chatgpt', model: 'gpt-4-turbo' },
-            'gemini': { name: 'Gemini 2.5 Pro', endpoint: 'api/agents/gemini', model: 'google/gemini-2.5-pro' },
-            'llama': { name: 'Llama 3.3', endpoint: 'api/agents/llama', model: 'llama-3-8b' },
-            'mistral': { name: 'Mistral Large', endpoint: 'api/agents/mistral', model: 'mistral-large-2407' }
+            'deepseek': { name: 'DeepSeek R1', endpoint: 'api/chat', model: 'deepseek-r1' },
+            'chatgpt': { name: 'ChatGPT 4 Turbo', endpoint: 'api/chat', model: 'gpt-4-turbo' },
+            'gemini': { name: 'Gemini 2.5 Pro', endpoint: 'api/chat', model: 'google/gemini-2.5-pro' },
+            'llama': { name: 'Llama 3.3', endpoint: 'api/chat', model: 'llama-3-8b' },
+            'mistral': { name: 'Mistral Large', endpoint: 'api/chat', model: 'mistral-large-2407' }
         };
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -1365,11 +1365,12 @@
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ 
-                        message: message,
-                        session_id: currentSession,
-                        mode: selectedAdvisorMode || 'general'
-                    })
+                    body: JSON.stringify({
+    message: message,
+    agent: agentId,
+    session_id: currentSession,
+    mode: selectedAdvisorMode || 'general'
+})
                 });
 
                 let responseText;
@@ -1798,6 +1799,7 @@ updateAgentResponse(agent, `${agentName} refreshed and ready for collaboration.`
     </script>
 </body>
 </html>
+
 
 
 
