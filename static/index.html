@@ -3,117 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThePromptLink - Revolutionary AI Orchestration Platform</title>
+    <title>PromptLink - Revolutionary AI Orchestration Platform</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <style>
         :root {
             --primary-green: #10B981;
+            --primary-blue: #3B82F6;
+            --primary-purple: #8B5CF6;
             --dark-bg: #0F172A;
             --card-bg: #1E293B;
             --border-color: #334155;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+        }
+        
+        * {
+            box-sizing: border-box;
         }
         
         body {
             background: var(--dark-bg);
-            color: #F8FAFC;
-            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
         }
         
         .gradient-border {
-            background: linear-gradient(45deg, var(--primary-green), #059669);
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-blue));
             padding: 2px;
             border-radius: 12px;
+            margin-bottom: 1.5rem;
         }
         
         .gradient-border-content {
             background: var(--card-bg);
             border-radius: 10px;
             padding: 1.5rem;
+            height: 100%;
         }
         
         .logo-text {
-            background: linear-gradient(45deg, var(--primary-green), #34D399);
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-blue));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            font-weight: 700;
+            font-size: 1.5rem;
         }
         
-        .agent-card {
+        .agent-selector {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        
+        .agent-dropdown {
+            width: 100%;
             background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
-        }
-        
-        .agent-card:hover {
-            border-color: var(--primary-green);
-            transform: translateY(-2px);
-        }
-        
-        .agent-card.selected {
-            border-color: var(--primary-green);
-            background: rgba(16, 185, 129, 0.1);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(45deg, var(--primary-green), #059669);
-            border: none;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
-        }
-        
-        .conversation-area {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            min-height: 400px;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        
-        .message-bubble {
-            background: rgba(16, 185, 129, 0.1);
-            border-left: 4px solid var(--primary-green);
-            margin: 1rem 0;
-            padding: 1rem;
+            border: 2px solid var(--border-color);
             border-radius: 8px;
+            padding: 0.75rem;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            appearance: none;
+            cursor: pointer;
         }
         
-        .agent-a-message {
-            border-left-color: #3B82F6;
-            background: rgba(59, 130, 246, 0.1);
+        .agent-dropdown:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
         }
         
-        .agent-b-message {
-            border-left-color: #8B5CF6;
-            background: rgba(139, 92, 246, 0.1);
+        .agent-dropdown:hover {
+            border-color: var(--primary-green);
+        }
+        
+        .agent-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(16, 185, 129, 0.05);
+            border-radius: 6px;
+            border-left: 3px solid var(--primary-green);
+        }
+        
+        .agent-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
         }
         
         .status-indicator {
-            width: 12px;
-            height: 12px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             display: inline-block;
-            margin-right: 8px;
         }
         
-        .status-active { background: var(--primary-green); }
-        .status-error { background: #EF4444; }
+        .status-ready { background: var(--success); }
         .status-thinking { 
-            background: #F59E0B; 
+            background: var(--warning); 
             animation: pulse 2s infinite;
         }
+        .status-error { background: var(--error); }
         
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
-        }
-        
-        .thinking-dots {
-            display: inline-block;
         }
         
         .thinking-dots::after {
@@ -127,217 +132,766 @@
             60%, 100% { content: '...'; }
         }
         
+        .agent-toolbar {
+            display: flex;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+        }
+        
+        .toolbar-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 0.375rem;
+            border-radius: 4px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.75rem;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .toolbar-btn:hover {
+            background: var(--primary-green);
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .toolbar-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .conversation-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            height: 400px;
+            overflow-y: auto;
+            padding: 1rem;
+            position: relative;
+        }
+        
+        .conversation-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+        
+        .conversation-empty i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .message-bubble {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid var(--primary-blue);
+            margin: 0.75rem 0;
+            padding: 0.875rem;
+            border-radius: 8px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .message-bubble.agent-b {
+            background: rgba(139, 92, 246, 0.1);
+            border-left-color: var(--primary-purple);
+        }
+        
+        .message-bubble.human {
+            background: rgba(16, 185, 129, 0.1);
+            border-left-color: var(--primary-green);
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .message-sender {
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .message-sender.agent-a { color: var(--primary-blue); }
+        .message-sender.agent-b { color: var(--primary-purple); }
+        .message-sender.human { color: var(--primary-green); }
+        
+        .message-timestamp {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .message-content {
+            font-size: 0.875rem;
+            line-height: 1.5;
+            color: var(--text-primary);
+        }
+        
+        .message-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-blue));
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-secondary:hover {
+            background: var(--primary-green);
+            border-color: var(--primary-green);
+            color: white;
+        }
+        
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .control-group {
+            margin-bottom: 1rem;
+        }
+        
+        .control-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .control-input {
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .control-input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+        }
+        
+        .control-textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+            line-height: 1.5;
+        }
+        
+        .mode-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .mode-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 0.5rem;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .mode-btn:hover {
+            border-color: var(--primary-green);
+            color: var(--text-primary);
+        }
+        
+        .mode-btn.active {
+            background: var(--primary-green);
+            border-color: var(--primary-green);
+            color: white;
+        }
+        
+        .advisor-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .advisor-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .advisor-btn:hover {
+            border-color: var(--primary-blue);
+            color: var(--text-primary);
+        }
+        
+        .advisor-btn.active {
+            background: var(--primary-blue);
+            border-color: var(--primary-blue);
+            color: white;
+        }
+        
         .metrics-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 1rem;
         }
         
         .metric-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            padding: 1.5rem;
+            padding: 1rem;
             border-radius: 8px;
             text-align: center;
         }
         
         .metric-value {
-            font-size: 2rem;
-            font-weight: bold;
+            font-size: 1.5rem;
+            font-weight: 700;
             color: var(--primary-green);
+            margin-bottom: 0.25rem;
         }
         
-        .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid #EF4444;
-            color: #FCA5A5;
-            padding: 1rem;
-            border-radius: 8px;
-            margin: 1rem 0;
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         
-        .success-message {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid var(--primary-green);
-            color: #6EE7B7;
-            padding: 1rem;
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
             border-radius: 8px;
-            margin: 1rem 0;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            animation: slideInRight 0.3s ease;
+            max-width: 400px;
+        }
+        
+        .notification.success {
+            background: var(--success);
+        }
+        
+        .notification.error {
+            background: var(--error);
+        }
+        
+        .notification.warning {
+            background: var(--warning);
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .current-speaker {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+            border-color: var(--primary-green) !important;
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            z-index: 10;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .responsive-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        
+        @media (min-width: 768px) {
+            .responsive-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .responsive-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+        
+        .mobile-menu {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu {
+                display: block;
+            }
+            
+            .desktop-menu {
+                display: none;
+            }
+            
+            .gradient-border-content {
+                padding: 1rem;
+            }
+            
+            .btn-primary, .btn-secondary {
+                padding: 0.625rem 1rem;
+                font-size: 0.875rem;
+            }
+            
+            .conversation-container {
+                height: 300px;
+            }
+        }
+        
+        .export-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .export-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            min-width: 150px;
+            z-index: 100;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .export-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .export-item:hover {
+            background: var(--primary-green);
+            color: white;
+        }
+        
+        .hidden {
+            display: none;
         }
     </style>
 </head>
-<body class="min-h-screen">
+<body>
     <!-- Header -->
-    <header class="border-b border-gray-700 px-6 py-4">
-        <div class="flex items-center justify-between">
+    <header class="border-b border-gray-700 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-4">
-                <div class="text-2xl font-bold logo-text">
-                    <i class="fas fa-link mr-2"></i>ThePromptLink
+                <div class="logo-text">
+                    <i class="fas fa-link mr-2"></i>PromptLink
                 </div>
-                <span class="text-sm text-gray-400">v8.0 Revolutionary</span>
+                <span class="text-sm text-gray-400">v2.0 Revolutionary</span>
             </div>
-            <div class="flex items-center space-x-4">
+            
+            <div class="flex items-center space-x-6">
                 <div class="text-sm text-gray-400">System Health:</div>
                 <div id="systemHealth" class="text-green-400 font-semibold">99%</div>
-                <div class="status-indicator status-active"></div>
+
+<div class="status-indicator status-ready"></div>
+                
+                <div class="text-sm text-gray-400">Credits:</div>
+                <div id="creditsCounter" class="text-white font-semibold">2,500</div>
             </div>
         </div>
     </header>
 
     <!-- Main Container -->
-    <div class="container mx-auto px-6 py-8">
+    <div class="max-w-7xl mx-auto px-4 py-6">
         <!-- Control Panel -->
-        <div class="gradient-border mb-8">
+        <div class="gradient-border">
             <div class="gradient-border-content">
                 <h2 class="text-xl font-semibold mb-6 text-center">AI Orchestration Command Center</h2>
                 
-                <!-- Mode Selection -->
-                <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Operation Mode</label>
-                        <select id="operationMode" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white">
-                            <option value="manual">Manual Relay</option>
-                            <option value="autonomous">Autonomous</option>
-                            <option value="single-a">Single Agent A</option>
-                            <option value="single-b">Single Agent B</option>
-                        </select>
+                <!-- Operation Mode Selection -->
+                <div class="control-group">
+                    <label class="control-label">Operation Mode</label>
+                    <div class="mode-selector">
+                        <div class="mode-btn active" data-mode="manual">
+                            <i class="fas fa-hand-paper mb-1"></i>
+                            <div>Manual Relay</div>
+                        </div>
+                        <div class="mode-btn" data-mode="autonomous">
+                            <i class="fas fa-robot mb-1"></i>
+                            <div>Autonomous</div>
+                        </div>
+                        <div class="mode-btn" data-mode="agent-a">
+                            <i class="fas fa-user mb-1"></i>
+                            <div>Agent A Only</div>
+                        </div>
+                        <div class="mode-btn" data-mode="agent-b">
+                            <i class="fas fa-user mb-1"></i>
+                            <div>Agent B Only</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interaction Type & AI Advisor -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="control-group">
+                        <label class="control-label">Interaction Type</label>
+                        <div class="advisor-types">
+                            <div class="advisor-btn active" data-type="free">Free Discussion</div>
+                            <div class="advisor-btn" data-type="brainstorm">Brainstorm</div>
+                            <div class="advisor-btn" data-type="debate">Debate</div>
+                            <div class="advisor-btn" data-type="strategy">Strategy</div>
+                            <div class="advisor-btn" data-type="technical">Technical</div>
+                            <div class="advisor-btn" data-type="compliance">Compliance</div>
+                        </div>
                     </div>
                     
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Interaction Type</label>
-                        <select id="interactionType" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white">
-                            <option value="free">Free Discussion</option>
-                            <option value="brainstorm">Brainstorm</option>
-                            <option value="debate">Debate</option>
-                            <option value="strategy">Strategy</option>
-                            <option value="technical">Technical</option>
-                            <option value="compliance">Compliance</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Rounds (Autonomous)</label>
-                        <input type="number" id="roundsInput" min="1" max="20" value="5" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white">
-                    </div>
-                    
-                    <div class="flex items-end">
-                        <button id="aiAdvisor" class="btn-primary text-white px-4 py-2 rounded-lg w-full">
-                            <i class="fas fa-magic mr-2"></i>AI Advisor
+                    <div class="control-group">
+                        <label class="control-label">AI Advisor</label>
+                        <button id="aiAdvisorBtn" class="btn-primary w-full">
+                            <i class="fas fa-magic"></i>
+                            Get AI Recommendations
                         </button>
                     </div>
                 </div>
 
-                <!-- Agent Selection -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium mb-3">Agent A</label>
-                        <select id="agent-a-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white mb-4">
-                            <option value="">Select Agent A...</option>
-                            <option value="deepseek">DeepSeek R1 (deepseek-r1)</option>
-                            <option value="minmax">MinMax M1 (minmax-01)</option>
-                            <option value="chatgpt" selected>ChatGPT 4 Turbo (gpt-4-turbo)</option>
-                            <option value="llama">Llama 3.3 (llama-3-8b-instruct)</option>
-                            <option value="mistral">Mistral Large (mistral-large-2407)</option>
+                <!-- Autonomous Rounds -->
+                <div class="control-group" id="autonomousControls" style="display: none;">
+                    <label class="control-label">Autonomous Rounds</label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <select id="roundsSelect" class="control-input">
+                            <option value="2">2 Rounds</option>
+                            <option value="5" selected>5 Rounds</option>
+                            <option value="10">10 Rounds</option>
+                            <option value="15">15 Rounds</option>
+                            <option value="20">20 Rounds</option>
                         </select>
-                        <div class="text-sm text-gray-400 mb-2">
-                            <span id="agentAStatus" class="inline-flex items-center">
-                                <span class="status-indicator status-active"></span>Ready
-                            </span>
+                        <div class="text-sm text-gray-400 flex items-center">
+                            <span id="roundProgress">Ready to start</span>
                         </div>
                     </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium mb-3">Agent B</label>
-                        <select id="agent-b-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white mb-4">
-                            <option value="">Select Agent B...</option>
-                            <option value="deepseek">DeepSeek R1 (deepseek-r1)</option>
-                            <option value="minmax">MinMax M1 (minmax-01)</option>
-                            <option value="chatgpt">ChatGPT 4 Turbo (gpt-4-turbo)</option>
-                            <option value="llama" selected>Llama 3.3 (llama-3-8b-instruct)</option>
-                            <option value="mistral">Mistral Large (mistral-large-2407)</option>
-                        </select>
-                        <div class="text-sm text-gray-400 mb-2">
-                            <span id="agentBStatus" class="inline-flex items-center">
-                                <span class="status-indicator status-active"></span>Ready
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Control Buttons -->
-                <div class="flex flex-wrap gap-3 justify-center">
-                    <button id="startSession" class="btn-primary text-white px-6 py-2 rounded-lg">
-                        <i class="fas fa-play mr-2"></i>Start Session
-                    </button>
-                    <button id="nextStep" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg" disabled>
-                        <i class="fas fa-step-forward mr-2"></i>Next Step
-                    </button>
-                    <button id="pauseSession" class="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded-lg" disabled>
-                        <i class="fas fa-pause mr-2"></i>Pause
-                    </button>
-                    <button id="stopSession" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg" disabled>
-                        <i class="fas fa-stop mr-2"></i>Stop
-                    </button>
-                    <button id="clearAll" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg">
-                        <i class="fas fa-trash mr-2"></i>Clear All
-                    </button>
-                    <button id="exportSession" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg">
-                        <i class="fas fa-download mr-2"></i>Export Session
-                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- Input Area -->
-        <div class="gradient-border mb-8">
-            <div class="gradient-border-content">
-                <label class="block text-sm font-medium mb-3">Initial Prompt</label>
-                <textarea id="promptInput" rows="4" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white resize-none" placeholder="Enter your prompt for AI orchestration (Ctrl+Enter to send to all)">Let's discuss the future of AI and the developments in the next six months and what significance will those massive developments have on the overall timeline and advancements</textarea>
-                <div class="flex gap-3 mt-3">
-                    <button id="sendToAll" class="btn-primary text-white px-4 py-2 rounded-lg">
-                        <i class="fas fa-broadcast-tower mr-2"></i>Send to All Agents
-                    </button>
-                    <button id="sendToA" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                        <i class="fas fa-user mr-2"></i>Agent A Only
-                    </button>
-                    <button id="sendToB" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg">
-                        <i class="fas fa-user mr-2"></i>Agent B Only
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Conversation Area -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Agent Selection -->
+        <div class="responsive-grid mb-6">
+            <!-- Agent A -->
             <div class="gradient-border">
                 <div class="gradient-border-content">
                     <h3 class="text-lg font-semibold mb-4 text-blue-400">
                         <i class="fas fa-robot mr-2"></i>Agent A
-                        <span id="agentAName">ChatGPT 4 Turbo</span>
-                        <span id="agentAStatus" class="text-sm text-gray-400 ml-2">Ready</span>
                     </h3>
-                    <div id="agentAConversation" class="conversation-area p-4">
-                        <div class="text-center text-gray-400 py-8">
-                            <i class="fas fa-comment-dots text-4xl mb-4"></i>
-                            <p>Waiting for session to start...</p>
+                    
+                    <div class="agent-selector">
+                        <select id="agentASelect" class="agent-dropdown">
+                            <option value="">Select Agent A...</option>
+                            <option value="tngtech/deepseek-r1t2-chimera:free">TNG: DeepSeek R1T2 Chimera</option>
+                            <option value="minimax/minimax-m1">MinMax M1</option>
+                            <option value="meta-llama/llama-3-8b-instruct">Llama 3.3</option>
+                            <option value="mistralai/mistral-large-2407">Mistral Large</option>
+                            <option value="openai/gpt-4-turbo">ChatGPT 4 Turbo</option>
+                        </select>
+                        
+                        <div class="agent-info" id="agentAInfo" style="display: none;">
+                            <div>
+                                <div class="font-semibold text-blue-400" id="agentAName">Agent A</div>
+                                <div class="text-xs text-gray-400" id="agentADesc">Select an agent to see description</div>
+                            </div>
+                            <div class="agent-status">
+                                <div class="status-indicator status-ready" id="agentAStatus"></div>
+                                <span id="agentAStatusText">Ready</span>
+                            </div>
+                        </div>
+                        
+                        <div class="agent-toolbar" id="agentAToolbar" style="display: none;">
+                            <button class="toolbar-btn" title="Copy Response" data-action="copy">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="toolbar-btn" title="Regenerate" data-action="regenerate">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                            <button class="toolbar-btn" title="Edit" data-action="edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="toolbar-btn" title="Download" data-action="download">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="toolbar-btn" title="Thumbs Up" data-action="thumbsup">
+                                <i class="fas fa-thumbs-up"></i>
+                            </button>
+                            <button class="toolbar-btn" title="Thumbs Down" data-action="thumbsdown">
+                                <i class="fas fa-thumbs-down"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="conversation-container" id="agentAConversation">
+                        <div class="conversation-empty">
+                            <i class="fas fa-comment-dots"></i>
+                            <p>Agent A ready for collaboration</p>
+                            <p class="text-sm">Select an agent and start a session</p>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
+            <!-- Agent B -->
             <div class="gradient-border">
                 <div class="gradient-border-content">
                     <h3 class="text-lg font-semibold mb-4 text-purple-400">
                         <i class="fas fa-robot mr-2"></i>Agent B
-                        <span id="agentBName">Llama 3.3</span>
-                        <span id="agentBStatus" class="text-sm text-gray-400 ml-2">Ready</span>
                     </h3>
-                    <div id="agentBConversation" class="conversation-area p-4">
-                        <div class="text-center text-gray-400 py-8">
-                            <i class="fas fa-comment-dots text-4xl mb-4"></i>
-                            <p>Waiting for session to start...</p>
+                    
+                    <div class="agent-selector">
+                        <select id="agentBSelect" class="agent-dropdown">
+                            <option value="">Select Agent B...</option>
+                            <option value="tngtech/deepseek-r1t2-chimera:free">TNG: DeepSeek R1T2 Chimera</option>
+                            <option value="minimax/minimax-m1">MinMax M1</option>
+                            <option value="meta-llama/llama-3-8b-instruct">Llama 3.3</option>
+                            <option value="mistralai/mistral-large-2407">Mistral Large</option>
+                            <option value="openai/gpt-4-turbo">ChatGPT 4 Turbo</option>
+                        </select>
+                        
+                        <div class="agent-info" id="agentBInfo" style="display: none;">
+                            <div>
+                                <div class="font-semibold text-purple-400" id="agentBName">Agent B</div>
+                                <div class="text-xs text-gray-400" id="agentBDesc">Select an agent to see description</div>
+                            </div>
+                            <div class="agent-status">
+                                <div class="status-indicator status-ready" id="agentBStatus"></div>
+                                <span id="agentBStatusText">Ready</span>
+                            </div>
+                        </div>
+                        
+                        <div class="agent-toolbar" id="agentBToolbar" style="display: none;">
+                            <button class="toolbar-btn" title="Copy Response" data-action="copy">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="toolbar-btn" title="Regenerate" data-action="regenerate">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                            <button class="toolbar-btn" title="Edit" data-action="edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="toolbar-btn" title="Download" data-action="download">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="toolbar-btn" title="Thumbs Up" data-action="thumbsup">
+                                <i class="fas fa-thumbs-up"></i>
+                            </button>
+                            <button class="toolbar-btn" title="Thumbs Down" data-action="thumbsdown">
+                                <i class="fas fa-thumbs-down"></i>
+                            </button>
                         </div>
                     </div>
+                    
+                    <div class="conversation-container" id="agentBConversation">
+                        <div class="conversation-empty">
+                            <i class="fas fa-comment-dots"></i>
+                            <p>Agent B ready for collaboration</p>
+                            <p class="text-sm">Select an agent and start a session</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Initial Prompt -->
+        <div class="gradient-border">
+            <div class="gradient-border-content">
+                <h3 class="text-lg font-semibold mb-4 text-green-400">
+                    <i class="fas fa-edit mr-2"></i>Initial Prompt
+                </h3>
+                
+                <div class="control-group">
+                    <textarea 
+                        id="initialPrompt" 
+                        class="control-input control-textarea" 
+                        placeholder="Enter your initial prompt for AI relay discussion..."
+                        rows="4"
+                    >Let's discuss the future of AI and the developments in the next six months and what significance will those massive developments have on the overall timeline and advancements</textarea>
+                </div>
+                
+                <div class="flex flex-wrap gap-3 justify-center">
+                    <button id="startSessionBtn" class="btn-primary">
+                        <i class="fas fa-play"></i>
+                        Start Session
+                    </button>
+                    <button id="nextStepBtn" class="btn-secondary" disabled>
+                        <i class="fas fa-step-forward"></i>
+                        Next Step
+                    </button>
+                    <button id="pauseBtn" class="btn-secondary" disabled>
+                        <i class="fas fa-pause"></i>
+                        Pause
+                    </button>
+                    <button id="stopBtn" class="btn-secondary" disabled>
+                        <i class="fas fa-stop"></i>
+                        Stop
+                    </button>
+                    <button id="clearBtn" class="btn-secondary">
+                        <i class="fas fa-trash"></i>
+                        Clear All
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Human Controller -->
+        <div class="gradient-border">
+            <div class="gradient-border-content">
+                <h3 class="text-lg font-semibold mb-4 text-green-400">
+                    <i class="fas fa-user-cog mr-2"></i>Human Controller
+                </h3>
+                
+                <div class="control-group">
+                    <label class="control-label">Interject with custom message or guidance...</label>
+                    <div class="flex gap-2">
+                        <textarea 
+                            id="humanMessage" 
+                            class="control-input control-textarea" 
+                            placeholder="Add guidance or instructions for the agents..."
+                            rows="2"
+                        ></textarea>
+                        <button id="sendHumanBtn" class="btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    <div class="control-group">
+                        <label class="control-label">Session Status</label>
+                        <input type="text" id="sessionStatus" class="control-input" value="Inactive" readonly>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Current Speaker</label>
+                        <input type="text" id="currentSpeaker" class="control-input" value="None" readonly>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Session ID</label>
+                        <input type="text" id="sessionId" class="control-input" value="None" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session Export -->
+        <div class="gradient-border">
+            <div class="gradient-border-content">
+                <h3 class="text-lg font-semibold mb-4 text-purple-400">
+                    <i class="fas fa-database mr-2"></i>Session Export
+                </h3>
+                
+                <div class="flex flex-wrap gap-3 justify-center">
+                    <button id="exportMarkdownBtn" class="btn-primary">
+                        <i class="fas fa-file-text"></i>
+                        Export Markdown
+                    </button>
+                    <button id="exportJSONBtn" class="btn-secondary">
+                        <i class="fas fa-file-code"></i>
+                        Export JSON
+                    </button>
+                    <button id="exportTXTBtn" class="btn-secondary">
+                        <i class="fas fa-file-alt"></i>
+                        Export TXT
+                    </button>
+                    <button id="exportCSVBtn" class="btn-secondary">
+                        <i class="fas fa-table"></i>
+                        Export CSV
+                    </button>
                 </div>
             </div>
         </div>
@@ -345,554 +899,844 @@
         <!-- Live Diagnostics -->
         <div class="gradient-border">
             <div class="gradient-border-content">
-                <h3 class="text-lg font-semibold mb-4">
+                <h3 class="text-lg font-semibold mb-4 text-blue-400">
                     <i class="fas fa-chart-line mr-2"></i>Live Diagnostics
                 </h3>
+                
                 <div class="metrics-grid">
                     <div class="metric-card">
                         <div class="metric-value" id="sessionTime">0s</div>
-                        <div class="text-sm text-gray-400">Session Time</div>
+                        <div class="metric-label">Session Time</div>
                     </div>
                     <div class="metric-card">
                         <div class="metric-value" id="totalMessages">0</div>
-                        <div class="text-sm text-gray-400">Total Messages</div>
+                        <div class="metric-label">Total Messages</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value" id="activeAgents">2</div>
-                        <div class="text-sm text-gray-400">Active Agents</div>
+                        <div class="metric-value" id="activeAgents">0</div>
+                        <div class="metric-label">Active Agents</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value" id="systemHealthMetric">99%</div>
-                        <div class="text-sm text-gray-400">System Health</div>
+                        <div class="metric-value" id="currentRound">0</div>
+                        <div class="metric-label">Current Round</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="totalTokens">0</div>
+                        <div class="metric-label">Total Tokens</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="avgResponseTime">0ms</div>
+                        <div class="metric-label">Avg Response</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-    // Configuration - Updated for Railway backend
-    const API_BASE_URL = window.location.origin; // Uses current Railway URL
-    const CHAT_ENDPOINT = '/api/chat';
-    const AGENTS_ENDPOINT = '/api/agents';
-    const HEALTH_ENDPOINT = '/api/health';
-    
-    // Global state
-    let sessionState = {
-        id: null,
-        mode: 'manual',
-        agentA: 'openai/gpt-4o',
-        agentB: 'meta-llama/llama-3-8b-instruct',
-        startTime: null,
-        conversation: [],
-        isActive: false,
-        currentRound: 0,
-        maxRounds: 5,
-        isAutonomous: false
-    };
-
-    // Agent configurations with fallback models
-    const agentConfigs = {
-        'deepseek-ai/deepseek-v2.5': { 
-            name: 'DeepSeek R1', 
-            fallbacks: ['deepseek-ai/deepseek-coder', 'deepseek-ai/deepseek-chat'],
-            maxTokens: 4000,
-            temperature: 0.7
-        },
-        'minimax/minimax-m1': { 
-            name: 'MinMax M1',
-            fallbacks: ['minimax/abab6.5s-chat', 'openai/gpt-4o-mini'],
-            maxTokens: 4000,
-            temperature: 0.7
-        },
-        'openai/gpt-4o': { 
-            name: 'ChatGPT 4 Turbo',
-            fallbacks: ['openai/gpt-4-turbo', 'openai/gpt-4'],
-            maxTokens: 4000,
-            temperature: 0.7
-        },
-        'meta-llama/llama-3-8b-instruct': { 
-            name: 'Llama 3.3',
-            fallbacks: ['meta-llama/llama-3.1-8b-instruct', 'meta-llama/llama-3-70b-instruct'],
-            maxTokens: 4000,
-            temperature: 0.7
-        },
-        'mistralai/mistral-large-2407': { 
-            name: 'Mistral Large',
-            fallbacks: ['mistralai/mistral-large', 'mistralai/mixtral-8x7b-instruct'],
-            maxTokens: 4000,
-            temperature: 0.7
-        },
-        'anthropic/claude-3.5-sonnet': { 
-            name: 'Claude 3.5 Sonnet',
-            fallbacks: ['anthropic/claude-3-sonnet', 'anthropic/claude-3-haiku'],
-            maxTokens: 4000,
-            temperature: 0.7
-        }
-    };
-
-    // AI Advisor recommendations
-    const aiAdvisorRecommendations = {
-        'free': ['openai/gpt-4o', 'meta-llama/llama-3-8b-instruct'],
-        'brainstorm': ['openai/gpt-4o', 'mistralai/mistral-large-2407'],
-        'debate': ['meta-llama/llama-3-8b-instruct', 'anthropic/claude-3.5-sonnet'],
-        'strategy': ['minimax/minimax-m1', 'meta-llama/llama-3-8b-instruct'],
-        'technical': ['deepseek-ai/deepseek-v2.5', 'openai/gpt-4o'],
-        'compliance': ['mistralai/mistral-large-2407', 'anthropic/claude-3.5-sonnet']
-    };
-
-    // DOM elements
-    const elements = {
-        operationMode: document.getElementById('operationMode'),
-        interactionType: document.getElementById('interactionType'),
-        roundsInput: document.getElementById('roundsInput'),
-        aiAdvisor: document.getElementById('aiAdvisor'),
-        promptInput: document.getElementById('promptInput'),
-        startSession: document.getElementById('startSession'),
-        nextStep: document.getElementById('nextStep'),
-        pauseSession: document.getElementById('pauseSession'),
-        stopSession: document.getElementById('stopSession'),
-        clearAll: document.getElementById('clearAll'),
-        exportSession: document.getElementById('exportSession'),
-        sendToAll: document.getElementById('sendToAll'),
-        sendToA: document.getElementById('sendToA'),
-        sendToB: document.getElementById('sendToB'),
-        agentAConversation: document.getElementById('agentAConversation'),
-        agentBConversation: document.getElementById('agentBConversation'),
-        agentAName: document.getElementById('agentAName'),
-        agentBName: document.getElementById('agentBName'),
-        agentAStatus: document.getElementById('agentAStatus'),
-        agentBStatus: document.getElementById('agentBStatus'),
-        sessionTime: document.getElementById('sessionTime'),
-        totalMessages: document.getElementById('totalMessages'),
-        activeAgents: document.getElementById('activeAgents'),
-        systemHealth: document.getElementById('systemHealth'),
-        systemHealthMetric: document.getElementById('systemHealthMetric')
-    };
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeEventListeners();
-        updateAgentNames();
-        startMetricsUpdate();
-        checkBackendHealth();
-    });
-
-    function initializeEventListeners() {
-        // Agent selection
-        document.querySelectorAll('.agent-card').forEach(card => {
-            card.addEventListener('click', function() {
-                const agent = this.dataset.agent;
-                const model = this.dataset.model;
-                
-                // Remove selection from other cards in the same group
-                document.querySelectorAll(`[data-agent="${agent}"]`).forEach(c => c.classList.remove('selected'));
-                this.classList.add('selected');
-                
-                // Update session state
-                if (agent === 'a') {
-                    sessionState.agentA = model;
-                } else {
-                    sessionState.agentB = model;
-                }
-                
-                updateAgentNames();
-            });
-        });
-
-        // Control buttons
-        elements.startSession.addEventListener('click', startSession);
-        elements.nextStep.addEventListener('click', nextStep);
-        elements.pauseSession.addEventListener('click', pauseSession);
-        elements.stopSession.addEventListener('click', stopSession);
-        elements.clearAll.addEventListener('click', clearAll);
-        elements.exportSession.addEventListener('click', exportSession);
-        elements.aiAdvisor.addEventListener('click', aiAdvisor);
-
-        // Send buttons
-        elements.sendToAll.addEventListener('click', () => sendToAll());
-        elements.sendToA.addEventListener('click', () => sendToAgent('a'));
-        elements.sendToB.addEventListener('click', () => sendToAgent('b'));
-
-        // Mode changes
-        elements.operationMode.addEventListener('change', function() {
-            sessionState.mode = this.value;
-            updateUIForMode();
-        });
-
-        // Keyboard shortcuts
-        elements.promptInput.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === 'Enter') {
-                sendToAll();
+<script>
+        // Configuration
+        const API_BASE_URL = window.location.origin;
+        
+        // Agent configurations
+        const AGENT_CONFIGS = {
+            'tngtech/deepseek-r1t2-chimera:free': {
+                name: 'TNG: DeepSeek R1T2 Chimera',
+                description: 'Advanced reasoning model with 671B parameters',
+                color: 'blue',
+                icon: '🧠'
+            },
+            'minimax/minimax-m1': {
+                name: 'MinMax M1',
+                description: 'Strategic planning and optimization specialist',
+                color: 'purple',
+                icon: '🎯'
+            },
+            'meta-llama/llama-3-8b-instruct': {
+                name: 'Llama 3.3',
+                description: 'Meta\'s efficient text generation model',
+                color: 'orange',
+                icon: '🦙'
+            },
+            'mistralai/mistral-large-2407': {
+                name: 'Mistral Large',
+                description: 'Multilingual model for complex tasks',
+                color: 'red',
+                icon: '💨'
+            },
+            'openai/gpt-4-turbo': {
+                name: 'ChatGPT 4 Turbo',
+                description: 'OpenAI\'s versatile conversational model',
+                color: 'green',
+                icon: '💬'
             }
-        });
-    }
-
-    function updateAgentNames() {
-        const configA = agentConfigs[sessionState.agentA];
-        const configB = agentConfigs[sessionState.agentB];
-        
-        if (configA) elements.agentAName.textContent = configA.name;
-        if (configB) elements.agentBName.textContent = configB.name;
-    }
-
-    function updateUIForMode() {
-        const isManual = sessionState.mode === 'manual';
-        const isAutonomous = sessionState.mode === 'autonomous';
-        
-        elements.nextStep.style.display = isManual ? 'inline-block' : 'none';
-        elements.roundsInput.disabled = !isAutonomous;
-    }
-
-    // Check backend health on startup
-    async function checkBackendHealth() {
-        try {
-            const response = await fetch(`${API_BASE_URL}${HEALTH_ENDPOINT}`);
-            if (response.ok) {
-                showMessage('Backend connection established successfully!', 'success');
-            } else {
-                showMessage('Backend connection warning - some features may not work', 'error');
-            }
-        } catch (error) {
-            console.error('Backend health check failed:', error);
-            showMessage('Backend connection failed - using fallback mode', 'error');
-        }
-    }
-
-    async function startSession() {
-        sessionState.id = 'session_' + Math.random().toString(36).substr(2, 9);
-        sessionState.startTime = Date.now();
-        sessionState.isActive = true;
-        sessionState.conversation = [];
-        sessionState.currentRound = 0;
-        sessionState.maxRounds = parseInt(elements.roundsInput.value);
-        sessionState.mode = elements.operationMode.value;
-
-        // Update UI
-        elements.startSession.disabled = true;
-        elements.nextStep.disabled = false;
-        elements.pauseSession.disabled = false;
-        elements.stopSession.disabled = false;
-
-        // Clear conversation areas
-        elements.agentAConversation.innerHTML = '';
-        elements.agentBConversation.innerHTML = '';
-
-        showMessage('Session started successfully!', 'success');
-
-        // If autonomous mode, start the first message
-        if (sessionState.mode === 'autonomous') {
-            sessionState.isAutonomous = true;
-            await sendToAgent('a');
-        }
-    }
-
-    async function nextStep() {
-        if (!sessionState.isActive) return;
-
-        const lastMessage = sessionState.conversation[sessionState.conversation.length - 1];
-        const nextAgent = !lastMessage || lastMessage.agent === 'b' ? 'a' : 'b';
-        
-        await sendToAgent(nextAgent);
-    }
-
-    function pauseSession() {
-        sessionState.isAutonomous = false;
-        elements.pauseSession.disabled = true;
-        elements.nextStep.disabled = false;
-        showMessage('Session paused. Use Next Step to continue manually.', 'success');
-    }
-
-    function stopSession() {
-        sessionState.isActive = false;
-        sessionState.isAutonomous = false;
-        
-        // Update UI
-        elements.startSession.disabled = false;
-        elements.nextStep.disabled = true;
-        elements.pauseSession.disabled = true;
-        elements.stopSession.disabled = true;
-        
-        elements.agentAStatus.textContent = 'Ready';
-        elements.agentBStatus.textContent = 'Ready';
-        
-        showMessage('Session stopped.', 'success');
-    }
-
-    function clearAll() {
-        sessionState.conversation = [];
-        elements.agentAConversation.innerHTML = '<div class="text-center text-gray-400 py-8"><i class="fas fa-comment-dots text-4xl mb-4"></i><p>Waiting for session to start...</p></div>';
-        elements.agentBConversation.innerHTML = '<div class="text-center text-gray-400 py-8"><i class="fas fa-comment-dots text-4xl mb-4"></i><p>Waiting for session to start...</p></div>';
-        elements.promptInput.value = '';
-        showMessage('All conversations cleared.', 'success');
-    }
-
-    function exportSession() {
-        const sessionData = {
-            sessionId: sessionState.id,
-            mode: sessionState.mode,
-            agentA: sessionState.agentA,
-            agentB: sessionState.agentB,
-            startTime: sessionState.startTime,
-            conversation: sessionState.conversation,
-            totalMessages: sessionState.conversation.length
         };
-
-        const dataStr = JSON.stringify(sessionData, null, 2);
-        const dataBlob = new Blob([dataStr], {type: 'application/json'});
-        const url = URL.createObjectURL(dataBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `promptlink-session-${new Date().toISOString().slice(0, 10)}.json`;
-        link.click();
-        URL.revokeObjectURL(url);
         
-        showMessage('Session exported successfully!', 'success');
-    }
-
-    function aiAdvisor() {
-        const interactionType = elements.interactionType.value;
-        const recommendation = aiAdvisorRecommendations[interactionType];
+        // AI Advisor recommendations
+        const ADVISOR_RECOMMENDATIONS = {
+            'free': {
+                agentA: 'openai/gpt-4-turbo',
+                agentB: 'meta-llama/llama-3-8b-instruct',
+                reason: 'Versatile conversation with efficient responses'
+            },
+            'brainstorm': {
+                agentA: 'openai/gpt-4-turbo',
+                agentB: 'tngtech/deepseek-r1t2-chimera:free',
+                reason: 'Creative ideation with advanced reasoning'
+            },
+            'debate': {
+                agentA: 'tngtech/deepseek-r1t2-chimera:free',
+                agentB: 'mistralai/mistral-large-2407',
+                reason: 'Deep reasoning vs multilingual perspective'
+            },
+            'strategy': {
+                agentA: 'minimax/minimax-m1',
+                agentB: 'openai/gpt-4-turbo',
+                reason: 'Strategic optimization with versatile analysis'
+            },
+            'technical': {
+                agentA: 'tngtech/deepseek-r1t2-chimera:free',
+                agentB: 'meta-llama/llama-3-8b-instruct',
+                reason: 'Advanced reasoning with technical efficiency'
+            },
+            'compliance': {
+                agentA: 'mistralai/mistral-large-2407',
+                agentB: 'openai/gpt-4-turbo',
+                reason: 'Regulatory expertise with comprehensive analysis'
+            }
+        };
         
-        if (recommendation) {
-            // Update agent selections
-            sessionState.agentA = recommendation[0];
-            sessionState.agentB = recommendation[1];
+        // Global state
+        let appState = {
+            sessionId: null,
+            mode: 'manual',
+            interactionType: 'free',
+            agentA: null,
+            agentB: null,
+            sessionActive: false,
+            isPaused: false,
+            isAutonomous: false,
+            currentRound: 0,
+            maxRounds: 5,
+            currentSpeaker: null,
+            conversation: [],
+            sessionStartTime: null,
+            totalTokens: 0,
+            responseTimes: []
+        };
+        
+        // DOM elements
+        const elements = {
+            // Mode selection
+            modeButtons: document.querySelectorAll('.mode-btn'),
+            advisorButtons: document.querySelectorAll('.advisor-btn'),
+            autonomousControls: document.getElementById('autonomousControls'),
+            roundsSelect: document.getElementById('roundsSelect'),
+            roundProgress: document.getElementById('roundProgress'),
+            
+            // Agent selection
+            agentASelect: document.getElementById('agentASelect'),
+            agentBSelect: document.getElementById('agentBSelect'),
+            agentAInfo: document.getElementById('agentAInfo'),
+            agentBInfo: document.getElementById('agentBInfo'),
+            agentAName: document.getElementById('agentAName'),
+            agentBName: document.getElementById('agentBName'),
+            agentADesc: document.getElementById('agentADesc'),
+            agentBDesc: document.getElementById('agentBDesc'),
+            agentAStatus: document.getElementById('agentAStatus'),
+            agentBStatus: document.getElementById('agentBStatus'),
+            agentAStatusText: document.getElementById('agentAStatusText'),
+            agentBStatusText: document.getElementById('agentBStatusText'),
+            agentAToolbar: document.getElementById('agentAToolbar'),
+            agentBToolbar: document.getElementById('agentBToolbar'),
+            
+            // Conversations
+            agentAConversation: document.getElementById('agentAConversation'),
+            agentBConversation: document.getElementById('agentBConversation'),
+            
+            // Controls
+            initialPrompt: document.getElementById('initialPrompt'),
+            humanMessage: document.getElementById('humanMessage'),
+            startSessionBtn: document.getElementById('startSessionBtn'),
+            nextStepBtn: document.getElementById('nextStepBtn'),
+            pauseBtn: document.getElementById('pauseBtn'),
+            stopBtn: document.getElementById('stopBtn'),
+            clearBtn: document.getElementById('clearBtn'),
+            sendHumanBtn: document.getElementById('sendHumanBtn'),
+            aiAdvisorBtn: document.getElementById('aiAdvisorBtn'),
+            
+            // Status
+            sessionStatus: document.getElementById('sessionStatus'),
+            currentSpeaker: document.getElementById('currentSpeaker'),
+            sessionId: document.getElementById('sessionId'),
+            
+            // Export
+            exportMarkdownBtn: document.getElementById('exportMarkdownBtn'),
+            exportJSONBtn: document.getElementById('exportJSONBtn'),
+            exportTXTBtn: document.getElementById('exportTXTBtn'),
+            exportCSVBtn: document.getElementById('exportCSVBtn'),
+            
+            // Metrics
+            sessionTime: document.getElementById('sessionTime'),
+            totalMessages: document.getElementById('totalMessages'),
+            activeAgents: document.getElementById('activeAgents'),
+            currentRound: document.getElementById('currentRound'),
+            totalTokens: document.getElementById('totalTokens'),
+            avgResponseTime: document.getElementById('avgResponseTime'),
+            systemHealth: document.getElementById('systemHealth'),
+            creditsCounter: document.getElementById('creditsCounter')
+        };
+        
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            updateUI();
+            startMetricsUpdater();
+        });
+        
+        function initializeEventListeners() {
+            // Mode selection
+            elements.modeButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    elements.modeButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    appState.mode = this.dataset.mode;
+                    updateModeUI();
+                });
+            });
+            
+            // Interaction type selection
+            elements.advisorButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    elements.advisorButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    appState.interactionType = this.dataset.type;
+                });
+            });
+            
+            // Agent selection
+            elements.agentASelect.addEventListener('change', function() {
+                appState.agentA = this.value;
+                updateAgentInfo('A');
+            });
+            
+            elements.agentBSelect.addEventListener('change', function() {
+                appState.agentB = this.value;
+                updateAgentInfo('B');
+            });
+            
+            // Control buttons
+            elements.startSessionBtn.addEventListener('click', startSession);
+            elements.nextStepBtn.addEventListener('click', nextStep);
+            elements.pauseBtn.addEventListener('click', pauseSession);
+            elements.stopBtn.addEventListener('click', stopSession);
+            elements.clearBtn.addEventListener('click', clearAll);
+            elements.sendHumanBtn.addEventListener('click', sendHumanMessage);
+            elements.aiAdvisorBtn.addEventListener('click', applyAIAdvisor);
+            
+            // Export buttons
+            elements.exportMarkdownBtn.addEventListener('click', () => exportSession('markdown'));
+            elements.exportJSONBtn.addEventListener('click', () => exportSession('json'));
+            elements.exportTXTBtn.addEventListener('click', () => exportSession('txt'));
+            elements.exportCSVBtn.addEventListener('click', () => exportSession('csv'));
+            
+            // Toolbar buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.toolbar-btn')) {
+                    const btn = e.target.closest('.toolbar-btn');
+                    const action = btn.dataset.action;
+                    const agent = btn.closest('[id*="agent"]').id.includes('A') ? 'A' : 'B';
+                    handleToolbarAction(action, agent);
+                }
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    if (document.activeElement === elements.initialPrompt) {
+                        startSession();
+                    } else if (document.activeElement === elements.humanMessage) {
+                        sendHumanMessage();
+                    }
+                }
+            });
+        }
+        
+        function updateModeUI() {
+            elements.autonomousControls.style.display = appState.mode === 'autonomous' ? 'block' : 'none';
+            updateUI();
+        }
+        
+        function updateAgentInfo(agent) {
+            const selectEl = agent === 'A' ? elements.agentASelect : elements.agentBSelect;
+            const infoEl = agent === 'A' ? elements.agentAInfo : elements.agentBInfo;
+            const nameEl = agent === 'A' ? elements.agentAName : elements.agentBName;
+            const descEl = agent === 'A' ? elements.agentADesc : elements.agentBDesc;
+            const toolbarEl = agent === 'A' ? elements.agentAToolbar : elements.agentBToolbar;
+            
+            const selectedModel = selectEl.value;
+            
+            if (selectedModel && AGENT_CONFIGS[selectedModel]) {
+                const config = AGENT_CONFIGS[selectedModel];
+                nameEl.textContent = config.name;
+                descEl.textContent = config.description;
+                infoEl.style.display = 'block';
+                toolbarEl.style.display = 'flex';
+            } else {
+                infoEl.style.display = 'none';
+                toolbarEl.style.display = 'none';
+            }
+            
+            updateUI();
+        }
+        
+        function applyAIAdvisor() {
+            const recommendation = ADVISOR_RECOMMENDATIONS[appState.interactionType];
+            if (recommendation) {
+                elements.agentASelect.value = recommendation.agentA;
+                elements.agentBSelect.value = recommendation.agentB;
+                appState.agentA = recommendation.agentA;
+                appState.agentB = recommendation.agentB;
+                updateAgentInfo('A');
+                updateAgentInfo('B');
+                showNotification(`AI Advisor: ${recommendation.reason}`, 'success');
+            }
+        }
+        
+        async function startSession() {
+            if (!appState.agentA || !appState.agentB) {
+                showNotification('Please select both Agent A and Agent B before starting.', 'error');
+                return;
+            }
+            
+            if (appState.agentA === appState.agentB) {
+                showNotification('Please select different agents for A and B.', 'error');
+                return;
+            }
+            
+            const prompt = elements.initialPrompt.value.trim();
+            if (!prompt) {
+                showNotification('Please enter an initial prompt.', 'error');
+                return;
+            }
+            
+            // Initialize session
+            appState.sessionId = 'session_' + Date.now();
+            appState.sessionActive = true;
+            appState.isPaused = false;
+            appState.sessionStartTime = Date.now();
+            appState.currentRound = 0;
+            appState.maxRounds = parseInt(elements.roundsSelect.value);
+            appState.conversation = [];
+            appState.currentSpeaker = 'A';
+            
+            // Clear conversations
+            clearConversations();
             
             // Update UI
-            document.querySelectorAll('.agent-card').forEach(card => card.classList.remove('selected'));
-            document.querySelector(`[data-model="${recommendation[0]}"]`).classList.add('selected');
-            document.querySelector(`[data-model="${recommendation[1]}"]`).classList.add('selected');
+            updateSessionControls();
+            updateUI();
             
-            updateAgentNames();
-            showMessage(`AI Advisor recommends: ${agentConfigs[recommendation[0]].name} + ${agentConfigs[recommendation[1]].name} for ${interactionType} interactions.`, 'success');
-        }
-    }
-
-    async function sendToAll() {
-        const message = elements.promptInput.value.trim();
-        if (!message) return;
-
-        await sendToAgent('a', message);
-    }
-
-    async function sendToAgent(agent, customMessage = null) {
-        const message = customMessage || elements.promptInput.value.trim();
-        if (!message && !sessionState.conversation.length) return;
-
-        const agentModel = agent === 'a' ? sessionState.agentA : sessionState.agentB;
-        const statusElement = agent === 'a' ? elements.agentAStatus : elements.agentBStatus;
-        const conversationElement = agent === 'a' ? elements.agentAConversation : elements.agentBConversation;
-
-        // Show thinking state
-        statusElement.innerHTML = '<span class="status-indicator status-thinking"></span>Thinking<span class="thinking-dots"></span>';
-
-        try {
-            let finalMessage = message;
+            showNotification('Session started successfully!', 'success');
             
-            // For autonomous mode after first message, use conversation context
-            if (sessionState.isAutonomous && sessionState.conversation.length > 0) {
-                const lastMessage = sessionState.conversation[sessionState.conversation.length - 1];
-                finalMessage = lastMessage.content;
+            // Start with Agent A
+            if (appState.mode === 'autonomous') {
+                appState.isAutonomous = true;
+                await sendToAgent('A', prompt);
+            } else if (appState.mode === 'agent-a') {
+                await sendToAgent('A', prompt);
+            } else if (appState.mode === 'agent-b') {
+                await sendToAgent('B', prompt);
+            } else {
+                // Manual mode - wait for Next Step
+                await sendToAgent('A', prompt);
             }
-
-            const response = await callRailwayAPI(agentModel, finalMessage);
+        }
+        
+        async function nextStep() {
+            if (!appState.sessionActive || appState.isPaused) return;
             
-            // Add to conversation
+            const nextAgent = appState.currentSpeaker === 'A' ? 'B' : 'A';
+            const lastMessage = appState.conversation[appState.conversation.length - 1];
+            
+            if (lastMessage) {
+                await sendToAgent(nextAgent, lastMessage.content);
+            }
+        }
+        
+        function pauseSession() {
+            appState.isPaused = true;
+            appState.isAutonomous = false;
+            updateSessionControls();
+            showNotification('Session paused. Use Next Step to continue.', 'warning');
+        }
+        
+        function stopSession() {
+            appState.sessionActive = false;
+            appState.isPaused = false;
+            appState.isAutonomous = false;
+            appState.currentSpeaker = null;
+            updateSessionControls();
+            updateUI();
+            showNotification('Session stopped.', 'success');
+        }
+        
+        function clearAll() {
+            appState.conversation = [];
+            appState.totalTokens = 0;
+            appState.responseTimes = [];
+            clearConversations();
+            updateUI();
+            showNotification('All conversations cleared.', 'success');
+        }
+        
+        async function sendHumanMessage() {
+            const message = elements.humanMessage.value.trim();
+            if (!message) return;
+            
             const messageObj = {
-                agent: agent,
-                agentName: agentConfigs[agentModel].name,
-                content: response,
-                timestamp: Date.now()
+                sender: 'human',
+                content: message,
+timestamp: Date.now(),
+                tokens: estimateTokens(message)
             };
             
-            sessionState.conversation.push(messageObj);
+            appState.conversation.push(messageObj);
+            displayMessage(messageObj);
+            elements.humanMessage.value = '';
             
-            // Display message
-            displayMessage(conversationElement, messageObj, agent);
-            
-            // Update status
-            statusElement.innerHTML = '<span class="status-indicator status-active"></span>Ready';
-            
-            // Clear input if it was the original message
-            if (customMessage) {
-                elements.promptInput.value = '';
-            }
-            
-            // Continue autonomous conversation
-            if (sessionState.isAutonomous && sessionState.currentRound < sessionState.maxRounds) {
-                sessionState.currentRound++;
-                setTimeout(() => {
-                    const nextAgent = agent === 'a' ? 'b' : 'a';
-                    sendToAgent(nextAgent);
-                }, 2000);
-            } else if (sessionState.isAutonomous && sessionState.currentRound >= sessionState.maxRounds) {
-                showMessage(`Autonomous session completed after ${sessionState.maxRounds} rounds.`, 'success');
-                sessionState.isAutonomous = false;
-            }
-            
-        } catch (error) {
-            console.error('Error sending to agent:', error);
-            statusElement.innerHTML = '<span class="status-indicator status-error"></span>Error';
-            showMessage(`Error communicating with ${agentConfigs[agentModel].name}: ${error.message}`, 'error');
-            
-            // Try fallback models
-            await tryFallbackModels(agent, agentModel, message);
+            updateUI();
+            showNotification('Human message sent.', 'success');
         }
-    }
-
-    async function tryFallbackModels(agent, originalModel, message) {
-        const config = agentConfigs[originalModel];
-        if (!config || !config.fallbacks) return;
-
-        for (const fallbackModel of config.fallbacks) {
+        
+        async function sendToAgent(agent, message) {
+            const agentModel = agent === 'A' ? appState.agentA : appState.agentB;
+            if (!agentModel) return;
+            
+            const statusEl = agent === 'A' ? elements.agentAStatus : elements.agentBStatus;
+            const statusTextEl = agent === 'A' ? elements.agentAStatusText : elements.agentBStatusText;
+            
+            // Update status to thinking
+            statusEl.className = 'status-indicator status-thinking';
+            statusTextEl.innerHTML = 'Thinking<span class="thinking-dots"></span>';
+            
+            // Highlight current speaker
+            highlightCurrentSpeaker(agent);
+            
+            const startTime = Date.now();
+            
             try {
-                console.log(`Trying fallback model: ${fallbackModel}`);
-                const response = await callRailwayAPI(fallbackModel, message);
+                const response = await callRailwayAPI(agentModel, message);
+                const responseTime = Date.now() - startTime;
                 
                 const messageObj = {
-                    agent: agent,
-                    agentName: `${config.name} (Fallback)`,
+                    sender: agent.toLowerCase(),
+                    agentName: AGENT_CONFIGS[agentModel].name,
                     content: response,
-                    timestamp: Date.now()
+                    timestamp: Date.now(),
+                    responseTime: responseTime,
+                    tokens: estimateTokens(response)
                 };
                 
-                sessionState.conversation.push(messageObj);
+                appState.conversation.push(messageObj);
+                appState.totalTokens += messageObj.tokens;
+                appState.responseTimes.push(responseTime);
                 
-                const conversationElement = agent === 'a' ? elements.agentAConversation : elements.agentBConversation;
-                displayMessage(conversationElement, messageObj, agent);
+                displayMessage(messageObj);
                 
-                const statusElement = agent === 'a' ? elements.agentAStatus : elements.agentBStatus;
-                statusElement.innerHTML = '<span class="status-indicator status-active"></span>Ready (Fallback)';
+                // Update status back to ready
+                statusEl.className = 'status-indicator status-ready';
+                statusTextEl.textContent = 'Ready';
                 
-                showMessage(`Switched to fallback model for ${config.name}`, 'success');
-                return; // Success, exit the loop
+                // Continue autonomous conversation
+                if (appState.isAutonomous && appState.currentRound < appState.maxRounds) {
+                    appState.currentRound++;
+                    appState.currentSpeaker = agent === 'A' ? 'B' : 'A';
+                    
+                    setTimeout(() => {
+                        if (appState.isAutonomous) {
+                            sendToAgent(appState.currentSpeaker, response);
+                        }
+                    }, 2000);
+                } else if (appState.isAutonomous && appState.currentRound >= appState.maxRounds) {
+                    showNotification(`Autonomous session completed after ${appState.maxRounds} rounds.`, 'success');
+                    appState.isAutonomous = false;
+                    appState.currentSpeaker = null;
+                } else {
+                    // Manual mode - set next speaker
+                    appState.currentSpeaker = agent === 'A' ? 'B' : 'A';
+                }
                 
-            } catch (fallbackError) {
-                console.error(`Fallback model ${fallbackModel} also failed:`, fallbackError);
+                updateUI();
+                
+            } catch (error) {
+                console.error('Error sending to agent:', error);
+                statusEl.className = 'status-indicator status-error';
+                statusTextEl.textContent = 'Error';
+                showNotification(`Error communicating with ${AGENT_CONFIGS[agentModel].name}: ${error.message}`, 'error');
             }
         }
         
-        showMessage(`All models failed for ${config.name}. Please try a different agent.`, 'error');
-    }
-
-    // Updated API call function to use Railway backend
-    async function callRailwayAPI(model, message) {
-    const config = agentConfigs[model];
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/chat`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                message: message,
-                agents: [getAgentIdFromModel(model)]
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error?.message || `API request failed with status ${response.status}`);
-        }
-
-        const data = await response.json();
-        
-        if (data.success && data.responses) {
+        async function callRailwayAPI(model, message) {
             const agentId = getAgentIdFromModel(model);
-            const agentResponse = data.responses[agentId];
             
-            if (agentResponse && agentResponse.status === 'success') {
-                return agentResponse.response;
-            } else {
-                throw new Error(agentResponse?.error || 'No response from agent');
+            const response = await fetch(`${API_BASE_URL}/api/chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: message,
+                    agents: [agentId]
+                })
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `API request failed with status ${response.status}`);
             }
-        } else {
-            throw new Error(data.error || 'Invalid response format');
-        }
-    } catch (error) {
-        console.error('Railway API Error:', error);
-        throw error;
-    }
-}
-
-function getAgentIdFromModel(model) {
-    const modelMap = {
-        'deepseek/deepseek-r1': 'deepseek',
-        'minmax/minmax-01': 'minmax', 
-        'openai/gpt-4-turbo': 'chatgpt',
-        'meta-llama/llama-3-8b-instruct': 'llama',
-        'mistralai/mistral-large-2407': 'mistral',
-        'deepseek-ai/deepseek-v2.5': 'deepseek',
-        'minimax/minimax-m1': 'minmax',
-        'openai/gpt-4o': 'chatgpt',
-        'anthropic/claude-3.5-sonnet': 'chatgpt'
-    };
-    return modelMap[model] || 'chatgpt';
-}
-
-function displayMessage(container, messageObj, agent) {
-    const messageClass = agent === 'a' ? 'agent-a-message' : 'agent-b-message';
-    const agentColor = agent === 'a' ? 'text-blue-400' : 'text-purple-400';
-    
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message-bubble ${messageClass}`;
-    messageDiv.innerHTML = `
-        <div class="flex items-center justify-between mb-2">
-            <span class="font-semibold ${agentColor}">${messageObj.agentName}</span>
-            <span class="text-xs text-gray-400">${new Date(messageObj.timestamp).toLocaleTimeString()}</span>
-        </div>
-        <div class="text-sm leading-relaxed">${messageObj.content}</div>
-    `;
-    
-    // Clear placeholder if exists
-    if (container.innerHTML.includes('Waiting for session to start')) {
-        container.innerHTML = '';
-    }
-    
-    container.appendChild(messageDiv);
-    container.scrollTop = container.scrollHeight;
-}
-
-function showMessage(message, type = 'info') {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
-    messageDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'} mr-2"></i>${message}`;
-    
-    // Insert at the top of the page
-    document.body.insertBefore(messageDiv, document.body.firstChild);
-    
-    // Remove after 5 seconds
-    setTimeout(() => {
-        if (messageDiv.parentNode) {
-            messageDiv.parentNode.removeChild(messageDiv);
-        }
-    }, 5000);
-}
-
-function startMetricsUpdate() {
-    setInterval(() => {
-        if (sessionState.isActive && sessionState.startTime) {
-            const elapsed = Math.floor((Date.now() - sessionState.startTime) / 1000);
-            elements.sessionTime.textContent = elapsed + 's';
+            
+            const data = await response.json();
+            
+            if (data.success && data.responses && data.responses[agentId]) {
+                const agentResponse = data.responses[agentId];
+                if (agentResponse.status === 'success') {
+                    return agentResponse.response;
+                } else {
+                    throw new Error(agentResponse.error || 'Agent response failed');
+                }
+            } else {
+                throw new Error('Invalid response format from API');
+            }
         }
         
-        elements.totalMessages.textContent = sessionState.conversation.length;
+        function getAgentIdFromModel(model) {
+            const modelMap = {
+                'tngtech/deepseek-r1t2-chimera:free': 'deepseek',
+                'minimax/minimax-m1': 'minmax',
+                'meta-llama/llama-3-8b-instruct': 'llama',
+                'mistralai/mistral-large-2407': 'mistral',
+                'openai/gpt-4-turbo': 'chatgpt'
+            };
+            return modelMap[model] || 'chatgpt';
+        }
         
-        // Simulate system health (would be real monitoring in production)
-        const health = Math.max(95, Math.floor(Math.random() * 5) + 96);
-        elements.systemHealth.textContent = health + '%';
-        elements.systemHealthMetric.textContent = health + '%';
-    }, 1000);
-}
-
-// Initialize UI state
-updateUIForMode();
-</script>
+        function displayMessage(messageObj) {
+            const messageEl = document.createElement('div');
+            messageEl.className = `message-bubble ${messageObj.sender}`;
+            
+            const senderName = messageObj.agentName || (messageObj.sender === 'human' ? 'Human' : `Agent ${messageObj.sender.toUpperCase()}`);
+            const senderClass = messageObj.sender === 'human' ? 'human' : `agent-${messageObj.sender}`;
+            
+            messageEl.innerHTML = `
+                <div class="message-header">
+                    <span class="message-sender ${senderClass}">${senderName}</span>
+                    <span class="message-timestamp">${formatTimestamp(messageObj.timestamp)}</span>
+                </div>
+                <div class="message-content">${messageObj.content}</div>
+                ${messageObj.responseTime ? `
+                    <div class="message-meta">
+                        <span>Response time: ${messageObj.responseTime}ms</span>
+                        <span>Tokens: ${messageObj.tokens}</span>
+                    </div>
+                ` : ''}
+            `;
+            
+            // Add to appropriate conversation areas
+            if (messageObj.sender === 'a') {
+                clearEmptyState(elements.agentAConversation);
+                elements.agentAConversation.appendChild(messageEl);
+                elements.agentAConversation.scrollTop = elements.agentAConversation.scrollHeight;
+            } else if (messageObj.sender === 'b') {
+                clearEmptyState(elements.agentBConversation);
+                elements.agentBConversation.appendChild(messageEl);
+                elements.agentBConversation.scrollTop = elements.agentBConversation.scrollHeight;
+            }
+        }
+        
+        function clearEmptyState(container) {
+            const emptyState = container.querySelector('.conversation-empty');
+            if (emptyState) {
+                emptyState.remove();
+            }
+        }
+        
+        function clearConversations() {
+            elements.agentAConversation.innerHTML = `
+                <div class="conversation-empty">
+                    <i class="fas fa-comment-dots"></i>
+                    <p>Agent A ready for collaboration</p>
+                    <p class="text-sm">Select an agent and start a session</p>
+                </div>
+            `;
+            elements.agentBConversation.innerHTML = `
+                <div class="conversation-empty">
+                    <i class="fas fa-comment-dots"></i>
+                    <p>Agent B ready for collaboration</p>
+                    <p class="text-sm">Select an agent and start a session</p>
+                </div>
+            `;
+        }
+        
+        function highlightCurrentSpeaker(agent) {
+            // Remove previous highlights
+            elements.agentAConversation.parentElement.classList.remove('current-speaker');
+            elements.agentBConversation.parentElement.classList.remove('current-speaker');
+            
+            // Add highlight to current speaker
+            if (agent === 'A') {
+                elements.agentAConversation.parentElement.classList.add('current-speaker');
+            } else if (agent === 'B') {
+                elements.agentBConversation.parentElement.classList.add('current-speaker');
+            }
+        }
+        
+        function updateSessionControls() {
+            elements.startSessionBtn.disabled = appState.sessionActive;
+            elements.nextStepBtn.disabled = !appState.sessionActive || appState.isPaused || appState.isAutonomous;
+            elements.pauseBtn.disabled = !appState.sessionActive || appState.isPaused || !appState.isAutonomous;
+            elements.stopBtn.disabled = !appState.sessionActive;
+        }
+        
+        function updateUI() {
+            // Update session status
+            elements.sessionStatus.value = appState.sessionActive ? 
+                (appState.isPaused ? 'Paused' : 'Active') : 'Inactive';
+            elements.currentSpeaker.value = appState.currentSpeaker || 'None';
+            elements.sessionId.value = appState.sessionId || 'None';
+            
+            // Update metrics
+            elements.totalMessages.textContent = appState.conversation.length;
+            elements.activeAgents.textContent = [appState.agentA, appState.agentB].filter(Boolean).length;
+            elements.currentRound.textContent = appState.currentRound;
+            elements.totalTokens.textContent = appState.totalTokens;
+            
+            if (appState.responseTimes.length > 0) {
+                const avgTime = appState.responseTimes.reduce((a, b) => a + b, 0) / appState.responseTimes.length;
+                elements.avgResponseTime.textContent = Math.round(avgTime) + 'ms';
+            }
+            
+            // Update round progress
+            if (appState.mode === 'autonomous') {
+                elements.roundProgress.textContent = appState.sessionActive ? 
+                    `Round ${appState.currentRound}/${appState.maxRounds}` : 'Ready to start';
+            }
+            
+            updateSessionControls();
+        }
+        
+        function handleToolbarAction(action, agent) {
+            const lastMessage = appState.conversation
+                .filter(msg => msg.sender === agent.toLowerCase())
+                .pop();
+            
+            if (!lastMessage) return;
+            
+            switch (action) {
+                case 'copy':
+                    navigator.clipboard.writeText(lastMessage.content);
+                    showNotification('Response copied to clipboard!', 'success');
+                    break;
+                case 'regenerate':
+                    if (appState.sessionActive) {
+                        const prevMessage = appState.conversation
+                            .filter(msg => msg.sender !== agent.toLowerCase())
+                            .pop();
+                        if (prevMessage) {
+                            sendToAgent(agent, prevMessage.content);
+                        }
+                    }
+                    break;
+                case 'download':
+                    downloadText(lastMessage.content, `${lastMessage.agentName}_response.txt`);
+                    break;
+                case 'edit':
+                    const newContent = prompt('Edit response:', lastMessage.content);
+                    if (newContent !== null) {
+                        lastMessage.content = newContent;
+                        // Re-render conversation
+                        // Implementation depends on your specific needs
+                    }
+                    break;
+                case 'thumbsup':
+                case 'thumbsdown':
+                    // Store feedback (implement as needed)
+                    showNotification(`Feedback recorded for ${lastMessage.agentName}`, 'success');
+                    break;
+            }
+        }
+        
+        function exportSession(format) {
+            if (appState.conversation.length === 0) {
+                showNotification('No conversation to export.', 'warning');
+                return;
+            }
+            
+            let content = '';
+            let filename = `promptlink_session_${Date.now()}`;
+            
+            switch (format) {
+                case 'markdown':
+                    content = generateMarkdown();
+                    filename += '.md';
+                    break;
+                case 'json':
+                    content = JSON.stringify({
+                        sessionId: appState.sessionId,
+                        mode: appState.mode,
+                        interactionType: appState.interactionType,
+                        agentA: appState.agentA,
+                        agentB: appState.agentB,
+                        conversation: appState.conversation,
+                        totalTokens: appState.totalTokens,
+                        sessionDuration: appState.sessionStartTime ? Date.now() - appState.sessionStartTime : 0
+                    }, null, 2);
+                    filename += '.json';
+                    break;
+                case 'txt':
+                    content = generatePlainText();
+                    filename += '.txt';
+                    break;
+                case 'csv':
+                    content = generateCSV();
+                    filename += '.csv';
+                    break;
+            }
+            
+            downloadText(content, filename);
+            showNotification(`Session exported as ${format.toUpperCase()}!`, 'success');
+        }
+        
+        function generateMarkdown() {
+            let md = `# PromptLink Session Export\n\n`;
+            md += `**Session ID:** ${appState.sessionId}\n`;
+            md += `**Mode:** ${appState.mode}\n`;
+            md += `**Interaction Type:** ${appState.interactionType}\n`;
+            md += `**Agent A:** ${AGENT_CONFIGS[appState.agentA]?.name || appState.agentA}\n`;
+            md += `**Agent B:** ${AGENT_CONFIGS[appState.agentB]?.name || appState.agentB}\n`;
+            md += `**Total Messages:** ${appState.conversation.length}\n`;
+            md += `**Total Tokens:** ${appState.totalTokens}\n\n`;
+            
+            md += `## Conversation\n\n`;
+            
+            appState.conversation.forEach((msg, index) => {
+                const senderName = msg.agentName || (msg.sender === 'human' ? 'Human' : `Agent ${msg.sender.toUpperCase()}`);
+                md += `### ${senderName} (${formatTimestamp(msg.timestamp)})\n\n`;
+                md += `${msg.content}\n\n`;
+                if (msg.responseTime) {
+                    md += `*Response time: ${msg.responseTime}ms | Tokens: ${msg.tokens}*\n\n`;
+                }
+            });
+            
+            return md;
+        }
+        
+        function generatePlainText() {
+            let txt = `PROMPTLINK SESSION EXPORT\n`;
+            txt += `Session ID: ${appState.sessionId}\n`;
+            txt += `Mode: ${appState.mode}\n`;
+            txt += `Interaction Type: ${appState.interactionType}\n`;
+            txt += `Agent A: ${AGENT_CONFIGS[appState.agentA]?.name || appState.agentA}\n`;
+            txt += `Agent B: ${AGENT_CONFIGS[appState.agentB]?.name || appState.agentB}\n`;
+            txt += `Total Messages: ${appState.conversation.length}\n`;
+            txt += `Total Tokens: ${appState.totalTokens}\n\n`;
+            
+            txt += `CONVERSATION:\n\n`;
+            
+            appState.conversation.forEach((msg, index) => {
+                const senderName = msg.agentName || (msg.sender === 'human' ? 'Human' : `Agent ${msg.sender.toUpperCase()}`);
+                txt += `[${formatTimestamp(msg.timestamp)}] ${senderName}:\n`;
+                txt += `${msg.content}\n`;
+                if (msg.responseTime) {
+                    txt += `(Response time: ${msg.responseTime}ms | Tokens: ${msg.tokens})\n`;
+                }
+                txt += `\n`;
+            });
+            
+            return txt;
+        }
+        
+        function generateCSV() {
+            let csv = `Timestamp,Sender,Agent Name,Content,Response Time,Tokens\n`;
+            
+            appState.conversation.forEach(msg => {
+                const senderName = msg.agentName || (msg.sender === 'human' ? 'Human' : `Agent ${msg.sender.toUpperCase()}`);
+                const content = msg.content.replace(/"/g, '""'); // Escape quotes
+                csv += `"${formatTimestamp(msg.timestamp)}","${msg.sender}","${senderName}","${content}","${msg.responseTime || ''}","${msg.tokens || ''}"\n`;
+            });
+            
+            return csv;
+        }
+        
+        function downloadText(content, filename) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function formatTimestamp(timestamp) {
+            return new Date(timestamp).toLocaleString();
+        }
+        
+        function estimateTokens(text) {
+            // Simple token estimation (roughly 4 characters per token)
+            return Math.ceil(text.length / 4);
+        }
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+        
+        function startMetricsUpdater() {
+            setInterval(() => {
+                if (appState.sessionActive && appState.sessionStartTime) {
+                    const elapsed = Math.floor((Date.now() - appState.sessionStartTime) / 1000);
+                    elements.sessionTime.textContent = formatDuration(elapsed);
+                }
+                
+                // Simulate system health fluctuation
+                const currentHealth = parseInt(elements.systemHealth.textContent) || 99;
+                const newHealth = Math.max(95, Math.min(100, currentHealth + (Math.random() - 0.5) * 2));
+                elements.systemHealth.textContent = Math.floor(newHealth) + '%';
+                
+                // Update credits (simulate usage)
+                if (appState.sessionActive && appState.conversation.length > 0) {
+                    const currentCredits = parseInt(elements.creditsCounter.textContent) || 2500;
+                    const newCredits = Math.max(0, currentCredits - Math.floor(Math.random() * 2));
+                    elements.creditsCounter.textContent = newCredits;
+                }
+            }, 1000);
+        }
+        
+        function formatDuration(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            if (hours > 0) {
+                return `${hours}h ${minutes}m ${secs}s`;
+            } else if (minutes > 0) {
+                return `${minutes}m ${secs}s`;
+            } else {
+                return `${secs}s`;
+            }
+        }
+    </script>
 </body>
 </html>
+
 
 
 
