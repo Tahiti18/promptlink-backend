@@ -1367,7 +1367,7 @@
                     },
                     body: JSON.stringify({
     message: message,
-    model: agentId,
+    model: AGENT_CONFIG[agentId].model,
     session_id: currentSession,
     mode: selectedAdvisorMode || 'general'
 })
@@ -1799,10 +1799,3 @@ updateAgentResponse(agent, `${agentName} refreshed and ready for collaboration.`
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
