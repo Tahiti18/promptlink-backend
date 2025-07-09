@@ -1355,56 +1355,54 @@
         }
 
         async function processAgentMessage(agentId, message, agentLetter) {
-            try {
-                updateAgentStatus(agentLetter, 'working');
-                
-                const agentConfig = AGENT_CONFIG[agentId];
-                const response = await fetch(`${API_BASE_URL}/${agentConfig.endpoint}`, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-    message: message,
-    model: AGENT_CONFIG[agentId].model,
-    session_id: currentSession,
-    mode: selectedAdvisorMode || 'general'
-})
-                });
-
-                let responseText;
-                if (response.ok) {
-                    const data = await response.json();
-                    responseText = extractResponseText(data);
-                } else {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-
-                const targetWindow = agentLetter === 'a' ? 'b' : 'a';
-                updateAgentResponse(targetWindow, responseText);
-                
-                addMessageToConversation('agent', `Agent ${agentLetter.toUpperCase()} (${agentConfig.name})`, responseText);
-                updateAgentStatus(agentLetter, 'ready');
-                
-                messageCount++;
-                if (messageCount % 2 === 0) {
-                    roundCount++;
-                }
-                updateDiagnostics();
-                
-                return responseText;
-                
-            } catch (error) {
-                console.error(`Agent ${agentLetter} error:`, error);
-                const errorMsg = `Error: ${error.message}`;
-                updateAgentResponse(agentLetter, errorMsg);
-                addMessageToConversation('system', `Agent ${agentLetter.toUpperCase()} Error`, errorMsg);
-                updateAgentStatus(agentLetter, 'error');
-                throw error;
-            }
+    try {
+        updateAgentStatus(agentLetter, 'working');
+        const agentConfig = AGENT_CONFIG[agentId];
+        console.log('Starting agent:', {
+            message: message,
+            model: AGENT_CONFIG[agentId].model,
+            session_id: currentSession,
+            mode: selectedAdvisorMode || 'general'
+        });
+        const response = await fetch(`${API_BASE_URL}/${agentConfig.endpoint}`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                message: message,
+                model: AGENT_CONFIG[agentId].model,
+                session_id: currentSession,
+                mode: selectedAdvisorMode || 'general'
+            })
+        });
+        let responseText;
+        if (response.ok) {
+            const data = await response.json();
+            responseText = extractResponseText(data);
+        } else {
+            throw new Error(`HTTP ${response.status}`);
         }
-
+        const targetWindow = agentLetter === 'a' ? 'b' : 'a';
+        updateAgentResponse(targetWindow, responseText);
+        addMessageToConversation('agent', `Agent ${agentLetter.toUpperCase()} (${agentConfig.name})`, responseText);
+        updateAgentStatus(agentLetter, 'ready');
+        messageCount++;
+        if (messageCount % 2 === 0) {
+            roundCount++;
+        }
+        updateDiagnostics();
+        return responseText;
+    } catch (error) {
+        console.error(`Agent ${agentLetter} error:`, error);
+        const errorMsg = `Error: ${error.message}`;
+        updateAgentResponse(agentLetter, errorMsg);
+        addMessageToConversation('system', `Agent ${agentLetter.toUpperCase()} Error`, errorMsg);
+        updateAgentStatus(agentLetter, 'error');
+        throw error;
+    }
+}
         async function runAutonomousMode(agentA, agentB) {
             const rounds = parseInt(document.getElementById('rounds-input').value) || 5;
             let currentAgent = agentB;
@@ -1799,3 +1797,4 @@ updateAgentResponse(agent, `${agentName} refreshed and ready for collaboration.`
     </script>
 </body>
 </html>
+
