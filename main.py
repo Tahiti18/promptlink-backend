@@ -11,7 +11,7 @@ app = Flask(__name__, static_folder='static')
 app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
 
 # FIXED: Simplified CORS - remove conflicting configurations
-CORS(app, origins="*")
+CORS(app, origins=["https://promptlinkapp.netlify.app", "https://promptlink-experiment-1.netlify.app"])
 
 # Environment variables
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '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')
@@ -269,3 +269,4 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     print(f"🚀 Starting server on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
+
