@@ -109,7 +109,7 @@ def get_agents():
         return jsonify({"success": False, "error": str(e)}), 500
 
 def call_openrouter_api(message, model):
-    """Call OpenRouter API with improved error handling"""
+    """Call OpenRouter API with improved error handling and universal response parsing"""
     try:
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
@@ -138,9 +138,16 @@ def call_openrouter_api(message, model):
         
         if response.status_code == 200:
             result = response.json()
+            if "output" in result:
+                message_content = result["output"]
+            elif "choices" in result and result["choices"]:
+                message_content = result["choices"][0]["message"]["content"]
+            else:
+                raise Exception(f"Unknown format: {result}")
+            
             return {
                 "success": True,
-                "message": result["choices"][0]["message"]["content"],
+                "message": message_content,
                 "tokens": result.get("usage", {}).get("total_tokens", 0)
             }
         else:
@@ -150,6 +157,13 @@ def call_openrouter_api(message, model):
                 "success": False,
                 "error": f"OpenRouter API error: {response.status_code} - {error_text}"
             }
+            
+    except Exception as e:
+        print(f"❌ OpenRouter API exception: {str(e)}")
+        return {
+            "success": False,
+            "error": f"OpenRouter API exception: {str(e)}"
+        }
             
     except Exception as e:
         print(f"❌ OpenRouter API exception: {str(e)}")
