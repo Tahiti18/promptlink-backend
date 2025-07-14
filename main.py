@@ -20,14 +20,26 @@ print(f"🔑 OpenRouter API Key: {'✅ Set' if OPENROUTER_API_KEY else '❌ Miss
 AGENTS = {
     "deepseek": {"id": "deepseek", "name": "DeepSeek R1", "model": "deepseek/deepseek-r1",
                  "provider": "openrouter", "capabilities": ["code-generation"], "color": "blue", "status": "active", "icon": "🤖"},
-    "minmax": {"id": "minmax", "name": "MinMax M1", "model": "minmax/minmax-01",
-               "provider": "openrouter", "capabilities": ["planning"], "color": "purple", "status": "active", "icon": "🧠"},
-    "chatgpt": {"id": "chatgpt", "name": "ChatGPT 4 Turbo", "model": "openai/gpt-4-turbo",
+    "chatgpt": {"id": "chatgpt", "name": "OpenAI GPT-4 Turbo", "model": "openai/gpt-4-turbo",
                 "provider": "openrouter", "capabilities": ["conversation"], "color": "green", "status": "active", "icon": "💬"},
-    "llama": {"id": "llama", "name": "Llama 3.3", "model": "meta-llama/llama-3-8b-instruct",
+    "qwen": {"id": "qwen", "name": "Qwen 2.5 Coder", "model": "qwen/qwen-2.5-coder",
+             "provider": "openrouter", "capabilities": ["coding"], "color": "purple", "status": "active", "icon": "🧑‍💻"},
+    "llama": {"id": "llama", "name": "Meta Llama 3.3", "model": "meta-llama/llama-3-8b-instruct",
               "provider": "openrouter", "capabilities": ["text-generation"], "color": "orange", "status": "active", "icon": "🦙"},
     "mistral": {"id": "mistral", "name": "Mistral Large", "model": "mistralai/mistral-large-2407",
-                "provider": "openrouter", "capabilities": ["summarization"], "color": "red", "status": "active", "icon": "💨"}
+                "provider": "openrouter", "capabilities": ["summarization"], "color": "red", "status": "active", "icon": "💨"},
+    "gpt4o": {"id": "gpt4o", "name": "GPT-4o", "model": "openai/gpt-4o",
+              "provider": "openrouter", "capabilities": ["conversation"], "color": "teal", "status": "active", "icon": "💎"},
+    "grok": {"id": "grok", "name": "Grok Beta", "model": "xai/grok-1.5-llama3-8b",
+             "provider": "openrouter", "capabilities": ["reasoning"], "color": "brown", "status": "active", "icon": "🦾"},
+    "claude": {"id": "claude", "name": "Claude Opus", "model": "anthropic/claude-3-opus",
+               "provider": "openrouter", "capabilities": ["analysis"], "color": "pink", "status": "active", "icon": "🧠"},
+    "gemini": {"id": "gemini", "name": "Gemini 2.0 Flash", "model": "google/gemini-1.5-flash",
+               "provider": "openrouter", "capabilities": ["fast-gen"], "color": "cyan", "status": "active", "icon": "⚡"},
+    "deepseekfree": {"id": "deepseekfree", "name": "DeepSeek Free", "model": "deepseek/deepseek-chat",
+                     "provider": "openrouter", "capabilities": ["basic"], "color": "lightblue", "status": "active", "icon": "🔍"},
+    "perplexity": {"id": "perplexity", "name": "Perplexity Pro", "model": "perplexity/perplexity-llm",
+                   "provider": "openrouter", "capabilities": ["web-search"], "color": "violet", "status": "active", "icon": "🔎"}
 }
 
 @app.route('/health', methods=['GET'])
@@ -93,18 +105,14 @@ def call_openrouter_api(message, model, agent_name):
                         "tokens": result.get("usage", {}).get("total_tokens", 0)}
             else:
                 print(f"❌ Unknown format for {agent_name} with model {model}: {json.dumps(result)}")
-                # DIRECT fallback to UI response
-                return {"success": True, "message": f"[{agent_name} on {model} returned unknown format]",
-                        "tokens": 0}
+                return {"success": True, "message": f"[{agent_name} on {model} returned unknown format]", "tokens": 0}
         else:
             error_text = response.text
             print(f"❌ OpenRouter API error: {response.status_code} - {error_text}")
-            return {"success": True, "message": f"[{agent_name} on {model} got HTTP error: {response.status_code}]",
-                    "tokens": 0}
+            return {"success": True, "message": f"[{agent_name} on {model} got HTTP error: {response.status_code}]", "tokens": 0}
     except Exception as e:
         print(f"❌ OpenRouter API exception: {str(e)}")
-        return {"success": True, "message": f"[{agent_name} on {model} exception: {str(e)}]",
-                "tokens": 0}
+        return {"success": True, "message": f"[{agent_name} on {model} exception: {str(e)}]", "tokens": 0}
 
 @app.route('/api/chat', methods=['POST', 'OPTIONS'])
 def chat():
