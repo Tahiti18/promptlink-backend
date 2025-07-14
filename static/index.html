@@ -1223,18 +1223,12 @@
         let selectedAdvisorMode = null;
 
         const AGENT_CONFIG = {
-    'deepseek': { name: 'DeepSeek R1', endpoint: 'api/chat', model: 'deepseek' },
-    'chatgpt': { name: 'OpenAI GPT-4 Turbo', endpoint: 'api/chat', model: 'chatgpt' },
-    'qwen': { name: 'Qwen 2.5 Coder', endpoint: 'api/chat', model: 'qwen' },
-    'llama': { name: 'Meta Llama 3.3', endpoint: 'api/chat', model: 'llama' },
-    'mistral': { name: 'Mistral Large', endpoint: 'api/chat', model: 'mistral' },
-    'gpt4o': { name: 'GPT-4o', endpoint: 'api/chat', model: 'gpt4o' },
-    'grok': { name: 'Grok Beta', endpoint: 'api/chat', model: 'grok' },
-    'claude': { name: 'Claude Opus', endpoint: 'api/chat', model: 'claude' },
-    'gemini': { name: 'Gemini 2.0 Flash', endpoint: 'api/chat', model: 'gemini' },
-    'deepseekfree': { name: 'DeepSeek Free', endpoint: 'api/chat', model: 'deepseekfree' },
-    'perplexity': { name: 'Perplexity Pro', endpoint: 'api/chat', model: 'perplexity' }
-};
+       'deepseek': { name: 'DeepSeek R1', endpoint: 'api/chat', model: 'deepseek' },
+       'chatgpt': { name: 'OpenAI GPT-4 Turbo', endpoint: 'api/chat', model: 'chatgpt' },
+       'llama': { name: 'Meta Llama 3.3', endpoint: 'api/chat', model: 'llama' },
+       'mistral': { name: 'Mistral Large', endpoint: 'api/chat', model: 'mistral' },
+       'gpt4o': { name: 'GPT-4o', endpoint: 'api/chat', model: 'gpt4o' }
+        };
 
         document.addEventListener('DOMContentLoaded', () => {
             initializeApp();
