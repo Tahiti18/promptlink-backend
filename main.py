@@ -25,24 +25,12 @@ AGENTS = {
                  "provider": "openrouter", "capabilities": ["code-generation"], "color": "blue", "status": "active", "icon": "🤖"},
     "chatgpt": {"id": "chatgpt", "name": "OpenAI GPT-4 Turbo", "model": "openai/gpt-4-turbo",
                 "provider": "openrouter", "capabilities": ["conversation"], "color": "green", "status": "active", "icon": "💬"},
-    "qwen": {"id": "qwen", "name": "Qwen 2.5 Coder", "model": "qwen/qwen-2.5-coder",
-             "provider": "openrouter", "capabilities": ["coding"], "color": "purple", "status": "active", "icon": "🧑‍💻"},
     "llama": {"id": "llama", "name": "Meta Llama 3.3", "model": "meta-llama/llama-3-8b-instruct",
               "provider": "openrouter", "capabilities": ["text-generation"], "color": "orange", "status": "active", "icon": "🦙"},
     "mistral": {"id": "mistral", "name": "Mistral Large", "model": "mistralai/mistral-large-2407",
                 "provider": "openrouter", "capabilities": ["summarization"], "color": "red", "status": "active", "icon": "💨"},
     "gpt4o": {"id": "gpt4o", "name": "GPT-4o", "model": "openai/gpt-4o",
-              "provider": "openrouter", "capabilities": ["conversation"], "color": "teal", "status": "active", "icon": "💎"},
-    "grok": {"id": "grok", "name": "Grok Beta", "model": "xai/grok-1.5-llama3-8b",
-             "provider": "openrouter", "capabilities": ["reasoning"], "color": "brown", "status": "active", "icon": "🦾"},
-    "claude": {"id": "claude", "name": "Claude Opus", "model": "anthropic/claude-3-opus",
-               "provider": "openrouter", "capabilities": ["analysis"], "color": "pink", "status": "active", "icon": "🧠"},
-    "gemini": {"id": "gemini", "name": "Gemini 2.0 Flash", "model": "google/gemini-1.5-flash",
-               "provider": "openrouter", "capabilities": ["fast-gen"], "color": "cyan", "status": "active", "icon": "⚡"},
-    "deepseekfree": {"id": "deepseekfree", "name": "DeepSeek Free", "model": "deepseek/deepseek-chat",
-                     "provider": "openrouter", "capabilities": ["basic"], "color": "lightblue", "status": "active", "icon": "🔍"},
-    "perplexity": {"id": "perplexity", "name": "Perplexity Pro", "model": "perplexity/perplexity-llm",
-                   "provider": "openrouter", "capabilities": ["web-search"], "color": "violet", "status": "active", "icon": "🔎"}
+              "provider": "openrouter", "capabilities": ["conversation"], "color": "teal", "status": "active", "icon": "💎"}
 }
 
 def extract_message_content(agent_name, result):
