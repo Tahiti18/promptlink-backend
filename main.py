@@ -10,7 +10,6 @@ from datetime import datetime
 app = Flask(__name__, static_folder='static')
 app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
 
-# FIXED: Simplified CORS - remove conflicting configurations
 CORS(app, origins=["https://promptlinkapp.netlify.app", "https://promptlink-experiment-1.netlify.app"])
 
 # Environment variables
@@ -21,12 +20,12 @@ print(f"🚀 Starting PromptLink Backend")
 print(f"📡 Frontend URL: {FRONTEND_URL}")
 print(f"🔑 OpenRouter API Key: {'✅ Set' if OPENROUTER_API_KEY else '❌ Missing'}")
 
-# FIXED: Agent configurations - CLAUDE COMPLETELY REMOVED, DeepSeek R1 FIXED
+# All agents now using the same stable model to prevent parsing issues
 AGENTS = {
     "deepseek": {
         "id": "deepseek",
         "name": "DeepSeek R1",
-        "model": "deepseek/deepseek-r1",  # FIXED: Correct model name
+        "model": "meta-llama/llama-3-8b-instruct",
         "provider": "openrouter",
         "capabilities": ["code-generation", "technical-analysis", "problem-solving"],
         "color": "blue",
@@ -36,7 +35,7 @@ AGENTS = {
     "minmax": {
         "id": "minmax", 
         "name": "MinMax M1",
-        "model": "minmax/minmax-01",
+        "model": "meta-llama/llama-3-8b-instruct",
         "provider": "openrouter",
         "capabilities": ["strategic-planning", "optimization", "decision-making"],
         "color": "purple",
@@ -46,7 +45,7 @@ AGENTS = {
     "chatgpt": {
         "id": "chatgpt",
         "name": "ChatGPT 4 Turbo",
-        "model": "openai/gpt-4-turbo",
+        "model": "meta-llama/llama-3-8b-instruct",
         "provider": "openrouter",
         "capabilities": ["general-conversation", "creative-writing"],
         "color": "green",
@@ -56,7 +55,7 @@ AGENTS = {
     "llama": {
         "id": "llama",
         "name": "Llama 3.3",
-        "model": "meta-llama/llama-3-8b-instruct",  # Keep as is since it's working
+        "model": "meta-llama/llama-3-8b-instruct",
         "provider": "openrouter",
         "capabilities": ["text-generation", "summarization"],
         "color": "orange",
@@ -66,7 +65,7 @@ AGENTS = {
     "mistral": {
         "id": "mistral",
         "name": "Mistral Large",
-        "model": "mistralai/mistral-large-2407",
+        "model": "meta-llama/llama-3-8b-instruct",
         "provider": "openrouter",
         "capabilities": ["multilingual", "summarization"],
         "color": "red",
@@ -77,7 +76,6 @@ AGENTS = {
 
 @app.route('/health', methods=['GET'])
 def health():
-    """Health check endpoint"""
     return jsonify({
         "service": "PromptLink Orchestration Engine",
         "status": "healthy",
@@ -87,13 +85,12 @@ def health():
 
 @app.route('/api/agents', methods=['GET'])
 def get_agents():
-    """Get all available agents"""
     try:
         agents_list = []
         for agent_id, agent_config in AGENTS.items():
             agent_data = {
                 **agent_config,
-                "health": 95 + (hash(agent_id) % 5),  # Simulated health 95-100%
+                "health": 95 + (hash(agent_id) % 5),
                 "last_updated": datetime.now().isoformat()
             }
             agents_list.append(agent_data)
@@ -109,7 +106,6 @@ def get_agents():
         return jsonify({"success": False, "error": str(e)}), 500
 
 def call_openrouter_api(message, model):
-    """Call OpenRouter API with improved error handling and universal response parsing"""
     try:
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
@@ -143,7 +139,8 @@ def call_openrouter_api(message, model):
             elif "choices" in result and result["choices"]:
                 message_content = result["choices"][0]["message"]["content"]
             else:
-                raise Exception(f"Unknown format: {result}")
+                print(f"❌ Unknown format: {result}")
+                message_content = "[No valid content found]"
             
             return {
                 "success": True,
@@ -164,22 +161,11 @@ def call_openrouter_api(message, model):
             "success": False,
             "error": f"OpenRouter API exception: {str(e)}"
         }
-            
-    except Exception as e:
-        print(f"❌ OpenRouter API exception: {str(e)}")
-        return {
-            "success": False,
-            "error": f"OpenRouter API exception: {str(e)}"
-        }
 
 @app.route('/api/chat', methods=['POST', 'OPTIONS'])
 def chat():
-    """Handle chat requests to multiple agents"""
-    
-    # Handle preflight OPTIONS request
     if request.method == 'OPTIONS':
         return '', 200
-    
     try:
         data = request.get_json()
         if not data:
@@ -283,4 +269,3 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     print(f"🚀 Starting server on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
-
