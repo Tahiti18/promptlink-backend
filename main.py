@@ -8,7 +8,10 @@ from datetime import datetime
 
 app = Flask(__name__, static_folder='static')
 app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
-CORS(app, origins=["https://promptlinkapp.netlify.app", "https://promptlink-experiment-1.netlify.app"])
+CORS(app, origins=[
+    "https://promptlinkapp.netlify.app",
+    "https://promptlink-experiment-1.netlify.app"
+])
 
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', 'sk-or-v1-...')
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'web-production-2474.up.railway.app')
@@ -52,6 +55,10 @@ def extract_message_content(agent_name, result):
             return result["completion"]
         elif "text" in result:
             return result["text"]
+        elif "answer" in result:
+            return result["answer"]
+        elif "result" in result:
+            return result["result"]
         for key, value in result.items():
             if isinstance(value, str):
                 print(f"[WARN] Fallback: using '{key}' from agent '{agent_name}'")
@@ -64,7 +71,7 @@ def extract_message_content(agent_name, result):
                         return sub_value
         raise Exception(f"[ERROR] Unknown format from agent '{agent_name}': {result}")
     except Exception as e:
-        print(f"[CRITICAL] Parsing failed for agent '{agent_name}'. Full data:\n{result}")
+        print(f"[CRITICAL] Parsing failed for agent '{agent_name}'. Full data:\\n{result}")
         raise e
 
 @app.route('/health', methods=['GET'])
@@ -121,13 +128,20 @@ def call_openrouter_api(message, model, agent_name):
         print(f"📡 OpenRouter response status: {response.status_code}")
 
         if response.status_code == 200:
-            result = response.json()
+            try:
+                result = response.json()
+                print(f"✅ RAW RESPONSE from {agent_name}: {json.dumps(result, indent=2)}")
+            except Exception as parse_err:
+                print(f"⚠️ Failed to parse JSON from {agent_name}: {parse_err}")
+                print(f"🔴 RAW BODY: {response.text}")
+                raise parse_err
+
             message_content = extract_message_content(agent_name, result)
             return {"success": True, "message": message_content,
                     "tokens": result.get("usage", {}).get("total_tokens", 0)}
         else:
-            error_text = response.text
-            print(f"❌ OpenRouter API error: {response.status_code} - {error_text}")
+            print(f"❌ [HTTP ERROR {response.status_code}] from {agent_name}")
+            print(f"🔴 RESPONSE BODY: {response.text}")
             return {"success": True, "message": f"[{agent_name} on {model} got HTTP error: {response.status_code}]", "tokens": 0}
     except Exception as e:
         print(f"❌ OpenRouter API exception: {str(e)}")
