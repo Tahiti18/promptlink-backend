@@ -110,12 +110,25 @@ def call_openrouter_api(message, model, agent_name):
             "HTTP-Referer": f"https://{FRONTEND_URL}",
             "X-Title": "PromptLink Orchestration Engine"
         }
-        data = {
-            "model": model,
-            "messages": [{"role": "user", "content": message}],
-            "max_tokens": 2000,
-            "temperature": 0.7
-        }
+        if "gemini" in model:
+    data = {
+        "contents": [
+            {
+                "parts": [
+                    {
+                        "text": message
+                    }
+                ]
+            }
+        ]
+    }
+else:
+    data = {
+        "model": model,
+        "messages": [{"role": "user", "content": message}],
+        "max_tokens": 2000,
+        "temperature": 0.7
+    }
 
         print(f"DEBUG MODEL USED: {model} for agent {agent_name}")
 
