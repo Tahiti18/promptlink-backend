@@ -18,15 +18,15 @@ print(f"📡 Frontend URL: {FRONTEND_URL}")
 print(f"🔑 OpenRouter API Key: {'✅ Set' if OPENROUTER_API_KEY else '❌ Missing'}")
 
 AGENTS = {
-    "deepseek": {"id": "deepseek", "name": "DeepSeek R1", "model": "meta-llama/llama-3-8b-instruct",
+    "deepseek": {"id": "deepseek", "name": "DeepSeek R1", "model": "deepseek/deepseek-r1",
                  "provider": "openrouter", "capabilities": ["code-generation"], "color": "blue", "status": "active", "icon": "🤖"},
-    "minmax": {"id": "minmax", "name": "MinMax M1", "model": "meta-llama/llama-3-8b-instruct",
+    "minmax": {"id": "minmax", "name": "MinMax M1", "model": "minmax/minmax-01",
                "provider": "openrouter", "capabilities": ["planning"], "color": "purple", "status": "active", "icon": "🧠"},
-    "chatgpt": {"id": "chatgpt", "name": "ChatGPT 4 Turbo", "model": "meta-llama/llama-3-8b-instruct",
+    "chatgpt": {"id": "chatgpt", "name": "ChatGPT 4 Turbo", "model": "openai/gpt-4-turbo",
                 "provider": "openrouter", "capabilities": ["conversation"], "color": "green", "status": "active", "icon": "💬"},
     "llama": {"id": "llama", "name": "Llama 3.3", "model": "meta-llama/llama-3-8b-instruct",
               "provider": "openrouter", "capabilities": ["text-generation"], "color": "orange", "status": "active", "icon": "🦙"},
-    "mistral": {"id": "mistral", "name": "Mistral Large", "model": "meta-llama/llama-3-8b-instruct",
+    "mistral": {"id": "mistral", "name": "Mistral Large", "model": "mistralai/mistral-large-2407",
                 "provider": "openrouter", "capabilities": ["summarization"], "color": "red", "status": "active", "icon": "💨"}
 }
 
@@ -85,13 +85,17 @@ def call_openrouter_api(message, model):
 
         if response.status_code == 200:
             result = response.json()
-            if "output" in result:
-                message_content = result["output"]
-            elif "choices" in result and result["choices"]:
+            message_content = None
+
+            # Universal parse
+            if "choices" in result and result["choices"]:
                 message_content = result["choices"][0]["message"]["content"]
+            elif "output" in result:
+                message_content = result["output"]
             else:
-                print(f"❌ Unknown format: {result}")
+                print(f"❌ Unknown format: {json.dumps(result)}")
                 message_content = "[No valid content found]"
+
             return {"success": True, "message": message_content,
                     "tokens": result.get("usage", {}).get("total_tokens", 0)}
         else:
