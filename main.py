@@ -42,6 +42,31 @@ AGENTS = {
                    "provider": "openrouter", "capabilities": ["web-search"], "color": "violet", "status": "active", "icon": "🔎"}
 }
 
+def extract_message_content(agent_name, result):
+    try:
+        if "choices" in result and result["choices"]:
+            return result["choices"][0]["message"]["content"]
+        elif "output" in result:
+            return result["output"]
+        elif "completion" in result:
+            return result["completion"]
+        elif "text" in result:
+            return result["text"]
+        for key, value in result.items():
+            if isinstance(value, str):
+                print(f"[WARN] Fallback: using '{key}' from agent '{agent_name}'")
+                return value
+        for key, value in result.items():
+            if isinstance(value, dict):
+                for sub_key, sub_value in value.items():
+                    if isinstance(sub_value, str):
+                        print(f"[WARN] Fallback nested: using '{key}.{sub_key}' from agent '{agent_name}'")
+                        return sub_value
+        raise Exception(f"[ERROR] Unknown format from agent '{agent_name}': {result}")
+    except Exception as e:
+        print(f"[CRITICAL] Parsing failed for agent '{agent_name}'. Full data:\n{result}")
+        raise e
+
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({
@@ -97,15 +122,9 @@ def call_openrouter_api(message, model, agent_name):
 
         if response.status_code == 200:
             result = response.json()
-            if "choices" in result and result["choices"]:
-                return {"success": True, "message": result["choices"][0]["message"]["content"],
-                        "tokens": result.get("usage", {}).get("total_tokens", 0)}
-            elif "output" in result:
-                return {"success": True, "message": result["output"],
-                        "tokens": result.get("usage", {}).get("total_tokens", 0)}
-            else:
-                print(f"❌ Unknown format for {agent_name} with model {model}: {json.dumps(result)}")
-                return {"success": True, "message": f"[{agent_name} on {model} returned unknown format]", "tokens": 0}
+            message_content = extract_message_content(agent_name, result)
+            return {"success": True, "message": message_content,
+                    "tokens": result.get("usage", {}).get("total_tokens", 0)}
         else:
             error_text = response.text
             print(f"❌ OpenRouter API error: {response.status_code} - {error_text}")
