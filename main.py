@@ -76,12 +76,12 @@ def extract_message_content(agent_name, result):
 
 @app.route('/health', methods=['GET'])
 def health():
-    return jsonify({
-        "service": "PromptLink Orchestration Engine",
-        "status": "healthy",
-        "version": "1.0.0",
-        "timestamp": datetime.now().isoformat()
-    })
+    print(f"DEBUG FULL RESPONSE: {response.status_code} - {response.text}")
+
+return jsonify({
+    "success": True,
+    "result": result
+})
 
 @app.route('/api/agents', methods=['GET'])
 def get_agents():
