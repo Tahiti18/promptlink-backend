@@ -71,15 +71,12 @@ def extract_message_content(agent_name, result):
                         return sub_value
         raise Exception(f"[ERROR] Unknown format from agent '{agent_name}': {result}")
     except Exception as e:
-        print(f"[CRITICAL] Parsing failed for agent '{agent_name}'. Full data:\\n{result}")
+        print(f"[CRITICAL] Parsing failed for agent '{agent_name}'. Full data:\n{result}")
         raise e
 
 @app.route('/health', methods=['GET'])
 def health():
-    return jsonify({
-    "success": True,
-    "result": result
-})
+    return jsonify({"success": True, "result": "OK"})
 
 @app.route('/api/agents', methods=['GET'])
 def get_agents():
@@ -108,25 +105,26 @@ def call_openrouter_api(message, model, agent_name):
             "HTTP-Referer": f"https://{FRONTEND_URL}",
             "X-Title": "PromptLink Orchestration Engine"
         }
+
         if "gemini" in model:
-    data = {
-        "contents": [
-            {
-                "parts": [
+            data = {
+                "contents": [
                     {
-                        "text": message
+                        "parts": [
+                            {
+                                "text": message
+                            }
+                        ]
                     }
                 ]
             }
-        ]
-    }
-else:
-    data = {
-        "model": model,
-        "messages": [{"role": "user", "content": message}],
-        "max_tokens": 2000,
-        "temperature": 0.7
-    }
+        else:
+            data = {
+                "model": model,
+                "messages": [{"role": "user", "content": message}],
+                "max_tokens": 2000,
+                "temperature": 0.7
+            }
 
         print(f"DEBUG MODEL USED: {model} for agent {agent_name}")
 
