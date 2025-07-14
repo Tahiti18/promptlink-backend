@@ -76,9 +76,7 @@ def extract_message_content(agent_name, result):
 
 @app.route('/health', methods=['GET'])
 def health():
-    print(f"DEBUG FULL RESPONSE: {response.status_code} - {response.text}")
-
-return jsonify({
+    return jsonify({
     "success": True,
     "result": result
 })
