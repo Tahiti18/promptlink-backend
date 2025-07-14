@@ -58,7 +58,7 @@ def get_agents():
         print(f"❌ Error in get_agents: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-def call_openrouter_api(message, model):
+def call_openrouter_api(message, model, agent_name):
     try:
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
@@ -73,7 +73,7 @@ def call_openrouter_api(message, model):
             "temperature": 0.7
         }
 
-        print(f"DEBUG MODEL USED: {model}")
+        print(f"DEBUG MODEL USED: {model} for agent {agent_name}")
 
         response = requests.post(
             "https://openrouter.ai/api/v1/chat/completions",
@@ -87,14 +87,13 @@ def call_openrouter_api(message, model):
             result = response.json()
             message_content = None
 
-            # Universal parse
             if "choices" in result and result["choices"]:
                 message_content = result["choices"][0]["message"]["content"]
             elif "output" in result:
                 message_content = result["output"]
             else:
-                print(f"❌ Unknown format: {json.dumps(result)}")
-                message_content = "[No valid content found]"
+                print(f"❌ Unknown format for {agent_name} with model {model}: {json.dumps(result)}")
+                message_content = f"[{agent_name} on {model} returned unknown format]"
 
             return {"success": True, "message": message_content,
                     "tokens": result.get("usage", {}).get("total_tokens", 0)}
@@ -137,7 +136,7 @@ def chat():
             agent_config = AGENTS[agent_id]
             agent_start_time = time.time()
             print(f"🔄 Calling {agent_config['name']} with model {agent_config['model']}...")
-            result = call_openrouter_api(message, agent_config["model"])
+            result = call_openrouter_api(message, agent_config["model"], agent_config["name"])
             agent_response_time = time.time() - agent_start_time
             if result["success"]:
                 responses[agent_id] = {"status": "success",
