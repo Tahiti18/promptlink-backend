@@ -1485,26 +1485,9 @@
         }
 
         function loadAgents() {
-            try {
-                const agentASelect = document.getElementById('agent-a-select');
-                const agentBSelect = document.getElementById('agent-b-select');
-                
-                agentASelect.innerHTML = '<option value="">Select Agent A...</option>';
-                agentBSelect.innerHTML = '<option value="">Select Agent B...</option>';
-                
-                Object.entries(AGENT_CONFIG).forEach(([id, config]) => {
-                    const option = `<option value="${id}">${config.name}</option>`;
-                    agentASelect.innerHTML += option;
-                    agentBSelect.innerHTML += option;
-                });
-                
-                document.getElementById('active-agents').textContent = Object.keys(AGENT_CONFIG).length;
-                updateConnectionStatus(true);
-            } catch (error) {
-                console.error('Failed to load agents:', error);
-                updateConnectionStatus(false);
-            }
-        }
+    // Disabled - using HTML dropdowns instead
+    return;
+}
 
         function updateConnectionStatus(connected) {
             const systemStatus = document.querySelector('.status-dot');
