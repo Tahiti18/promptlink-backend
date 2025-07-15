@@ -1667,92 +1667,34 @@
         let currentMode = 'manual';
         let selectedAdvisorMode = null;
 
-        // ======= 11-AGENT CONFIGURATION (UNCHANGED) =======
-        const AGENT_CONFIG = {
-            "gpt4o": {
-                name: "GPT-4o",
-                endpoint: "api/chat",
-                model: "openai/gpt-4o"
-            },
-            "chatgpt": {
-                name: "ChatGPT 4 Turbo",
-                endpoint: "api/chat",
-                model: "openai/gpt-4-turbo"
-            },
-            "deepseek": {
-                name: "DeepSeek R1",
-                endpoint: "api/chat",
-                model: "deepseek/deepseek-r1"
-            },
-            "llama": {
-                name: "Llama 3.3 70B",
-                endpoint: "api/chat",
-                model: "meta-llama/llama-3-3-70b-instruct"
-            },
-            "mistral": {
-                name: "Mistral Large",
-                endpoint: "api/chat",
-                model: "mistralai/mistral-large-2407"
-            },
-            "grok": {
-                name: "Grok Beta",
-                endpoint: "api/chat",
-                model: "x-ai/grok-3-beta"
-            },
-            "opus": {
-                name: "Claude Opus",
-                endpoint: "api/chat",
-                model: "anthropic/claude-opus-4"
-            },
-            "gemini": {
-                name: "Gemini 2.0 Flash",
-                endpoint: "api/chat",
-                model: "google/gemini-2.5-flash"
-            },
-            "deepseek-free": {
-                name: "DeepSeek Free",
-                endpoint: "api/chat",
-                model: "deepseek/deepseek-chat-v3-0324:free"
-            },
-            "perplexity": {
-                name: "Perplexity Pro",
-                endpoint: "api/chat",
-                model: "perplexity/sonar-pro"
-            },
-            "qwen": {
-                name: "Qwen 2.5 Coder",
-                endpoint: "api/chat",
-                model: "qwen/qwen-2.5-coder-32b-instruct"
-            }
-        };
-
-        // ======= ADVISOR RECOMMENDATIONS (UNCHANGED) =======
-        const ADVISOR_RECOMMENDATIONS = {
-            'discussion': {
-                agentA: 'chatgpt',
-                agentB: 'deepseek'
-            },
-            'brainstorm': {
-                agentA: 'deepseek',
-                agentB: 'llama'
-            },
-            'debate': {
-                agentA: 'chatgpt',
-                agentB: 'mistral'
-            },
-            'strategy': {
-                agentA: 'chatgpt',
-                agentB: 'llama'
-            },
-            'technical': {
-                agentA: 'deepseek',
-                agentB: 'mistral'
-            },
-            'compliance': {
-                agentA: 'chatgpt',
-                agentB: 'qwen'
-            }
-        };
+        // ======= 5-AGENT CONFIGURATION =======
+const AGENT_CONFIG = {
+    "gpt4o": {
+        name: "GPT-4o",
+        endpoint: "api/chat",
+        model: "openai/gpt-4o"
+    },
+    "chatgpt": {
+        name: "ChatGPT 4 Turbo",
+        endpoint: "api/chat",
+        model: "openai/gpt-4-turbo"
+    },
+    "deepseek": {
+        name: "DeepSeek R1",
+        endpoint: "api/chat",
+        model: "deepseek/deepseek-r1"
+    },
+    "llama": {
+        name: "Meta Llama 3.3",
+        endpoint: "api/chat",
+        model: "meta-llama/llama-3-3-70b-instruct"
+    },
+    "mistral": {
+        name: "Mistral Large",
+        endpoint: "api/chat",
+        model: "mistralai/mistral-large-2407"
+    }
+};
 
         // ======= VOICE DICTATION SYSTEM (NEW FEATURE) =======
         class VoiceDictation {
