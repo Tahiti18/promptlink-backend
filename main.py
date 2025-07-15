@@ -148,12 +148,20 @@ def call_openrouter_api(message, model, agent_name):
 def chat():
     if request.method == 'OPTIONS':
         return '', 200
+
     try:
-        data = request.get_json()
+        # more tolerant: forces JSON even if header is missing or wrong
+        try:
+            data = request.get_json(force=True)
+        except Exception:
+            data = None
+
         if not data:
-            return jsonify({"success": False, "error": "No JSON data provided"}), 400
+            return jsonify({"success": False, "error": "No valid JSON body provided"}), 400
+
         message = data.get('message', '').strip()
         agent_ids = data.get('agents', [])
+
         if not message:
             return jsonify({"success": False, "error": "Message is required"}), 400
         if not agent_ids:
@@ -171,6 +179,7 @@ def chat():
                                        "error": f"Unknown agent: {agent_id}",
                                        "timestamp": time.time()}
                 continue
+
             agent_config = AGENTS[agent_id]
             agent_start_time = time.time()
             print(f"🔄 Calling {agent_config['name']} with model {agent_config['model']}...")
@@ -199,6 +208,7 @@ def chat():
                 "session_id": f"session_{int(time.time())}"
             }
         })
+
     except Exception as e:
         print(f"❌ Error in chat endpoint: {e}")
         return jsonify({"success": False, "error": f"Server error: {str(e)}"}), 500
