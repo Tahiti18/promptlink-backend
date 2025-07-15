@@ -1007,12 +1007,12 @@
                 
                 <div class="form-group">
                     <select id="agent-a-select" class="form-select">
-                    <option value="">Select Agent B...</option>
-                    <option value="deepseek">DeepSeek R1</option>
-                    <option value="chatgpt">ChatGPT-4 Turbo</option>
-                    <option value="llama">Meta Llama 3.3</option>
-                    <option value="mistral">Mistral Large</option>
-                    <option value="gpt4o">GPT-4o</option>
+                        <option value="">Select Agent A...</option>
+                        <option value="gpt4o">GPT-4o</option>
+                        <option value="chatgpt">ChatGPT 4 Turbo</option>
+                        <option value="deepseek">DeepSeek R1</option>
+                        <option value="llama">Meta Llama 3.3</option>
+                        <option value="mistral">Mistral Large</option>
                     </select>
                 </div>
 
@@ -1058,10 +1058,10 @@
                 <div class="form-group">
                     <select id="agent-b-select" class="form-select">
                         <option value="">Select Agent B...</option>
-                        <option value="deepseek">DeepSeek R1</option>
-                        <option value="chatgpt">ChatGPT 4 Turbo</option>
-                        <option value="llama">Llama 3.3</option>
                         <option value="gpt4o">GPT-4o</option>
+                        <option value="chatgpt">ChatGPT 4 Turbo</option>
+                        <option value="deepseek">DeepSeek R1</option>
+                        <option value="llama">Meta Llama 3.3</option>
                         <option value="mistral">Mistral Large</option>
                     </select>
                 </div>
@@ -1221,11 +1221,11 @@
         let selectedAdvisorMode = null;
 
         const AGENT_CONFIG = {
-       'deepseek': { name: 'DeepSeek R1', endpoint: 'api/chat', model: 'deepseek' },
-       'chatgpt': { name: 'OpenAI GPT-4 Turbo', endpoint: 'api/chat', model: 'chatgpt' },
-       'llama': { name: 'Meta Llama 3.3', endpoint: 'api/chat', model: 'llama' },
-       'mistral': { name: 'Mistral Large', endpoint: 'api/chat', model: 'mistral' },
-       'gpt4o': { name: 'GPT-4o', endpoint: 'api/chat', model: 'gpt4o' }
+            'gpt4o': { name: 'GPT-4o', endpoint: 'api/chat', model: 'gpt4o' },
+            'chatgpt': { name: 'ChatGPT 4 Turbo', endpoint: 'api/chat', model: 'chatgpt' },
+            'deepseek': { name: 'DeepSeek R1', endpoint: 'api/chat', model: 'deepseek' },
+            'llama': { name: 'Meta Llama 3.3', endpoint: 'api/chat', model: 'llama' },
+            'mistral': { name: 'Mistral Large', endpoint: 'api/chat', model: 'mistral' }
         };
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -1773,5 +1773,3 @@ updateAgentResponse(agent, `${agentName} refreshed and ready for collaboration.`
     </script>
 </body>
 </html>
-
-
