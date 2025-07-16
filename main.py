@@ -9,6 +9,7 @@ from datetime import datetime
 app = Flask(__name__, static_folder='static')
 app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
 CORS(app, origins=[
+    "https://singular-bunny-82fc57.netlify.app",
     "https://promptlinkapp.netlify.app",
     "https://promptlink-experiment-1.netlify.app"
 ])
